@@ -55,3 +55,5 @@ exec /usr/bin/mariadbd  --user=mysql --datadir=/var/lib/mysql
 # mariadb -u root -p"${VAR}" <=> needs a root password, -p allows us to give it in one command
 
 # les ` sont importants pour la syntaxe SQL (delimite des identifiants), mais interpretes par le shell, donc on doit les escape avec \
+
+# docker exec -it mariadb ash -> ouvre un shell dans le container

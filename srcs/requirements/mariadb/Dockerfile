@@ -1,14 +1,15 @@
-FROM alpine:latest
+FROM alpine:3.22.3
 
-RUN apk add --no-cache mariadb mariadb-client && rm -rf /var/lib/mysql
-RUN mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
-RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
+# COPY before for cache perfomance, and layers optimisations
+COPY tools/init.sh /usr/bin/init.sh
+RUN chmod +x /usr/bin/init.sh
 
-COPY tools/init.sh /init.sh
-RUN chmod +x /init.sh
+RUN apk add --no-cache mariadb mariadb-client && rm -rf /var/lib/mysql \
+    && mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql \
+    && mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
 EXPOSE 3306
 
 # ajouter un healthcheck ?
 
-ENTRYPOINT ["/init.sh"]
+ENTRYPOINT ["/usr/bin/init.sh"]
