@@ -1,11 +1,13 @@
 services:
   mariadb:
+    container_name: mariadb
     build: ./requirements/mariadb
-    #restart: always
-    env_file: .env
+    env_file:
+      - .env
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:
       - "3306:3306"
+    #restart: on-failure
 volumes:
   mariadb_data:

@@ -1,8 +1,15 @@
 #!/bin/sh
 
-# We want to install and setup the database, only if it does not exist
+set -e
 
-if [ ! -d "/var/lib/mysql" ]; then
+# SOCKET="/run/mysqld/mysqld.sock"
+# mkdir -p "$(dirname "$SOCKET")"
+# chown -R mysql:mysql /var/lib/mysql "$(dirname "$SOCKET")"
+
+# We want to install and setup the database, only if it does not exist
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    rm -rf /var/lib/mysql/*
+
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
 	#we start mariadb only to configure it
@@ -10,7 +17,7 @@ if [ ! -d "/var/lib/mysql" ]; then
 
 	sleep 5
 
-    # for following lines, refer to .env to provid your own variables if needed
+    # for following lines, refer to .env to provide your own variables if needed
 	# we must configure a root password
 	mariadb -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY'${MYSQL_ROOT_PASSWORD}';"
 
@@ -33,7 +40,7 @@ if [ ! -d "/var/lib/mysql" ]; then
 fi
 
 #in any case, we want the process executing this script as entrypoint for the conteneur, to execute and handle mariadb now
-exec /usr/bin/mariadbd --datadir=/var/lib/mysql
+exec /usr/bin/mariadbd  --user=mysql --datadir=/var/lib/mysql
 
 #doc :
 # mariadb -u root <=> en tant que root
