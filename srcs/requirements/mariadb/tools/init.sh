@@ -5,8 +5,10 @@
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     rm -rf /var/lib/mysql/*
 
+    echo "Mariadb installation :"
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
+    echo "Starting Mariadb for first configuration..."
 	# We start mariadb only to configure it. We want to prevent any external access, since to the db is not configured and since root has no password yet,
 	# -skip-networking prevents port 3306 to enable and allow extern access during the db configuration
 	/usr/bin/mariadbd --user=mysql --datadir=/var/lib/mysql --skip-networking &
@@ -15,27 +17,30 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     # SELECT 1 is the simpliest request in SQL : it returns 1 without editing any table. It's a ping, we don't need the value returned, only the success / failure of the request
     # As long as this request fails, we want to wait for the db to be fully started
 	until mariadb -u root --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1; do
+	    echo "Waiting mariadb to be fully started ..."
 	    sleep 1
 	done
 
+	echo "Mariadb is now running, configuration:"
+
     # for following lines, refer to .env to provide your own variables if needed
 	# we must configure a root password
-	mariadb -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY'${MYSQL_ROOT_PASSWORD}';"
+	mariadb -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY'${MYSQL_ROOT_PASSWORD}';" && echo "Root password configured successfully"
 
     # We create the database itself
-	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;"
+	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;" && echo "Database created successfully"
 
     # We create a wordpress user
-    mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';" && echo "User $MYSQL_USER created and password configured successfully"
 
     # Now we set the user as admin
-	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';"
+	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';" && echo "User $MYSQL_USER configured as admin successfully"
 
 	# Now we apply our privileges change
-	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
+	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;" && echo "Privileges successfully granted to $MYSQL_USER"
 
 	#Since we configured mariadb, we want to shut it down, so exec at the end of this script will use the process executing this script, as the one executing the mariadb
-	mariadb-admin -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
+	mariadb-admin -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown && echo "Maradib successfully configured"
 
 	#we could also do mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SHUTDWON;", but mariadb-admin is meant for such operation
 fi
