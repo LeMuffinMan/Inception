@@ -17,7 +17,8 @@ if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep 
     if docker logs mariadb 2>&1 | grep "ready for connections" > /dev/null; then
         echo -e "   logs: ${GREEN}OK${NC}"
     fi
-    if [ "$(docker exec mariadb mariadb -u root -p\"${MYSQL_ROOT_PASSWORD}\" --connect-timeout=2 -e 'SELECT 1')" -eq 1 ]; then
+    PROBE=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1")
+    if [ "$PROBE" -eq 1 ]; then
         echo -e "   probe: ${GREEN}OK${NC}"
     fi
     PORTS=$(docker port mariadb)

@@ -1,2 +1,4 @@
 ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
 ./check_inception.sh: line 20: [: : integer expression expected
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+./check_inception.sh: line 21: [: : integer expression expected
