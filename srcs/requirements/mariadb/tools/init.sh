@@ -2,7 +2,7 @@
 
 # We want to install and setup the database, only if it does not exist
 
-if [ ! -d "/var/lib/mysqld" ]; then
+if [ ! -d "/var/lib/mysql" ]; then
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
 	#we start mariadb only to configure it
@@ -21,7 +21,7 @@ if [ ! -d "/var/lib/mysqld" ]; then
     mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
 
     # Now we set the user as admin
-	mariadb -u root -p"${MUSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \${MYSQL_USER}'@'%' IDENTIFED BY '${MYSQL_PASSWORD}';"
+	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON ${MYSQL_USER}'@'%' IDENTIFED BY '${MYSQL_PASSWORD}';"
 
 	# Now we apply our privileges change
 	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
