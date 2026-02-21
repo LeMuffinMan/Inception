@@ -3,6 +3,8 @@
 # set -e
 # set -o pipefail
 
+#checker les volumes persitants ?
+
 #recup certaines variables uniquement ?
 set -a
 source "$(dirname "$0")/../srcs/.env"
@@ -19,6 +21,10 @@ echo
 CONTAINERS=$($COMPOSE ps)
 
 echo "Mariadb container: "
+until docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1; do
+    echo "Waiting mariadb to be fully started ..."
+    sleep 1
+done
 if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "Restarting"; then
     echo -e "   running: ${GREEN}OK${NC}"
     if  ! echo $CONTAINERS | grep "mariadb" | grep -q "unhealthy"; then
