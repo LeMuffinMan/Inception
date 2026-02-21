@@ -6,7 +6,7 @@ if [ ! -d "/var/lib/mysql" ]; then
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
 	#we start mariadb only to configure it
-	/usr/bin/mariadbd-safe --datadir=/var/lib/mysql &
+	/usr/bin/mariadbd --datadir=/var/lib/mysql &
 
 	sleep 5
 
@@ -32,7 +32,8 @@ if [ ! -d "/var/lib/mysql" ]; then
 	#we could also do mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SHUTDWON;", but mariadb-admin is meant for such operation
 fi
 
-exec /usr/bin/mariadbd-safe --datadir=/var/lib/mysql
+#in any case, we want the process executing this script as entrypoint for the conteneur, to execute and handle mariadb now
+exec /usr/bin/mariadbd --datadir=/var/lib/mysql
 
 #doc :
 # mariadb -u root <=> en tant que root
