@@ -11,14 +11,16 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
 
+COMPOSE="docker compose -f $(dirname "$0")/../srcs/docker-compose.yml"
+
 echo "Inception project check"
 echo
-CONTAINERS=$(docker compose ps)
+CONTAINERS=$($COMPOSE ps)
 
 echo "Mariadb container: "
 if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "Restarting"; then
     echo -e "   running: ${GREEN}OK${NC}"
-    if  ! grep "mariadb" $CONTAINERS 2>/dev/null | grep "mariadb" | grep -q "unhealthy"; then
+    if  ! echo $CONTAINERS | grep "mariadb" | grep -q "unhealthy"; then
         echo -e "   healthy: ${GREEN}OK${NC}"
     else
         echo -e "   healthy: ${RED}KO${NC}"
