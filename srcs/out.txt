@@ -1,8 +1,1 @@
-[+] up 2/2
- ✔ Image srcs-mariadb Built                                                                                                               0.7s
- ✔ Container mariadb  Recreated                                                                                                           0.6s
-srcs/check_inception.sh
-Inception project check
-
-no configuration file provided: not found
-make: *** [Makefile:3: all] Error 1
+ERROR 2002 (HY000): Can't connect to local server through socket '/run/mysqld/mysqld.sock' (2)

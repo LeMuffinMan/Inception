@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -e
+# set -e
+# set -o pipefail
 
 #recup certaines variables uniquement ?
 set -a
@@ -25,7 +26,7 @@ if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep 
     else
         echo -e "   healthy: ${RED}KO${NC}"
     fi
-    if docker logs mariadb 2>&1 | grep "ready for connections" > /dev/null; then
+    if docker logs mariadb 2>&1 | grep -q "ready for connections"; then
         echo -e "   logs: ${GREEN}OK${NC}"
     else
         echo -e "   logs: ${RED}KO${NC}"
