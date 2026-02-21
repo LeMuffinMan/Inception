@@ -13,9 +13,13 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
 	#we start mariadb only to configure it
-	/usr/bin/mariadbd --datadir=/var/lib/mysql &
+	/usr/bin/mariadbd --user=mysql --datadir=/var/lib/mysql --skip-networking &
 
-	sleep 5
+	#sleep 5
+
+	until mariadb -u root --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1; do
+	    sleep 1
+	done
 
     # for following lines, refer to .env to provide your own variables if needed
 	# we must configure a root password
@@ -28,7 +32,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
 
     # Now we set the user as admin
-	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON ${MYSQL_USER}'@'%' IDENTIFED BY '${MYSQL_PASSWORD}';"
+	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';"
 
 	# Now we apply our privileges change
 	mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "FLUSH PRIVILEGES;"
