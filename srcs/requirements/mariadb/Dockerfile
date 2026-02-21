@@ -11,6 +11,4 @@ EXPOSE 3306
 
 # ajouter un healthcheck ?
 
-# USER mysql
-
 ENTRYPOINT ["/init.sh"]

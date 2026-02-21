@@ -1,10 +1,5 @@
 #!/bin/sh
-
-set -e
-
-# SOCKET="/run/mysqld/mysqld.sock"
-# mkdir -p "$(dirname "$SOCKET")"
-# chown -R mysql:mysql /var/lib/mysql "$(dirname "$SOCKET")"
+# set -e
 
 # We want to install and setup the database, only if it does not exist
 if [ ! -d "/var/lib/mysql/mysql" ]; then
@@ -12,11 +7,13 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
-	#we start mariadb only to configure it
+	# We start mariadb only to configure it. We want to prevent any external access, since to the db is not configured and since root has no password yet,
+	# -skip-networking prevents port 3306 to enable and allow extern access during the db configuration
 	/usr/bin/mariadbd --user=mysql --datadir=/var/lib/mysql --skip-networking &
 
-	#sleep 5
-
+    # until == !while
+    # SELECT 1 is the simpliest request in SQL : it returns 1 without editing any table. It's a ping, we don't need the value returned, only the success / failure of the request
+    # As long as this request fails, we want to wait for the db to be fully started
 	until mariadb -u root --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1; do
 	    sleep 1
 	done
@@ -43,9 +40,13 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 	#we could also do mariadb -u root -p"${MYSQL_ROOT_PASSWORD}" -e "SHUTDWON;", but mariadb-admin is meant for such operation
 fi
 
-#in any case, we want the process executing this script as entrypoint for the conteneur, to execute and handle mariadb now
+#in any case, we want the process executing this script as entrypoint for the container, to execute and handle mariadb now. It must keep running
+#In a container, the execution of the entrypoint /init.sh makes this process PID 1 (which is normally /sbin/init, the parent of all other process)
+#using exec, we replace PID 1 = /init.sh to PID 1 = /usr/bin/mariadb, thus, there is only one PID running in our container, it runs mariadb.
 exec /usr/bin/mariadbd  --user=mysql --datadir=/var/lib/mysql
 
 #doc :
 # mariadb -u root <=> en tant que root
 # mariadb -u root -p"${VAR}" <=> needs a root password, -p allows us to give it in one command
+
+# les ` sont importants pour la syntaxe SQL (delimite des identifiants), mais interpretes par le shell, donc on doit les escape avec \
