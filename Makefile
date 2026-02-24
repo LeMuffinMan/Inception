@@ -19,7 +19,7 @@ clean-containers:
 fclean: clean
 	docker container prune -f
 	$(COMPOSE) down --rmi all
-	docker system prune -f  # generaliser ?
+	# docker system prune -f  # generaliser ?
 
 re:  fclean up
 

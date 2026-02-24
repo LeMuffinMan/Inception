@@ -52,6 +52,9 @@ if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep 
     until [ $(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1) ] || [ "$(echo "$ATTEMPTS")" -lt 5 ]; do
         sleep 1
         ((ATTEMPTS++))
+        if [ "$(echo "$ATTEMPTS")" -eq 5 ]; then
+            echo "Probe mariadb timed out:"
+        fi
     done
     PROBE=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1" 2>&1)
     if [ "$(echo "$PROBE")" -eq 1 ]; then
