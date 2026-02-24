@@ -3,10 +3,9 @@ COMPOSE= docker compose -f srcs/docker-compose.yml
 
 all: up
 
-	#empecher un rebuild si deja build ?
-	# ne pas recreer les volumes si ils existent deja
 up:
 	$(COMPOSE) up -d --build
+	srcs/check_inception.sh
 
 down:
 	$(COMPOSE) down
@@ -14,10 +13,15 @@ down:
 clean:
 	$(COMPOSE) down -v
 
-fclean: clean
-	$(COMPOSE) down --rmi all
+clean-containers:
+	docker container prune
 
-re:  down up
+fclean: clean
+	docker container prune -f
+	$(COMPOSE) down --rmi all
+	docker system prune -f  # generaliser ?
+
+re:  fclean up
 
 check:
 	srcs/check_inception.sh

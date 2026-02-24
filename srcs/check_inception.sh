@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # set -e
+# set -x
 # set -o pipefail
 
 #checker les volumes persitants ?
@@ -21,9 +22,14 @@ echo
 CONTAINERS=$($COMPOSE ps)
 
 echo "Mariadb container: "
-until docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1; do
+ATTEMPTS=0
+until [ docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1 ] || [ "$(echo "$ATTEMPTS")" -lt 5 ]; do
     echo "Waiting mariadb to be fully started ..."
     sleep 1
+    ((ATTEMPTS++))
+    if [ "$(echo "$ATTEMPTS")" -eq 5 ]; then
+        echo "Mariadb timed out:"
+    fi
 done
 if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "Restarting"; then
     echo -e "   running: ${GREEN}OK${NC}"
@@ -32,13 +38,23 @@ if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep 
     else
         echo -e "   healthy: ${RED}KO${NC}"
     fi
+    ATTEMPTS=0
+    until [ $(docker logs mariadb 2>&1 | grep -q "ready for connections") ] || [ "$(echo "$ATTEMPTS")" -eq 6 ]; do
+        sleep 1
+        ((ATTEMPTS++))
+    done
     if docker logs mariadb 2>&1 | grep -q "ready for connections"; then
         echo -e "   logs: ${GREEN}OK${NC}"
     else
         echo -e "   logs: ${RED}KO${NC}"
     fi
-    PROBE=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1")
-    if [ "$PROBE" -eq 1 ]; then
+    ATTEMPTS=0
+    until [ $(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1) ] || [ "$(echo "$ATTEMPTS")" -lt 5 ]; do
+        sleep 1
+        ((ATTEMPTS++))
+    done
+    PROBE=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1" 2>&1)
+    if [ "$(echo "$PROBE")" -eq 1 ]; then
         echo -e "   probe: ${GREEN}OK${NC}"
     else
         echo -e "   probe: ${RED}KO${NC}"
@@ -60,6 +76,7 @@ fi
 
 if docker volume ls | grep -q "srcs_mariadb_data"; then
     MOUNTPOINT=$(docker volume inspect srcs_mariadb_data --format '{{ .Mountpoint }}')
+    DATE=$(docker volume inspect srcs_mariadb_data --format '{{ .CreatedAt }}')
     echo -e "   volume: ${GREEN}OK${NC}: $MOUNTPOINT"
 else
     echo -e "   volume: ${RED}KO${NC}"
