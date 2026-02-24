@@ -1,6 +1,6 @@
 FROM alpine:3.22.3
 
-#To remove :
+#To remove !!!
 COPY tools/index.html /usr/share/nginx/html/index.html
 
 COPY tools/conf /etc/nginx/http.d/nginx.conf
@@ -17,4 +17,4 @@ EXPOSE 443
 ENTRYPOINT [ "/usr/bin/init.sh" ]
 
 #pour lancer sans https sur 8080
-# docker run -d -p 8080:80 --name nginx my-nginx:latest
+# docker build -t my-nginx-no-ssl . && docker run -d -p 8080:80 --name nginx my-nginx-no-ssl:latest
