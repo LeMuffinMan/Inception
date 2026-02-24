@@ -1,17 +1,25 @@
 
-all: up
-	srcs/check_inception.sh
+COMPOSE= docker compose -f srcs/docker-compose.yml
 
-up:
+all: up
+
 	#empecher un rebuild si deja build ?
-	docker compose -f srcs/docker-compose.yml up -d --build
+	# ne pas recreer les volumes si ils existent deja
+up:
+	$(COMPOSE) up -d --build
 
 down:
-	docker compose -f srcs/docker-compose.yml down -v --no-orphans
-	#virer les volumes
+	$(COMPOSE) down
+
+clean:
+	$(COMPOSE) down -v
+
+fclean: clean
+	$(COMPOSE) down --rmi all
 
 re:  down up
 
-# clean
+check:
+	srcs/check_inception.sh
 
-# fclean
+.PHONY: up down re clean check fclean

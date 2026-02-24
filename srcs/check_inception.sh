@@ -55,4 +55,12 @@ else
     echo -e "   logs: ${RED}KO${NC}"
     echo -e "   probe: ${RED}KO${NC}"
     echo -e "   port: ${RED}KO${NC}"
+    #tester les volumes
+fi
+
+if docker volume ls | grep -q "srcs_mariadb_data"; then
+    MOUNTPOINT=$(docker volume inspect srcs_mariadb_data --format '{{ .Mountpoint }}')
+    echo -e "   volume: ${GREEN}OK${NC}: $MOUNTPOINT"
+else
+    echo -e "   volume: ${RED}KO${NC}"
 fi

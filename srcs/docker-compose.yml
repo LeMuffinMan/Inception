@@ -24,6 +24,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    #restart: on-failure
+    restart: on-failure
 volumes:
   mariadb_data:
