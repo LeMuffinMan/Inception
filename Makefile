@@ -1,29 +1,45 @@
 
-COMPOSE= docker compose -f srcs/docker-compose.yml
+COMPOSE_FILE=srcs/docker-compose.yml
+COMPOSE=docker compose -f $(COMPOSE_FILE)
+CHECK_SCRIPT=srcs/check_inception.sh
 
-all: up
+
+all: up check
 
 up:
+	@echo "Starting containers ..."
 	$(COMPOSE) up -d --build
-	srcs/check_inception.sh
 
 down:
+	@echo "Shutting down containers ..."
 	$(COMPOSE) down
 
 clean:
+	@echo "Cleaning containers and volumes ..."
 	$(COMPOSE) down -v
 
-clean-containers:
-	docker container prune
-
 fclean: clean
-	docker container prune -f
+	@echo "Full cleaning ..."
+	@echo "Shutting down and removing containers and volumes ..."
+	$(COMPOSE) down --volumes --remove-orphans
+	@echo "Cleaning stopped containers ..."
+	docker container prune -f > /dev/null
+	@echo "Cleaning dangling images ..."
+	docker image prune -f > /dev/null
+	@echo "Cleaning building cache ..."
+	docker builder prune -f > /dev/null
+	@echo "Removing images ..."
 	$(COMPOSE) down --rmi all
-	# docker system prune -f  # generaliser ?
 
-re:  fclean up
+re:  fclean up check
 
 check:
-	srcs/check_inception.sh
+	$(CHECK_SCRIPT)
 
-.PHONY: up down re clean check fclean
+logs:
+	$(COMPOSE) logs -f
+
+status:
+	$(COMPOSE) ps
+
+.PHONY: up down re clean check fclean logs status
