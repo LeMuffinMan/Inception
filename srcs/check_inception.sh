@@ -51,7 +51,7 @@ if echo "$CONTAINERS" | grep "mariadb" > /dev/null && echo "$CONTAINERS" | grep 
         if docker logs mariadb 2>&1 | grep -q "ready for connections"; then
             echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
         else
-            echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
+            echo -e "   ${YELLOW}logs: ${RED}KO: timed out${NC}"
         fi
     fi
     ATTEMPTS=0
