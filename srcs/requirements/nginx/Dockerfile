@@ -1,5 +1,10 @@
 FROM alpine:3.22.3
 
+RUN apk add --no-cache \
+    nginx \
+    openssl && \
+    rm -rf /etc/nginx/http.d/default.conf
+
 #To remove !!!
 COPY tools/index.html /usr/share/nginx/html/index.html
 
@@ -7,10 +12,7 @@ COPY tools/conf /etc/nginx/http.d/nginx.conf
 COPY tools/init.sh /usr/bin/init.sh
 RUN chmod +x /usr/bin/init.sh
 
-RUN apk add --no-cache \
-    nginx \
-    openssl && \
-    rm -rf /etc/nginx/http.d/default.conf
+
 
 EXPOSE 443
 

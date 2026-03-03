@@ -138,6 +138,7 @@ if echo "$CONTAINERS" | grep "nginx" | grep "Up" > /dev/null && ! echo "$CONTAIN
     #     echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
     # fi
     PORTS=$(docker port nginx)
+    echo "Port = $PORT"
     #grep une ligne entiere !
     if [ "$(echo "$PORTS" | grep -c '443/tcp')" -eq 2 ] && [ "$(echo "$PORTS" | wc -l)" -eq 2 ]; then
         #afficher le port si incorrect

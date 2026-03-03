@@ -1,18 +1,49 @@
+
+# this block catch the HTTP connection and redirect it through HTTPS (2nd server block) The return 301 line, make the redirection permanent for the browser, caching it
 server {
+    # this block redirect http -> https
     listen       80; #80: HTTP port
     listen  [::]:80; #[::] IPv6 notation for any interfaces
     server_name  localhost; #domain name
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name localhost;
+
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+
+    ssl_protocols TLSv1.3;
+
+    #cypher suit: combination of algorithms used to encrypt the session
+    #during the  TLS handshake, both devices will compare their list of cyphers suit to used
+    # HIGH : include only strong considered cyphers suit
+    # ! exclude aNULL : algorithms without authentication
+    # ! exclude MD5 : cracked since 2004
+    # without these flags, our server could accept low secured cyphers suits, which is non sense using TLS
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    # if off : client would suggest cyphers suit, and server accepts the proposal
+    # if on : the server preference goes first
+    ssl_prefer_server_ciphers on;
 
     #root /var/www/html; # Wordpress folder
-    #index index.php index.html;
+    root /usr/share/nginx/html;
+    index index.html index.htm;
 
     # change path for centralize docker logs
-    access_log  /var/log/nginx/host.access.log  main;
+    # access_log  /var/log/nginx/host.access.log  main;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
 
     # Handles requests to / : index define default files to load when requesting a folder
     # We want to set this to our Wordpress folder
     location / {
-        #try_files $uir $ui/ /index.php?$args; #pemaliens WP ?
+        #try_files $uri $uri/ /index.php?$args; #pemaliens WP ?
         root   /usr/share/nginx/html;
         index  index.html index.htm;
     }
@@ -32,8 +63,10 @@ server {
     location ~ \.php$ {
         root           html;
         fastcgi_pass   127.0.0.1:9000;
+        #fastcgi_pass   wordpress:9000;
         fastcgi_index  index.php;
-        fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        #fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
     }
 
@@ -41,6 +74,7 @@ server {
     # concurs with nginx's one
     #
     # Block access to files .htaccess (Apache convention)
+    # Wordpress use to have such files, withtout this block, it would leave open a security breach. So we deny all accest to .ht^ files
     location ~ /\.ht {
         deny  all;
     }
