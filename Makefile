@@ -7,6 +7,7 @@ CHECK_SCRIPT=srcs/check_inception.sh
 all: up check
 
 up:
+	mkdir -p ~/data/mysql
 	@echo "Starting containers ..."
 	$(COMPOSE) up -d --build
 
@@ -24,6 +25,8 @@ fclean: clean
 	$(COMPOSE) down --volumes --remove-orphans
 	@echo "Cleaning stopped containers ..."
 	docker container prune -f > /dev/null
+	@echo "Cleaning volumes ..."
+	rm -rf ~/data/mysql
 	@echo "Cleaning dangling images ..."
 	docker image prune -f > /dev/null
 	@echo "Cleaning building cache ..."

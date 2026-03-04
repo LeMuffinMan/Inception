@@ -39,3 +39,8 @@ services:
     restart: on-failure
 volumes:
   mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/mysql

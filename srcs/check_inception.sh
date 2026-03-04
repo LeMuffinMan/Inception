@@ -83,9 +83,11 @@ else
 fi
 
 if docker volume ls | grep -q "srcs_mariadb_data"; then
-    MOUNTPOINT=$(docker volume inspect srcs_mariadb_data --format '{{ .Mountpoint }}')
+    VOL=srcs_mariadb_data
+    HOST_PATH=$(docker volume inspect -f '{{ .Options.device }}' $VOL)
+    MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' $VOL)
     DATE=$(docker volume inspect srcs_mariadb_data --format '{{ .CreatedAt }}')
-    echo -e "   ${YELLOW}volume: ${GREEN}OK${NC}: $MOUNTPOINT"
+    echo -e "   ${YELLOW}volume: ${GREEN}OK${NC}: $HOST_PATH:$MOUNTPOINT"
 else
     echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
 fi
