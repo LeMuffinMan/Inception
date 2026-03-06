@@ -12,8 +12,6 @@ COPY tools/conf /etc/nginx/http.d/nginx.conf
 COPY tools/init.sh /usr/bin/init.sh
 RUN chmod +x /usr/bin/init.sh
 
-
-
 EXPOSE 443
 
 ENTRYPOINT [ "/usr/bin/init.sh" ]
