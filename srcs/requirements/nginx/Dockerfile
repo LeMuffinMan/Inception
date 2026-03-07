@@ -1,13 +1,20 @@
-FROM alpine:latest
-# FROM alpine:3.22.3
+FROM alpine:3.22.3
 
-# COPY ./tools/init.sh /usr/local/bin/init.sh
-# RUN chmod +x /usr/local/bin/init.sh
+RUN apk add --no-cache \
+    nginx \
+    openssl && \
+    rm -rf /etc/nginx/http.d/default.conf
 
-# RUN apk add --no-cache nginx
+#To remove !!!
+COPY tools/index.html /usr/share/nginx/html/index.html
 
-# # open ssl pour tls ssl ?
+COPY tools/conf /etc/nginx/http.d/nginx.conf
+COPY tools/init.sh /usr/bin/init.sh
+RUN chmod +x /usr/bin/init.sh
 
-# EXPOSE 443
+EXPOSE 443
 
-# ENTRYPOINT [ "/usr/local/bin/init.sh" ]
+ENTRYPOINT [ "/usr/bin/init.sh" ]
+
+#pour lancer sans https sur 8080
+# docker build -t my-nginx-no-ssl . && docker run -d -p 8080:80 --name nginx my-nginx-no-ssl:latest
