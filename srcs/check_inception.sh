@@ -104,10 +104,10 @@ ATTEMPTS=0
 # done
 if echo "$CONTAINERS" | grep "nginx" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "nginx" | grep "Restarting"; then
     echo -e "   ${YELLOW}running: ${GREEN}OK${NC}"
-    if  ! echo $CONTAINERS | grep "nginx" | grep -q "unhealthy"; then
-        echo -e "   ${YELLOW}healthy: ${GREEN}OK${NC}"
-    else
+    if  echo $CONTAINERS | grep "nginx" | grep "unhealthy" > /dev/null; then
         echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
+    else
+        echo -e "   ${YELLOW}healthy: ${GREEN}OK${NC}"
     fi
 
     if docker logs nginx > /dev/null 2>&1; then
