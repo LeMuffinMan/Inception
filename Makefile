@@ -9,6 +9,7 @@ all: up check
 
 up:
 	mkdir -p ~/data/mysql
+	mkdir -p ~/data/wordpress
 	@echo "Starting containers ..."
 	$(COMPOSE) up -d --build
 
