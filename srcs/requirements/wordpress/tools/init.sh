@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Recuperer les variables d'environnement
 
@@ -28,3 +28,5 @@ fi
 #setup port on socket
 
 # start wordpress with php
+
+exec php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf

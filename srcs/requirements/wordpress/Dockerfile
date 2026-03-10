@@ -5,14 +5,27 @@ FROM alpine:3.22.3
 
 RUN apk add --no-cache \
     curl \
-    # wget \
+    wget \
+    curl \
     mysql-client \
+    redis \
+    php83-fpm \
+    php83-mysqli \
+    php83-xml \
+    php83-mbstring \
+    php83-curl \
+    php83-zip \
+    php83-gd \
+    php83-intl \
+    php83-pecl-imagick \
+    php83-cli \
+    php83-phar \
+    php83-openssl \
+    php83-json \
+    php83-iconv \
+    php83-session \
+    mysql-client
     # redis
-    # php83 \
-    #
-   # curl
-   # chmod
-   # mv
 
 RUN mkdir -p /var/www/html
 
