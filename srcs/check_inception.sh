@@ -217,6 +217,8 @@ else
     echo -e "   ${YELLOW}port: ${RED}KO${NC}"
 fi
 
+
+
 # if docker volume ls | grep -q "srcs_mariadb_data"; then
 #     MOUNTPOINT=$(docker volume inspect srcs_mariadb_data --format '{{ .Mountpoint }}')
 #     DATE=$(docker volume inspect srcs_mariadb_data --format '{{ .CreatedAt }}')
@@ -224,3 +226,31 @@ fi
 # else
 #     echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
 # fi
+
+echo
+echo -e "${YELLOW}Wordpress container:${NC} "
+
+if echo "$CONTAINERS" | grep "wordpress" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "wordpress" | grep "Restarting"; then
+    echo -e "   ${YELLOW}running: ${GREEN}OK${NC}"
+    if  echo "$CONTAINERS" | grep "wordpress" | grep -q "unhealthy" > /dev/null; then
+        echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
+    else
+        if echo "$CONTAINERS" | grep "wordpress" | grep -q "health: starting"; then
+            echo -e "   ${YELLOW}healthy: starting...${NC}"
+        else
+            echo -e "   ${YELLOW}healthy: ${GREEN}OK${NC}"
+        fi
+    fi
+
+    if docker logs wordpress > /dev/null 2>&1; then
+        echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
+    else
+        echo -e "   ${YELLOW}logs: ${RED}KO: timed out${NC}"
+    fi
+else
+    echo -e "   ${YELLOW}running: ${RED}KO${NC}"
+    echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
+    # echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
+    # echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
+    # echo -e "   ${YELLOW}port: ${RED}KO${NC}"
+fi

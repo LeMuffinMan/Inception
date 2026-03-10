@@ -8,6 +8,7 @@ services:
       - type: volume
         source: wordpress-data
         target: /var/www/html
+    restart: unless-stopped
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb
@@ -53,7 +54,6 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped # on-failure restart only if it crash with a exit code != 0
-    mem_limit: 10m # low limit to test OOM crash, test using:  docker exec -it nginx ash; kill 1"
 volumes:
   wordpress-data:
     driver: local

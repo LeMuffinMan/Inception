@@ -29,6 +29,7 @@ fclean: clean
 	docker container prune -f > /dev/null
 	@echo "Cleaning volumes ..."
 	sudo rm -rf ~/data/mysql
+	sudo rm -rf ~/data/wordpress
 	@echo "Cleaning dangling images ..."
 	docker image prune -f > /dev/null
 	@echo "Cleaning building cache ..."

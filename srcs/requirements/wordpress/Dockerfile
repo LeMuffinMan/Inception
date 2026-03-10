@@ -35,6 +35,7 @@ RUN chmod +x /usr/bin/init.sh
 
 EXPOSE 9000
 
-# HEALTHCHECK
+HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --start-interval=20s --retries=3 \
+        CMD php-fpm83 -t || exit 1
 
 ENTRYPOINT ["/usr/bin/init.sh"]
