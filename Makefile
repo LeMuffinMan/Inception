@@ -26,7 +26,7 @@ fclean: clean
 	@echo "Cleaning stopped containers ..."
 	docker container prune -f > /dev/null
 	@echo "Cleaning volumes ..."
-	rm -rf ~/data/mysql
+	sudo rm -rf ~/data/mysql
 	@echo "Cleaning dangling images ..."
 	docker image prune -f > /dev/null
 	@echo "Cleaning building cache ..."

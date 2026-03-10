@@ -96,6 +96,7 @@ else
     echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
 fi
 
+echo
 echo -e "${YELLOW}Nginx container:${NC} "
 ATTEMPTS=0
 # until [ docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1 ] || [ "$(echo "$ATTEMPTS")" -lt 5 ]; do
