@@ -33,6 +33,7 @@ crash_test() {
     else
         echo -e "${YELLOW}$1: ${RED}KO${YELLOW}: No $1 container found${NC}"
     fi
+    echo "$CONTAINERS" | grep "$1"
 }
 
 COMPOSE="docker compose -f $(dirname "$0")/../srcs/docker-compose.yml"

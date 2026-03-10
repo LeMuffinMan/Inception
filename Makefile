@@ -48,6 +48,7 @@ status:
 
 crash:
 	$(CRASH_SCRIPT)
+	$(CHECK_SCRIPT)
 
 
-.PHONY: up down re clean check fclean logs status
+.PHONY: up down re clean check fclean logs status crash
