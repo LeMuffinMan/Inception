@@ -11,12 +11,12 @@ crash_test() {
         else
             if echo "$CONTAINERS" | grep "$1" | grep "health: starting" > /dev/null; then
                     ATTEMPTS=0
-                    until echo "$CONTAINERS" | grep -q "$1.*healthy" || [ "$ATTEMPTS" -ge 5 ]; do
+                    until echo "$CONTAINERS" | grep -q "$1.*healthy" || [ "$ATTEMPTS" -ge 10 ]; do
                         CONTAINERS=$($COMPOSE ps)
                         # echo -e "${YELLOW}Waiting $1 to restart ...${NC}"
-                        sleep 2
+                        sleep 1
                         ((ATTEMPTS++))
-                        if [ "$ATTEMPTS" -eq 5 ]; then
+                        if [ "$ATTEMPTS" -eq 10 ]; then
                             echo -e "${RED}KO:${YELLOW} $1 timed out restarting after crash${NC}"
                         fi
                     done
