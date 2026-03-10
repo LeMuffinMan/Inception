@@ -25,7 +25,6 @@ services:
       retries: 5
       start_period: 30s
     restart: unless-stopped # on-failure restart only if it crash with a exit code != 0
-    #mem_limit: 10m # low limit to test OOM crash, test using:  docker exec nginx sh -c "cat /dev/zero | head -c 500m > /dev/null"
   nginx:
     container_name: nginx
     build: ./requirements/nginx
@@ -45,6 +44,7 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped # on-failure restart only if it crash with a exit code != 0
+    mem_limit: 10m # low limit to test OOM crash, test using:  docker exec -it nginx ash; kill 1"
 volumes:
   mariadb_data:
     driver: local

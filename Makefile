@@ -2,6 +2,7 @@
 COMPOSE_FILE=srcs/docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CHECK_SCRIPT=srcs/check_inception.sh
+CRASH_SCRIPT=srcs/crash_test.sh
 
 
 all: up check
@@ -44,5 +45,9 @@ logs:
 
 status:
 	$(COMPOSE) ps
+
+crash:
+	$(CRASH_SCRIPT)
+
 
 .PHONY: up down re clean check fclean logs status
