@@ -3,14 +3,14 @@
 crash_test() {
     TIMEOUT=30
     if echo "$CONTAINERS" | grep "$1" > /dev/null; then
-    echo -en "${YELLOW}Simulating crash on $1: ${NC}docker exec -it $1 ash -c \"kill 1\"${NC}: "
-    if docker exec -it $1 ash -c "kill 1"; then
+    echo -en "${YELLOW}Simulating crash on $1: ${NC}sudo kill -9 \$(docker inspect --format '{{.State.Pid}}' "$1")${NC}: "
+    if sudo kill -9 $(docker inspect --format '{{.State.Pid}}' "$1"); then
         sleep 1
         CONTAINERS=$($COMPOSE ps)
         if ! echo "$CONTAINERS" | grep "$1" > /dev/null; then
             echo -e "${RED}KO${YELLOW}: $1 container didnt restarted${NC}"
         else
-            if echo "$CONTAINERS" | grep "$1" | grep "health: starting" > /dev/null; then
+            if echo "$CONTAINERS" | grep "$1" | grep "health" > /dev/null; then
                     ATTEMPTS=0
                     until echo "$CONTAINERS" | grep -q "$1.*healthy" || [ "$ATTEMPTS" -ge "$TIMEOUT" ]; do
                         CONTAINERS=$($COMPOSE ps)
@@ -28,7 +28,7 @@ crash_test() {
             fi
             fi
     else
-        echo -e "${RED}KO${NC}: Crash test (docker exec -it $1 ash -c \"kill -1 1\") failed${NC}"
+        echo -e "${RED}KO${NC}: Crash test (sudo kill -9 \$(docker inspect --format '{{.State.Pid}}' \"$1\") failed${NC}"
     fi
     else
         echo -e "${YELLOW}$1: ${RED}KO${YELLOW}: No $1 container found${NC}"
