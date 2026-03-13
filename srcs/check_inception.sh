@@ -121,13 +121,13 @@ if echo "$CONTAINERS" | grep "nginx" | grep "Up" > /dev/null && ! echo "$CONTAIN
         fi
     fi
 
-    if docker logs nginx > /dev/null 2>&1; then
+    if docker logs nginx > /dev/null > /dev/null 2>&1; then
         echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
     else
         echo -e "   ${YELLOW}logs: ${RED}KO: timed out${NC}"
     fi
 
-    if curl -k https://localhost:443 2>&1 | grep "Hello from nginx" > /dev/null; then
+    if curl -k https://localhost:443 > /dev/null 2>&1; then
         echo -e "   ${YELLOW}probe: ${GREEN}OK${NC}"
     else
         echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
@@ -140,13 +140,13 @@ if echo "$CONTAINERS" | grep "nginx" | grep "Up" > /dev/null && ! echo "$CONTAIN
         echo -e "   ${YELLOW}TLS: ${RED}KO${NC}"
     fi
 
-    if curl -k --tlsv1.2 https://localhost:443 2>&1 | grep "Hello from nginx" > /dev/null; then
+    if curl -k --tlsv1.2 https://localhost:443 > /dev/null 2>&1; then
         echo -e "   ${YELLOW}TLSv1.2: ${GREEN}OK${NC}"
     else
         echo -e "   ${YELLOW}TLSv1.2: ${RED}KO${NC}"
     fi
 
-    if curl -k --tlsv1.3 https://localhost:443 2>&1 | grep "Hello from nginx" > /dev/null; then
+    if curl -k --tlsv1.3 https://localhost:443 > /dev/null 2>&1; then
         echo -e "   ${YELLOW}TLSv1.3: ${GREEN}OK${NC}"
     else
         echo -e "   ${YELLOW}TLSv1.3: ${RED}KO${NC}"

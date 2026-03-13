@@ -51,7 +51,7 @@ fi
 #in any case, we want the process executing this script as entrypoint for the container, to execute and handle mariadb now. It must keep running
 #In a container, the execution of the entrypoint /init.sh makes this process PID 1 (which is normally /sbin/init, the parent of all other process)
 #using exec, we replace PID 1 = /init.sh to PID 1 = /usr/bin/mariadb, thus, there is only one PID running in our container, it runs mariadb.
-exec /usr/bin/mariadbd  --user=mysql --datadir=/var/lib/mysql --bind-address=0.0.0.0 --port=3306
+exec /usr/bin/mariadbd  --user=mysql --datadir=/var/lib/mysql --bind-address=0.0.0.0 --port=3306 --skip-networking=0
 
 #doc :
 # mariadb -u root <=> en tant que root
