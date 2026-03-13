@@ -6,7 +6,7 @@ RUN apk add --no-cache \
     rm -rf /etc/nginx/http.d/default.conf
 
 #To remove !!!
-COPY tools/index.html /usr/share/nginx/html/index.html
+# COPY tools/index.html /usr/share/nginx/html/index.html
 
 COPY tools/conf /etc/nginx/http.d/nginx.conf
 COPY tools/init.sh /usr/bin/init.sh

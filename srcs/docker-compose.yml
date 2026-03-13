@@ -11,6 +11,8 @@ secrets:
     file: ../secrets/wp_user.txt
   wp_user_password:
     file: ../secrets/wp_user_password.txt
+  mysql_user:
+    file: ../secrets/mysql_user.txt
 
 services:
   wordpress:
@@ -18,6 +20,7 @@ services:
     container_name: wordpress
     secrets:
       - db_password
+      - mysql_user
       - wp_admin_user
       - wp_admin_password
       - wp_user
@@ -50,16 +53,21 @@ services:
       - "3306:3306"
     healthcheck:
       test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "--password=$(cat /run/secrets/db_root_password)",
-        ]
+        ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot"]
+        # [
+        #   "CMD-SHELL",
+        #   "mariadb-admin ping -h localhost -uroot -p$(cat /run/secrets/db_root_password)",
+        # ]
+        # [
+        #   "CMD",
+        #   "mysqladmin",
+        #   "ping",
+        #   "-h",
+        #   "localhost",
+        #   "-u",
+        #   "root",
+        #   "--password=$(cat /run/secrets/db_root_password)",
+        # ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -72,13 +80,14 @@ services:
       - 443:443
     healthcheck:
       test:
-        [
-          "CMD",
-          "wget",
-          "-qO-",
-          "--no-check-certificate",
-          "https://localhost:443",
-        ]
+        # [
+        #   "CMD",
+        #   "wget",
+        #   "-qO-",
+        #   "--no-check-certificate",
+        #   "https://localhost:443",
+        # ]
+        ["CMD", "nginx", "-t"]
       interval: 30s
       timeout: 10s
       retries: 3
