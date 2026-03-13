@@ -1,1 +1,2 @@
 srcs/check_inception.sh: line 72: [: ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES): integer expression expected
+NETWORK ID NAME DRIVER SCOPE 68a6df148f3c bridge bridge local eae8e7427e56 host host local 9a271d78a06a none null local fba8ac4fa483 srcs_default bridge local c55886280587 srcs_inception bridge local

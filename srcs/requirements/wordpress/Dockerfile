@@ -4,7 +4,6 @@ RUN addgroup -g 82 -S www-data || true && \
     addgroup -u 82 -D -S -G www-data www-data|| true
 
 RUN apk add --no-cache \
-    curl \
     wget \
     curl \
     mysql-client \

@@ -13,9 +13,16 @@ set -e
 
 cd /var/www/html
 
+# until nc -z mariadb 3306; do
+#   sleep 2
+# done
+
 echo "Waiting for MariaDB..."
-until nc -z mariadb 3306; do
-  sleep 2
+TIME=0
+until mariadb -h mariadb -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -e "SELECT 1" > /dev/null 2>&1; do
+    echo "Waiting for MariaDB...($TIME secs)"
+    TIME=$((TIME + 1))
+    sleep 1
 done
 echo "MariaDB is ready"
 

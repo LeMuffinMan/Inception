@@ -28,6 +28,11 @@ services:
       - type: volume
         source: wordpress-data
         target: /var/www/html
+    networks:
+      - inception
+    depends_on:
+      mariadb:
+        condition: service_healthy
     restart: on-failure
   mariadb:
     secrets:
@@ -39,6 +44,8 @@ services:
       - .env
     volumes:
       - mariadb_data:/var/lib/mysql
+    networks:
+      - inception
     ports:
       - "3306:3306"
     healthcheck:
@@ -76,7 +83,19 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    volumes:
+      - wordpress-data:/var/www/html
+    networks:
+      - inception
+    depends_on:
+      - wordpress
     restart: on-failure # on-failure restart only if it crash with a exit code != 0
+
+networks:
+  inception:
+    driver: bridge
+
+#virer les binds ?
 volumes:
   wordpress-data:
     driver: local
