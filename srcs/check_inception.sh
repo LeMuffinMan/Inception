@@ -9,6 +9,8 @@
 #recup certaines variables uniquement ?
 set -a
 source "$(dirname "$0")/../srcs/.env"
+MYSQL_ROOT_PASSWORD=$(cat secrets/db_root_password.txt)
+echo $MYSQL_ROOT_PASSWORD
 set +a
 
 GREEN='\033[0;32m'
