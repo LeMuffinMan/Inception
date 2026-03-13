@@ -8,7 +8,7 @@ CRASH_SCRIPT=srcs/crash_test.sh
 all: up check
 
 up:
-	#faire un script qui creer des mots de passes fort par defaut si pas deja remplis
+	srcs/generate_secrets.sh
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
 	@echo "Starting containers ..."
@@ -37,6 +37,7 @@ fclean: clean
 	docker builder prune -f > /dev/null
 	@echo "Removing images ..."
 	$(COMPOSE) down --rmi all
+	rm -rf secrets
 
 re:  fclean up check
 
@@ -53,5 +54,7 @@ crash:
 	$(CRASH_SCRIPT)
 	$(CHECK_SCRIPT)
 
+secrets:
+	srcs/generate_secrets.sh -f
 
-.PHONY: up down re clean check fclean logs status crash
+.PHONY: up down re clean check fclean logs status crash secrets
