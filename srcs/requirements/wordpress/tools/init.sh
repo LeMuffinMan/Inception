@@ -46,30 +46,9 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --user_pass=userpass \
         --allow-root
 
-# curl une config
-# la modifier et la configurer avec les var d'env
-#
-# Salts ?
-#
-# Perm on volumes
-#
-# installation of the website
-#
-# Gerer redis ici
-#
-# Encore les perms ?
-#
-#
     echo "Wordpress successfully installed"
 else
     echo "Wordpress already installed and configured"
 fi
-
-
-#setup port on socket
-
-# start wordpress with php
-
-# chown -R www-data:www-data /var/www/html
 
 exec php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf

@@ -1,7 +1,7 @@
 FROM alpine:3.22.3
 
-RUN add group -g 82 -S www-data || true && \
-    add group -u 82 -D -S -G www-data www-data|| true
+RUN addgroup -g 82 -S www-data || true && \
+    addgroup -u 82 -D -S -G www-data www-data|| true
 
 RUN apk add --no-cache \
     curl \
@@ -35,7 +35,6 @@ RUN mkdir -p /var/www/html
 
 COPY tools/init.sh /usr/bin/init.sh
 RUN chmod +x /usr/bin/init.sh
-# COPY ./conf /tmp/wpconf
 
 EXPOSE 9000
 

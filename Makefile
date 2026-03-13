@@ -8,6 +8,7 @@ CRASH_SCRIPT=srcs/crash_test.sh
 all: up check
 
 up:
+	#faire un script qui creer des mots de passes fort par defaut si pas deja remplis
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
 	@echo "Starting containers ..."
