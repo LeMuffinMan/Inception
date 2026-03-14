@@ -22,10 +22,6 @@ FAIL="${RED}${BOLD}✘ KO${NC}"
 # Width reserved for check labels (increase if labels are longer)
 LABEL_WIDTH=50
 
-# --- Functions ----------------------------------------------------------------
-
-# section "Title"
-#   Prints a cyan box around the title
 section() {
     echo
     echo -e "${CYAN}${BOLD}┌─────────────────────────────────────────┐${NC}"
@@ -33,8 +29,6 @@ section() {
     echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
 }
 
-# check "label" "ok|ko" ["optional detail"]
-#   Prints an aligned check line with ✔ OK or ✘ KO
 check() {
     local label="$1"
     local status="$2"
@@ -54,8 +48,6 @@ check() {
     [ -n "$detail" ] && echo -e "  ${GRAY}→ ${detail}${NC}" || echo
 }
 
-# pending "label" "message"
-#   Prints a yellow 'in progress' line (for health: starting, timeouts, etc.)
 pending() {
     local label="$1"
     local msg="$2"
@@ -68,8 +60,6 @@ pending() {
     printf "  ${WHITE}%s${NC}%s ${YELLOW}⧖ %s${NC}\n" "$label" "$spaces" "$msg"
 }
 
-# header "Script title" "subtitle"
-#   Prints the top banner
 header() {
     local title="$1"
     local subtitle="$2"
@@ -78,9 +68,6 @@ header() {
     echo -e "${GRAY}  $(date)${NC}"
 }
 
-# wait_for <timeout_seconds> <command>
-#   Retries command every second until it succeeds or timeout is reached
-#   Returns 0 on success, 1 on timeout
 wait_for() {
     local timeout="$1"; shift
     local elapsed=0

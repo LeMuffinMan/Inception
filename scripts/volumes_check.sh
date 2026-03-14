@@ -8,13 +8,10 @@ LOGIN="oelleaum"
 
 COMPOSE_FILE="$(dirname "$0")/../srcs/docker-compose.yml"
 
-# Volumes to check (will be prefixed with "srcs_" and suffixed with "_data")
 VOLUMES_TO_CHECK=("mariadb" "wordpress")
 
-# Expected host path pattern for volumes (must match /home/<login>/data)
 VOLUME_HOST_PATH_PATTERN="/home/.*/data"
 
-# How long to wait for containers to become healthy after restart (seconds)
 WAIT_TIMEOUT=30
 
 # =============================================================================
@@ -45,21 +42,18 @@ for VOL in "${VOLUMES_TO_CHECK[@]}"; do
     DEVICE=$(docker volume inspect "$SERVICE" --format '{{.Options.device}}')
     MOUNTPOINT=$(docker volume inspect "$SERVICE" --format '{{.Mountpoint}}')
 
-    # Named volume with local driver
     if [ "$DRIVER" = "local" ]; then
         check "$VOL → named volume (local driver)" "ok"
     else
         check "$VOL → named volume (local driver)" "ko" "driver is $DRIVER"
     fi
 
-    # No bind mount in compose
     if grep -A5 "volumes:" "$COMPOSE_FILE" | grep -qE "\./|/home"; then
         check "$VOL → no bind mount in compose" "ko" "bind mount detected"
     else
         check "$VOL → no bind mount in compose" "ok"
     fi
 
-    # Host path must be under /home/<login>/data
     if echo "$DEVICE" | grep -qE "$VOLUME_HOST_PATH_PATTERN"; then
         check "$VOL → host path valid" "ok" "$DEVICE"
     else
@@ -73,7 +67,6 @@ done
 # =============================================================================
 section "Persistence Test"
 
-# Stop containers
 echo -e "  ${GRAY}→ Running: docker compose down ...${NC}"
 $COMPOSE down > /dev/null 2>&1
 
@@ -84,7 +77,6 @@ else
     check "containers stopped" "ko" "$RUNNING container(s) still running"
 fi
 
-# Volumes must survive the stop
 ALL_PRESENT=true
 for VOL in "${VOLUMES_TO_CHECK[@]}"; do
     SERVICE="srcs_${VOL}_data"
@@ -112,7 +104,6 @@ else
     exit 1
 fi
 
-# Wait for all containers to be healthy
 echo -e "  ${GRAY}→ Waiting up to ${WAIT_TIMEOUT}s for healthchecks ...${NC}"
 ELAPSED=0
 ALL_HEALTHY=false

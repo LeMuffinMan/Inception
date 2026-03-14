@@ -4,12 +4,13 @@ COMPOSE=docker compose -f $(COMPOSE_FILE)
 CHECK_SCRIPT=scripts/check_inception.sh
 CRASH_SCRIPT=scripts/crash_test.sh
 VOLUME_SCRIPT=scripts/volumes_check.sh
+SECRET_GEN_SCRIPT=scripts/generate_secrets.sh
 
 
 all: up check
 
 up:
-	srcs/generate_secrets.sh
+	$(SECRET_GEN_SCRIPT)
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
 	@echo "Starting containers ..."
@@ -65,6 +66,6 @@ checks:
 	$(CHECK_SCRIPT)
 
 secrets:
-	srcs/generate_secrets.sh -f
+	$(SECRET_GEN_SCRIPT) -f
 
 .PHONY: up down re clean check fclean logs status crash secrets volume checks

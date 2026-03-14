@@ -8,10 +8,8 @@ LOGIN="oelleaum"
 
 COMPOSE_FILE="$(dirname "$0")/../srcs/docker-compose.yml"
 
-# Containers to crash-test (in order)
 CONTAINERS_TO_TEST=("nginx" "mariadb" "wordpress")
 
-# Time to wait for a container to restart and become healthy (seconds)
 RESTART_TIMEOUT=30
 
 # =============================================================================
@@ -35,14 +33,12 @@ crash_test() {
     local CONTAINERS
     CONTAINERS=$($COMPOSE ps)
 
-    # Container must exist
     if ! echo "$CONTAINERS" | grep -q "$name"; then
         check "$name → container found" "ko" "no $name container running"
         return
     fi
     check "$name → container found" "ok"
 
-    # Get PID and kill it
     local PID
     PID=$(docker inspect --format '{{.State.Pid}}' "$name" 2>/dev/null)
     echo -e "  ${GRAY}→ sudo kill -9 $PID (pid of $name)${NC}"
@@ -55,14 +51,12 @@ crash_test() {
 
     sleep 1
 
-    # Container must reappear
     CONTAINERS=$($COMPOSE ps)
     if ! echo "$CONTAINERS" | grep -q "$name"; then
         check "$name → restarted" "ko" "container did not come back"
         return
     fi
 
-    # If it has a healthcheck, wait for healthy
     if echo "$CONTAINERS" | grep "$name" | grep -q "health"; then
         local attempts=0
         while [ $attempts -lt $RESTART_TIMEOUT ]; do
