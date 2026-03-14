@@ -283,3 +283,35 @@ if [ -z "$EXTERNAL_IMAGE" ]; then
 else
     echo -e "   ${YELLOW}no external image in compose: ${RED}KO${NC}: $EXTERNAL_IMAGE"
 fi
+
+# WordPress users check
+echo -e "   ${YELLOW}WordPress users:${NC}"
+
+USERS=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N \
+    --connect-timeout=2 \
+    -e "SELECT user_login, user_email FROM ${MYSQL_DATABASE}.wp_users;" 2>/dev/null)
+
+USER_COUNT=$(echo "$USERS" | grep -c ".")
+if [ "$USER_COUNT" -ge 2 ]; then
+    echo -e "      ${YELLOW}user count: ${GREEN}OK${NC}: $USER_COUNT users"
+else
+    echo -e "      ${YELLOW}user count: ${RED}KO${NC}: only $USER_COUNT user(s)"
+fi
+
+ADMIN_USER=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N \
+    --connect-timeout=2 \
+    -e "SELECT user_login FROM ${MYSQL_DATABASE}.wp_users
+        JOIN ${MYSQL_DATABASE}.wp_usermeta ON wp_users.ID = wp_usermeta.user_id
+        WHERE meta_key = 'wp_capabilities'
+        AND meta_value LIKE '%administrator%';" 2>/dev/null)
+
+if [ -z "$ADMIN_USER" ]; then
+    echo -e "      ${YELLOW}admin exists: ${RED}KO${NC}"
+else
+    echo -e "      ${YELLOW}admin exists: ${GREEN}OK${NC}: $ADMIN_USER"
+    if echo "$ADMIN_USER" | grep -iE "^admin$|admin-|^administrator$" > /dev/null; then
+        echo -e "      ${YELLOW}admin username valid: ${RED}KO${NC}: '$ADMIN_USER' contains forbidden pattern"
+    else
+        echo -e "      ${YELLOW}admin username valid: ${GREEN}OK${NC}"
+    fi
+fi
