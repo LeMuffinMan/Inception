@@ -1,5 +1,5 @@
 #!/bin/sh
-# set -e
+set -e
 
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)

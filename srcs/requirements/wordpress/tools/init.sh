@@ -13,12 +13,12 @@ set -e
 
 cd /var/www/html
 
-# until nc -z mariadb 3306; do
-#   sleep 2
-# done
-
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 MYSQL_USER=$(cat /run/secrets/mysql_user)
+WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+WORDPRESS_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
+WORDPRESS_USER=$(cat /run/secrets/wp_user)
+WORDPRESS_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
 
 echo "Waiting for MariaDB..."
 TIME=0
@@ -31,29 +31,36 @@ echo "MariaDB is ready"
 
 if [ ! -f /var/www/html/wp-config.php ]; then
 
+    echo "Downloading WordPress..."
     wp core download --allow-root
 
+    echo "Creating wp-config.php..."
     wp config create \
       --dbname=wordpress \
-      --dbuser=wpuser \
-      --dbpass=password \
+      --dbuser=${MYSQL_USER} \
+      --dbpass=${MYSQL_PASSWORD} \
       --dbhost=mariadb:3306 \
       --allow-root
 
+    echo "Installing WordPress..."
+    #changer le domain name ici avec une variable d'enviuronnement et choper dans .env
+    # idem pour title
+    # faire un secret en plus pour email ?
     wp core install \
         --url="https://example.com" \
         --title="My WordPress" \
-        --admin_user="admin" \
-        --admin_password="adminpass" \
+        --admin_user="${WORDPRESS_ADMIN_USER}" \
+        --admin_password="${WORDPRESS_ADMIN_PASSWORD}" \
         --admin_email="admin@example.com" \
         --skip-email \
         --allow-root
 
+    echo "Creating additional user..."
     wp user create \
-        user \
+        "${WORDPRESS_USER}" \
         user@example.com \
         --role=author \
-        --user_pass=userpass \
+        --user_pass="$WORDPRESS_USER_PASSWORD}" \
         --allow-root
 
     echo "Wordpress successfully installed"
