@@ -15,11 +15,6 @@ COMPOSE="docker compose -f $(dirname "$0")/../srcs/docker-compose.yml"
 echo -e "${YELLOW}Inception project check${NC}"
 echo
 
-# network
-# Nginx as only entrypoint through 443 and not 80
-# no use of --link --links ...
-# voir ou ils sont sur l'host et verifier le bind
-
 CONTAINERS=$($COMPOSE ps)
 
 echo -e "${YELLOW}Mariadb container:${NC} "
@@ -74,7 +69,7 @@ if echo "$CONTAINERS" | grep "mariadb" | grep "Up" > /dev/null && ! echo "$CONTA
     fi
 
     PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep mariadb | awk '{print $2}')
-    if [ "$PORT" == '0.0.0.0:3306->3306/tcp,' ]; then
+    if [ "$PORT" == '3306/tcp' ]; then
         echo -e "   ${YELLOW}ports: ${GREEN}OK${NC}: $PORT"
     else
         echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
@@ -323,10 +318,9 @@ else
     echo -e "      ${YELLOW}reachable: ${RED}KO${NC}"
 fi
 
-echo -e "${YELLOW}Network checks:${NC}"
 echo
+echo -e "${YELLOW}Network checks:${NC}"
 
-# Verifier que seul le port 443 est exposé sur le host (pas de port 80 ou autre)
 EXPOSED_PORTS=$(docker ps --format "{{.Names}}\t{{.Ports}}" | grep -v "^NAME" | awk '{print $1, $2}')
 FORBIDDEN_PORTS=$(echo "$EXPOSED_PORTS" | grep -v "nginx" | grep "0.0.0.0:")
 if [ -z "$FORBIDDEN_PORTS" ]; then
@@ -342,14 +336,12 @@ else
     echo -e "   ${YELLOW}nginx no port 80: ${RED}KO${NC}"
 fi
 
-# No --link or links: in docker-compose.yml
 if grep -qE "^\s+links:" srcs/docker-compose.yml; then
     echo -e "   ${YELLOW}no links: ${RED}KO${NC}: 'links:' found in docker-compose.yml"
 else
     echo -e "   ${YELLOW}no links: ${GREEN}OK${NC}"
 fi
 
-# No network: host in docker-compose.yml
 if grep -qE "network:\s+host" srcs/docker-compose.yml; then
     echo -e "   ${YELLOW}no network host: ${RED}KO${NC}: 'network: host' found in docker-compose.yml"
 else
@@ -357,15 +349,11 @@ else
 fi
 
 echo
-
-# Named volumes, no bind mounts
 echo -e "${YELLOW}Volumes checks:${NC}"
-echo
 
 for VOL in mariadb wordpress; do
     SERVICE="srcs_${VOL}_data"
     if docker volume ls | grep -q "$SERVICE"; then
-        # Verifier que c'est bien un named volume (driver local) et pas un bind mount
         DRIVER=$(docker volume inspect "$SERVICE" --format '{{.Driver}}')
         MOUNTPOINT=$(docker volume inspect "$SERVICE" --format '{{.Mountpoint}}')
         OPTIONS=$(docker volume inspect "$SERVICE" --format '{{.Options}}')
@@ -376,14 +364,12 @@ for VOL in mariadb wordpress; do
             echo -e "   ${YELLOW}$VOL named volume: ${RED}KO${NC}: driver is $DRIVER"
         fi
 
-        # Verifier qu'il n'y a pas de bind mount pour ce volume dans compose
         if grep -A5 "volumes:" srcs/docker-compose.yml | grep -qE "\./|/home"; then
             echo -e "   ${YELLOW}$VOL no bind mount: ${RED}KO${NC}: bind mount detected in docker-compose.yml"
         else
             echo -e "   ${YELLOW}$VOL no bind mount: ${GREEN}OK${NC}"
         fi
 
-        # Verifier la localisation sur le host
         EXPECTED="/home/${DOMAIN_NAME%%.*}/data"
         HOST_PATH=$(docker volume inspect "$SERVICE" --format '{{.Options.device}}' 2>/dev/null)
         if echo "$MOUNTPOINT" | grep -q "$EXPECTED" || echo "$HOST_PATH" | grep -q "$EXPECTED"; then
