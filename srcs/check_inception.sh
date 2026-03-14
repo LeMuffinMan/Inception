@@ -58,17 +58,24 @@ section() {
     echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
 }
 
+LABEL_WIDTH=50
+ 
 check() {
     local label="$1"
     local status="$2"   # "ok" | "ko"
     local detail="$3"   # optional extra info
-
+ 
+    local pad=$(( LABEL_WIDTH - ${#label} ))
+    [ $pad -lt 1 ] && pad=1
+    local spaces
+    spaces=$(printf '%*s' "$pad" '')
+ 
     if [ "$status" = "ok" ]; then
-        printf "  ${WHITE}%-50s${NC} ${PASS}" "$label"
+        printf "  ${WHITE}%s${NC}%s ${PASS}" "$label" "$spaces"
     else
-        printf "  ${WHITE}%-50s${NC} ${FAIL}" "$label"
+        printf "  ${WHITE}%s${NC}%s ${FAIL}" "$label" "$spaces"
     fi
-
+ 
     if [ -n "$detail" ]; then
         echo -e "  ${DIM}→ ${detail}${NC}"
     else
