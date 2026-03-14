@@ -281,4 +281,11 @@ for DOCKERFILE in srcs/requirements/*/Dockerfile; do
     fi
 done
 
+EXTERNAL_IMAGE=$(grep -E "^\s+image:" srcs/docker-compose.yml | grep -v "^\s*#")
+if [ -z "$EXTERNAL_IMAGE" ]; then
+    echo -e "   ${YELLOW}no external image in compose: ${GREEN}OK${NC}"
+else
+    echo -e "   ${YELLOW}no external image in compose: ${RED}KO${NC}: $EXTERNAL_IMAGE"
+fi
+
 echo
