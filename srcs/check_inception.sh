@@ -15,9 +15,7 @@ COMPOSE="docker compose -f $(dirname "$0")/../srcs/docker-compose.yml"
 echo -e "${YELLOW}Inception project check${NC}"
 echo
 
-# verifier si mdp / admin present dans le projet
-# checker le .env et ses variables
-# checker dockerhub et bien images locales, pas de latets
+# verifier si mdp / admin present dans le projet : surtout pour WP et ses deux users
 #
 # network
 # Nginx as only entrypoint through 443 and not 80
@@ -25,11 +23,8 @@ echo
 # verifier si deux named volumes existent bien
 # voir ou ils sont sur l'host et verifier le bind
 #
-# pour chqaue container verifier le restart on failure
-#
 # checker /etc/hosts pour la redirection localhost
 # checker le curl -k https://oelleaum.42.fr
-
 
 CONTAINERS=$($COMPOSE ps)
 
@@ -235,6 +230,7 @@ else
     echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
 fi
 
+echo
 echo -e "${YELLOW}Project integrity checks:${NC}"
 
 PASS_FOUND=$(grep -rli "password" srcs/requirements/*/Dockerfile 2>/dev/null)
@@ -287,5 +283,3 @@ if [ -z "$EXTERNAL_IMAGE" ]; then
 else
     echo -e "   ${YELLOW}no external image in compose: ${RED}KO${NC}: $EXTERNAL_IMAGE"
 fi
-
-echo
