@@ -65,7 +65,6 @@ header() {
     local subtitle="$2"
     echo
     echo -e "${CYAN}${BOLD}  Inception — ${title}${NC}  ${GRAY}${subtitle}${NC}"
-    echo -e "${GRAY}  $(date)${NC}"
 }
 
 wait_for() {
