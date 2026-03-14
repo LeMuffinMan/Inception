@@ -322,3 +322,76 @@ if curl -k $DOMAIN_NAME > /dev/null 2>&1; then
 else
     echo -e "      ${YELLOW}reachable: ${RED}KO${NC}"
 fi
+
+echo -e "${YELLOW}Network checks:${NC}"
+echo
+
+# Verifier que seul le port 443 est exposé sur le host (pas de port 80 ou autre)
+EXPOSED_PORTS=$(docker ps --format "{{.Names}}\t{{.Ports}}" | grep -v "^NAME" | awk '{print $1, $2}')
+FORBIDDEN_PORTS=$(echo "$EXPOSED_PORTS" | grep -v "nginx" | grep "0.0.0.0:")
+if [ -z "$FORBIDDEN_PORTS" ]; then
+    echo -e "   ${YELLOW}nginx only entrypoint: ${GREEN}OK${NC}"
+else
+    echo -e "   ${YELLOW}nginx only entrypoint: ${RED}KO${NC}: other containers expose ports: $FORBIDDEN_PORTS"
+fi
+
+PORT_80=$(echo "$EXPOSED_PORTS" | grep "nginx" | grep "0.0.0.0:80->")
+if [ -z "$PORT_80" ]; then
+    echo -e "   ${YELLOW}nginx no port 80: ${GREEN}OK${NC}"
+else
+    echo -e "   ${YELLOW}nginx no port 80: ${RED}KO${NC}"
+fi
+
+# No --link or links: in docker-compose.yml
+if grep -qE "^\s+links:" srcs/docker-compose.yml; then
+    echo -e "   ${YELLOW}no links: ${RED}KO${NC}: 'links:' found in docker-compose.yml"
+else
+    echo -e "   ${YELLOW}no links: ${GREEN}OK${NC}"
+fi
+
+# No network: host in docker-compose.yml
+if grep -qE "network:\s+host" srcs/docker-compose.yml; then
+    echo -e "   ${YELLOW}no network host: ${RED}KO${NC}: 'network: host' found in docker-compose.yml"
+else
+    echo -e "   ${YELLOW}no network host: ${GREEN}OK${NC}"
+fi
+
+echo
+
+# Named volumes, no bind mounts
+echo -e "${YELLOW}Volumes checks:${NC}"
+echo
+
+for VOL in mariadb wordpress; do
+    SERVICE="srcs_${VOL}_data"
+    if docker volume ls | grep -q "$SERVICE"; then
+        # Verifier que c'est bien un named volume (driver local) et pas un bind mount
+        DRIVER=$(docker volume inspect "$SERVICE" --format '{{.Driver}}')
+        MOUNTPOINT=$(docker volume inspect "$SERVICE" --format '{{.Mountpoint}}')
+        OPTIONS=$(docker volume inspect "$SERVICE" --format '{{.Options}}')
+
+        if [ "$DRIVER" = "local" ]; then
+            echo -e "   ${YELLOW}$VOL named volume: ${GREEN}OK${NC}"
+        else
+            echo -e "   ${YELLOW}$VOL named volume: ${RED}KO${NC}: driver is $DRIVER"
+        fi
+
+        # Verifier qu'il n'y a pas de bind mount pour ce volume dans compose
+        if grep -A5 "volumes:" srcs/docker-compose.yml | grep -qE "\./|/home"; then
+            echo -e "   ${YELLOW}$VOL no bind mount: ${RED}KO${NC}: bind mount detected in docker-compose.yml"
+        else
+            echo -e "   ${YELLOW}$VOL no bind mount: ${GREEN}OK${NC}"
+        fi
+
+        # Verifier la localisation sur le host
+        EXPECTED="/home/${DOMAIN_NAME%%.*}/data"
+        HOST_PATH=$(docker volume inspect "$SERVICE" --format '{{.Options.device}}' 2>/dev/null)
+        if echo "$MOUNTPOINT" | grep -q "$EXPECTED" || echo "$HOST_PATH" | grep -q "$EXPECTED"; then
+            echo -e "   ${YELLOW}$VOL host path: ${GREEN}OK${NC}: $MOUNTPOINT"
+        else
+            echo -e "   ${YELLOW}$VOL host path: ${RED}KO${NC}: expected $EXPECTED, got $MOUNTPOINT"
+        fi
+    else
+        echo -e "   ${YELLOW}$VOL named volume: ${RED}KO${NC}: volume $SERVICE not found"
+    fi
+done
