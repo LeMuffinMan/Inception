@@ -58,24 +58,24 @@ section() {
     echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
 }
 
-LABEL_WIDTH=50
- 
+LABEL_WIDTH=40
+
 check() {
     local label="$1"
     local status="$2"   # "ok" | "ko"
     local detail="$3"   # optional extra info
- 
+
     local pad=$(( LABEL_WIDTH - ${#label} ))
     [ $pad -lt 1 ] && pad=1
     local spaces
     spaces=$(printf '%*s' "$pad" '')
- 
+
     if [ "$status" = "ok" ]; then
         printf "  ${WHITE}%s${NC}%s ${PASS}" "$label" "$spaces"
     else
         printf "  ${WHITE}%s${NC}%s ${FAIL}" "$label" "$spaces"
     fi
- 
+
     if [ -n "$detail" ]; then
         echo -e "  ${DIM}→ ${detail}${NC}"
     else
@@ -106,7 +106,6 @@ CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
 echo
 echo -e "${CYAN}${BOLD}  Inception — Project Check${NC}  ${DIM}login: ${LOGIN}  domain: ${DOMAIN}${NC}"
-echo -e "${DIM}  $(date)${NC}"
 
 CONTAINER_MARIADB="mariadb"
 CONTAINER_NGINX="nginx"
@@ -433,7 +432,3 @@ if grep -q "127.0.0.1	${DOMAIN}" /etc/hosts; then
 else
     check "/etc/hosts entry" "ko" "missing: 127.0.0.1  ${DOMAIN}"
 fi
-
-echo
-echo -e "${DIM}  Done.${NC}"
-echo
