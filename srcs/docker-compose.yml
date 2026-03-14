@@ -13,6 +13,10 @@ secrets:
     file: ../secrets/wp_user_password.txt
   mysql_user:
     file: ../secrets/mysql_user.txt
+  mysql_admin_email:
+    file: ../secrets/mysql_admin_email.txt
+  mysql_user_email:
+    file: ../secrets/mysql_user_email.txt
 
 services:
   wordpress:
@@ -25,6 +29,8 @@ services:
       - wp_admin_password
       - wp_user
       - wp_user_password
+      - mysql_admin_email
+      - mysql_user_email
     env_file:
       - .env
     volumes:

@@ -2,15 +2,6 @@
 
 set -e
 
-# checker docker secrets
-# export WORDPRESS_ADMIN_USER=$(cat /run/secrets/wordpress_admin_user)
-# export WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wordpress_admin_password)
-# export WORDPRESS_USER=$(cat /run/secrets/wordpress_user)
-# export WORDPRESS_PASSWORD=$(cat /run/secrets/wordpress_password)
-# export MYSQL_USER=$(cat /run/secrets/mysql_user)
-# export MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
-# export WORDPRESS_EMAIL=$(cat /run/secrets/wordpress_email)
-
 cd /var/www/html
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
@@ -19,6 +10,8 @@ WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 WORDPRESS_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
 WORDPRESS_USER=$(cat /run/secrets/wp_user)
 WORDPRESS_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
+MYSQL_ADMIN_EMAIL=$(cat /run/secrets/mysql_admin_email)
+MYSQL_USER_EMAIL=$(cat /run/secrets/mysql_user_email)
 
 echo "Waiting for MariaDB..."
 TIME=0
@@ -36,9 +29,9 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 
     echo "Creating wp-config.php..."
     wp config create \
-      --dbname=wordpress \
-      --dbuser=${MYSQL_USER} \
-      --dbpass=${MYSQL_PASSWORD} \
+      --dbname="${MYSQL_DATABASE}" \
+      --dbuser="${MYSQL_USER}" \
+      --dbpass="${MYSQL_PASSWORD}" \
       --dbhost=mariadb:3306 \
       --allow-root
 
@@ -47,18 +40,18 @@ if [ ! -f /var/www/html/wp-config.php ]; then
     # idem pour title
     # faire un secret en plus pour email ?
     wp core install \
-        --url="https://example.com" \
-        --title="My WordPress" \
+        --url="${DOMAIN_NAME}" \
+        --title="${WP_TITLE}" \
         --admin_user="${WORDPRESS_ADMIN_USER}" \
         --admin_password="${WORDPRESS_ADMIN_PASSWORD}" \
-        --admin_email="admin@example.com" \
+        --admin_email="${MYSQL_ADMIN_EMAIL}" \
         --skip-email \
         --allow-root
 
     echo "Creating additional user..."
     wp user create \
         "${WORDPRESS_USER}" \
-        user@example.com \
+        "${MYSQL_USER_EMAIL}" \
         --role=author \
         --user_pass="$WORDPRESS_USER_PASSWORD}" \
         --allow-root

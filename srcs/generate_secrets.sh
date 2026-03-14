@@ -62,6 +62,16 @@ if [ ! -s secrets/wp_user.txt ]; then
     echo wordpress_user > secrets/wp_user.txt
 fi
 
+if [ ! -s secrets/mysql_user_email.txt ]; then
+    echo "Generating mysql_user_email..."
+    echo changeme@mail.com > secrets/mysql_user_email.txt
+fi
+
+if [ ! -s secrets/mysql_admin_email.txt ]; then
+    echo "Generating mysql_admin_email..."
+    echo changethis@mail.com > secrets/mysql_admin_email.txt
+fi
+
 if [ ! -s secrets/wp_user_password.txt ]; then
     echo "Generating wp_user_password..."
     echo $(generate_secret 32) > secrets/wp_user_password.txt
