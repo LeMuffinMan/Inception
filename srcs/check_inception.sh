@@ -370,14 +370,13 @@ for VOL in mariadb wordpress; do
             echo -e "   ${YELLOW}$VOL no bind mount: ${GREEN}OK${NC}"
         fi
 
-        EXPECTED="/home/${DOMAIN_NAME%%.*}/data"
-        HOST_PATH=$(docker volume inspect "$SERVICE" --format '{{.Options.device}}' 2>/dev/null)
-        if echo "$MOUNTPOINT" | grep -q "$EXPECTED" || echo "$HOST_PATH" | grep -q "$EXPECTED"; then
-            echo -e "   ${YELLOW}$VOL host path: ${GREEN}OK${NC}: $MOUNTPOINT"
+        DEVICE=$(docker volume inspect "$SERVICE" --format '{{.Options.device}}')
+        if echo "$DEVICE" | grep -q "/home/.*/data"; then
+            echo -e "   ${YELLOW}$VOL host path: ${GREEN}OK${NC}: $DEVICE"
         else
-            echo -e "   ${YELLOW}$VOL host path: ${RED}KO${NC}: expected $EXPECTED, got $MOUNTPOINT"
+            echo -e "   ${YELLOW}$VOL host path: ${RED}KO${NC}: data not in /home/login/data, got: $DEVICE"
         fi
     else
-        echo -e "   ${YELLOW}$VOL named volume: ${RED}KO${NC}: volume $SERVICE not found"
+         echo -e "   ${YELLOW}$VOL named volume: ${RED}KO${NC}: volume $SERVICE not found"
     fi
 done
