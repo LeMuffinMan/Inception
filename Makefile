@@ -3,6 +3,7 @@ COMPOSE_FILE=srcs/docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CHECK_SCRIPT=srcs/check_inception.sh
 CRASH_SCRIPT=srcs/crash_test.sh
+VOLUME_SCRIPT=srcs/volumes_check.sh
 
 
 all: up check
@@ -12,7 +13,7 @@ up:
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
 	@echo "Starting containers ..."
-	$(COMPOSE) up -d --build
+	$(COMPOSE) up -d --build --no-recreate
 
 down:
 	@echo "Shutting down containers ..."
@@ -54,7 +55,16 @@ crash:
 	$(CRASH_SCRIPT)
 	$(CHECK_SCRIPT)
 
+volume:
+	$(VOLUME_SCRIPT)
+	$(CHECK_SCRIPT)
+
+checks:
+	$(VOLUME_SCRIPT)
+	$(CRASH_SCRIPT)
+	$(CHECK_SCRIPT)
+
 secrets:
 	srcs/generate_secrets.sh -f
 
-.PHONY: up down re clean check fclean logs status crash secrets
+.PHONY: up down re clean check fclean logs status crash secrets volume checks

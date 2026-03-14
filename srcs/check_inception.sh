@@ -1,12 +1,7 @@
 #!/bin/bash
 
-# set -e
-# set -x
-# set -o pipefail
-
 #checker les volumes persitants ?
 
-#recup certaines variables uniquement ?
 set -a
 source "$(dirname "$0")/../srcs/.env"
 MYSQL_ROOT_PASSWORD=$(cat secrets/db_root_password.txt)
@@ -287,4 +282,5 @@ else
     echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
     echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
     echo -e "   ${YELLOW}port: ${RED}KO${NC}"
+    echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
 fi
