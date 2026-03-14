@@ -1,29 +1,11 @@
 #!/bin/bash
 
-# =============================================================================
-# CONFIGURATION
-# =============================================================================
-
-LOGIN="oelleaum"
-
-COMPOSE_FILE="$(dirname "$0")/../srcs/docker-compose.yml"
-
-VOLUMES_TO_CHECK=("mariadb" "wordpress")
-
-VOLUME_HOST_PATH_PATTERN="/home/.*/data"
-
-WAIT_TIMEOUT=30
-
-# =============================================================================
-# END OF CONFIGURATION
-# =============================================================================
-
+source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
 COMPOSE="docker compose -f ${COMPOSE_FILE}"
 
 header "Volume Check" "login: ${LOGIN}"
-
 
 # =============================================================================
 # VOLUME INTEGRITY

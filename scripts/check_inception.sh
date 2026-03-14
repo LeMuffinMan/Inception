@@ -10,31 +10,7 @@
 #                          42 Project Check Script
 # =============================================================================
 
-
-# =============================================================================
-# CONFIGURATION — Edit this section to match your setup
-# =============================================================================
-
-LOGIN="oelleaum"
-DOMAIN="${LOGIN}.42.fr"
-
-# Paths (relative to this script's location)
-COMPOSE_FILE="$(dirname "$0")/../srcs/docker-compose.yml"
-ENV_FILE="$(dirname "$0")/../srcs/.env"
-DB_SECRET_FILE="secrets/db_root_password.txt"
-VOLUME_MARIADB="srcs_mariadb_data"
-VOLUME_WORDPRESS="srcs_wordpress_data"
-
-REQUIRED_ENV_VARS=("DOMAIN_NAME" "MYSQL_USER" "MYSQL_DATABASE")
-
-# Timeout (seconds) when waiting for a container to be ready
-WAIT_TIMEOUT=15
-
-# =============================================================================
-# END OF CONFIGURATION — Do not edit below unless you know what you're doing
-# =============================================================================
-
-
+source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
 # --- Helpers ------------------------------------------------------------------

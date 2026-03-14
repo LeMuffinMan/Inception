@@ -1,35 +1,6 @@
 #!/bin/bash
 
-# =============================================================================
-# CONFIGURATION — Edit this section to match your setup
-# =============================================================================
-
-LOGIN="oelleaum"
-
-# Default MySQL username (stored in secrets/mysql_user.txt)
-DEFAULT_MYSQL_USER="mysql_user"
-
-# Default WordPress admin username (stored in secrets/wp_admin_user.txt)
-# Must NOT be "admin", "admin-*" or "administrator"
-DEFAULT_WP_ADMIN_USER="wp_admin_${LOGIN}"
-
-# Default WordPress subscriber username (stored in secrets/wp_user.txt)
-DEFAULT_WP_USER="wp_user_${LOGIN}"
-
-# Default email addresses
-DEFAULT_ADMIN_EMAIL="admin@${LOGIN}.42.fr"
-DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
-
-# Length of generated random secrets (bytes before base64)
-SECRET_LENGTH=32
-
-# Path to secrets directory (relative to this script)
-SECRETS_DIR="$(dirname "$0")/../secrets"
-
-# =============================================================================
-# END OF CONFIGURATION
-# =============================================================================
-
+source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
 # --- Helpers ------------------------------------------------------------------

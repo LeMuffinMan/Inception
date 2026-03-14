@@ -1,31 +1,12 @@
 #!/bin/bash
 
-# =============================================================================
-# CONFIGURATION
-# =============================================================================
-
-LOGIN="oelleaum"
-
-COMPOSE_FILE="$(dirname "$0")/../srcs/docker-compose.yml"
-
-CONTAINERS_TO_TEST=("nginx" "mariadb" "wordpress")
-
-RESTART_TIMEOUT=30
-
-# =============================================================================
-# END OF CONFIGURATION
-# =============================================================================
-
+source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
 COMPOSE="docker compose -f ${COMPOSE_FILE}"
 
 header "Crash Test" "login: ${LOGIN}"
 
-
-# =============================================================================
-# CRASH TEST
-# =============================================================================
 section "Crash Test"
 
 crash_test() {
