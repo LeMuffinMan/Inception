@@ -35,7 +35,7 @@ services:
       - .env
     volumes:
       - type: volume
-        source: wordpress-data
+        source: wordpress_data
         target: /var/www/html
     networks:
       - inception
@@ -102,7 +102,7 @@ services:
       retries: 3
       start_period: 10s
     volumes:
-      - wordpress-data:/var/www/html
+      - wordpress_data:/var/www/html
     networks:
       - inception
     depends_on:
@@ -115,7 +115,7 @@ networks:
 
 #virer les binds ?
 volumes:
-  wordpress-data:
+  wordpress_data:
     driver: local
     driver_opts:
       type: none

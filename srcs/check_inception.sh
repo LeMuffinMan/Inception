@@ -272,6 +272,16 @@ if echo "$CONTAINERS" | grep "wordpress" | grep "Up" > /dev/null && ! echo "$CON
         echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
     fi
 
+    if docker volume ls | grep -q "srcs_wordpress_data"; then
+        VOL=srcs_wordpress_data
+        HOST_PATH=$(docker volume inspect -f '{{ .Options.device }}' $VOL)
+        MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' $VOL)
+        DATE=$(docker volume inspect srcs_wordpress_data --format '{{ .CreatedAt }}')
+        echo -e "   ${YELLOW}volume: ${GREEN}OK${NC}: $HOST_PATH:$MOUNTPOINT"
+    else
+        echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
+    fi
+
 else
     echo -e "   ${YELLOW}running: ${RED}KO${NC}"
     echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
