@@ -263,17 +263,21 @@ else
     echo -e "   ${YELLOW}no 'latest' tag: ${GREEN}OK${NC}"
 fi
 
-for SERVICE in mariadb nginx wordpress; do
-    IMAGE_ID=$(docker image ls --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "${SERVICE}" | awk '{print $2}')
-    if [ -n "$IMAGE_ID" ]; then
-        DIGEST=$(docker image inspect "$IMAGE_ID" --format '{{.RepoDigests}}' 2>/dev/null)
-        if [ "$DIGEST" = "[]" ]; then
-            echo -e "   ${YELLOW}$SERVICE image local: ${GREEN}OK${NC}"
+ALLOWED_BASES="alpine debian"
+for DOCKERFILE in srcs/requirements/*/Dockerfile; do
+    SERVICE=$(echo "$DOCKERFILE" | awk -F'/' '{print $(NF-1)}')
+    FROM_LINE=$(grep -i "^FROM" "$DOCKERFILE" | head -1 | awk '{print $2}')
+    BASE=$(echo "$FROM_LINE" | cut -d':' -f1)
+    TAG=$(echo "$FROM_LINE" | cut -d':' -f2)
+
+    if echo "$ALLOWED_BASES" | grep -qw "$BASE"; then
+        if [ "$TAG" = "latest" ] || [ -z "$TAG" ]; then
+            echo -e "   ${YELLOW}$SERVICE base image: ${RED}KO (latest or no tag)${NC}"
         else
-            echo -e "   ${YELLOW}$SERVICE image local: ${RED}KO (pulled from registry)${NC}"
+            echo -e "   ${YELLOW}$SERVICE base image: ${GREEN}OK${NC}: $FROM_LINE"
         fi
     else
-        echo -e "   ${YELLOW}$SERVICE image local: ${RED}KO (not found)${NC}"
+        echo -e "   ${YELLOW}$SERVICE base image: ${RED}KO (forbidden base: $FROM_LINE)${NC}"
     fi
 done
 
