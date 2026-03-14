@@ -18,11 +18,7 @@ echo
 # network
 # Nginx as only entrypoint through 443 and not 80
 # no use of --link --links ...
-# verifier si deux named volumes existent bien
 # voir ou ils sont sur l'host et verifier le bind
-#
-# checker /etc/hosts pour la redirection localhost
-# checker le curl -k https://oelleaum.42.fr
 
 CONTAINERS=$($COMPOSE ps)
 
@@ -311,4 +307,18 @@ else
     else
         echo -e "      ${YELLOW}admin username valid: ${GREEN}OK${NC}"
     fi
+fi
+
+echo -e "   ${YELLOW}domain name:${NC}"
+DOMAIN_NAME="https://oelleaum.42.fr"
+if cat /etc/hosts | grep "127.0.0.1	oelleaum.42.fr" > /dev/null; then
+    echo -e "      ${YELLOW}custom domain name: ${GREEN}OK${NC}: ${DOMAIN_NAME}"
+else
+    echo -e "      ${YELLOW}custom domain name: ${GREEN}OK${NC}: ${DOMAIN_NAME}"
+fi
+
+if curl -k $DOMAIN_NAME > /dev/null 2>&1; then
+    echo -e "      ${YELLOW}reachable: ${GREEN}OK${NC}"
+else
+    echo -e "      ${YELLOW}reachable: ${RED}KO${NC}"
 fi
