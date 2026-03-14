@@ -137,7 +137,3 @@ if $ALL_HEALTHY; then
 else
     check "all containers healthy" "ko" "timed out after ${WAIT_TIMEOUT}s"
 fi
-
-echo
-echo -e "${GRAY}  Done.${NC}"
-echo

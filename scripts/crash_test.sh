@@ -87,7 +87,3 @@ crash_test() {
 for CONTAINER in "${CONTAINERS_TO_TEST[@]}"; do
     crash_test "$CONTAINER"
 done
-
-echo
-echo -e "${GRAY}  Done.${NC}"
-echo
