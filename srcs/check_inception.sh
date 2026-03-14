@@ -21,6 +21,22 @@ COMPOSE="docker compose -f $(dirname "$0")/../srcs/docker-compose.yml"
 
 echo -e "${YELLOW}Inception project check${NC}"
 echo
+
+# verifier si mdp / admin present dans le projet
+# checker le .env et ses variables
+# checker dockerhub et bien images locales, pas de latets
+#
+# network
+# Nginx as only entrypoint through 443 and not 80
+# no use of --link --links ...
+# verifier si deux named volumes existent bien
+# voir ou ils sont sur l'host et verifier le bind
+#
+# pour chqaue container verifier le restart on failure
+#
+# checker /etc/hosts pour la redirection localhost
+# checker le curl -k https://oelleaum.42.fr
+
 CONTAINERS=$($COMPOSE ps)
 
 echo -e "${YELLOW}Mariadb container:${NC} "
@@ -73,11 +89,12 @@ if echo "$CONTAINERS" | grep "mariadb" | grep "Up" > /dev/null && ! echo "$CONTA
     else
         echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
     fi
-    PORTS=$(docker port mariadb)
-    if [ "$(echo "$PORTS" | grep -c '3306/tcp')" -eq 2 ] && [ "$(echo "$PORTS" | wc -l)" -eq 2 ]; then
-        echo -e "   ${YELLOW}port: ${GREEN}OK${NC}"
+
+    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep mariadb | awk '{print $2}')
+    if [ "$PORT" == '0.0.0.0:3306->3306/tcp,' ]; then
+        echo -e "   ${YELLOW}ports: ${GREEN}OK${NC}: $PORT"
     else
-        echo -e "   ${YELLOW}port: ${RED}KO${NC}"
+        echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
     fi
 else
     echo -e "   ${YELLOW}running: ${RED}KO${NC}"
@@ -202,13 +219,12 @@ if echo "$CONTAINERS" | grep "nginx" | grep "Up" > /dev/null && ! echo "$CONTAIN
     # else
     #     echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
     # fi
-    PORTS=$(docker port nginx)
-    #grep une ligne entiere !
-    if [ "$(echo "$PORTS" | grep -c '443/tcp')" -eq 2 ] && [ "$(echo "$PORTS" | wc -l)" -eq 2 ]; then
-        #afficher le port si incorrect
-        echo -e "   ${YELLOW}port: ${GREEN}OK${NC}"
+
+    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep nginx | awk '{print $2}')
+    if [ "$PORT"  = "0.0.0.0:443->443/tcp," ]; then
+        echo -e "   ${YELLOW}ports: ${GREEN}OK${NC}: $PORT"
     else
-        echo -e "   ${YELLOW}port: ${RED}KO${NC}"
+        echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
     fi
 else
     echo -e "   ${YELLOW}running: ${RED}KO${NC}"
@@ -243,15 +259,22 @@ if echo "$CONTAINERS" | grep "wordpress" | grep "Up" > /dev/null && ! echo "$CON
         fi
     fi
 
-    if docker logs wordpress > /dev/null 2>&1; then
+    if docker logs wordpress | grep -q "Wordpress successfully installed" || docker logs wordpress | grep -q "Wordpress already installed and configured"; then
         echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
     else
         echo -e "   ${YELLOW}logs: ${RED}KO: timed out${NC}"
     fi
+
+    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep wordpress | awk '{print $2}')
+    if [ "$PORT" == "9000/tcp" ]; then
+        echo -e "   ${YELLOW}ports: ${GREEN}OK${NC}: $PORT"
+    else
+        echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
+    fi
+
 else
     echo -e "   ${YELLOW}running: ${RED}KO${NC}"
     echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
-    # echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
-    # echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
-    # echo -e "   ${YELLOW}port: ${RED}KO${NC}"
+    echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
+    echo -e "   ${YELLOW}port: ${RED}KO${NC}"
 fi

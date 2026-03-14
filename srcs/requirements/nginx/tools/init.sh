@@ -18,9 +18,11 @@ if [ ! -f /etc/nginx/ssl/cert.pem ]; then
         -out /etc/nginx/ssl/cert.pem \
         -subj "/C=CO/ST=REG/L=City/O=42/CN=localhost"
 
+
+    sed -i "s/server_name localhost/server_name ${DOMAIN_NAME}/g" /etc/nginx/http.d/nginx.conf
+
 fi
 
-sed -i "s/server_name localhost/server_name ${DOMAIN_NAME}/g" /etc/nginx/http.d/nginx.conf
 
 # Docker monitors PID 1 : we don't want nginx to run as daemon (fork and exit)
 # thus, Docker sees nginx as PID 1 running in the container, it can forward signals and monitor it
