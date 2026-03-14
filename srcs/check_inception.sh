@@ -30,6 +30,56 @@ echo
 # checker /etc/hosts pour la redirection localhost
 # checker le curl -k https://oelleaum.42.fr
 
+echo -e "${YELLOW}Project integrity checks:${NC}"
+echo
+
+# 1. Passwords in Dockerfiles
+PASS_FOUND=$(grep -rli "password" srcs/requirements/*/Dockerfile 2>/dev/null)
+if [ -z "$PASS_FOUND" ]; then
+    echo -e "   ${YELLOW}no password in Dockerfiles: ${GREEN}OK${NC}"
+else
+    echo -e "   ${YELLOW}no password in Dockerfiles: ${RED}KO${NC}: found in $PASS_FOUND"
+fi
+
+# 2. .env exists and has key variables
+if [ -f "srcs/.env" ]; then
+    echo -e "   ${YELLOW}.env exists: ${GREEN}OK${NC}"
+    for VAR in DOMAIN_NAME MYSQL_USER MYSQL_DATABASE; do
+        if grep -q "^${VAR}=" srcs/.env; then
+            echo -e "   ${YELLOW}.env $VAR: ${GREEN}OK${NC}"
+        else
+            echo -e "   ${YELLOW}.env $VAR: ${RED}KO (missing)${NC}"
+        fi
+    done
+else
+    echo -e "   ${YELLOW}.env exists: ${RED}KO${NC}"
+fi
+
+# 3. No 'latest' tag in docker-compose.yml
+if grep -q ":latest" srcs/docker-compose.yml 2>/dev/null; then
+    echo -e "   ${YELLOW}no 'latest' tag: ${RED}KO${NC}"
+else
+    echo -e "   ${YELLOW}no 'latest' tag: ${GREEN}OK${NC}"
+fi
+
+# 4. Images built locally (not pulled)
+for SERVICE in mariadb nginx wordpress; do
+    IMAGE_ID=$(docker image ls --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "^${SERVICE}" | awk '{print $2}')
+    if [ -n "$IMAGE_ID" ]; then
+        # Une image pullée depuis DockerHub a un RepoDigest, une buildée localement non
+        DIGEST=$(docker image inspect "$IMAGE_ID" --format '{{.RepoDigests}}' 2>/dev/null)
+        if [ "$DIGEST" = "[]" ]; then
+            echo -e "   ${YELLOW}$SERVICE image local: ${GREEN}OK${NC}"
+        else
+            echo -e "   ${YELLOW}$SERVICE image local: ${RED}KO (pulled from registry)${NC}"
+        fi
+    else
+        echo -e "   ${YELLOW}$SERVICE image local: ${RED}KO (not found)${NC}"
+    fi
+done
+
+echo
+
 CONTAINERS=$($COMPOSE ps)
 
 echo -e "${YELLOW}Mariadb container:${NC} "
