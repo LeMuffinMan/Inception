@@ -41,6 +41,7 @@ services:
     secrets:
       - db_password
       - db_root_password
+      - mysql_user
     container_name: mariadb
     build: ./requirements/mariadb
     env_file:
