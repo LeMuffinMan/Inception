@@ -15,8 +15,6 @@ COMPOSE="docker compose -f $(dirname "$0")/../srcs/docker-compose.yml"
 echo -e "${YELLOW}Inception project check${NC}"
 echo
 
-# verifier si mdp / admin present dans le projet : surtout pour WP et ses deux users
-#
 # network
 # Nginx as only entrypoint through 443 and not 80
 # no use of --link --links ...
@@ -284,7 +282,6 @@ else
     echo -e "   ${YELLOW}no external image in compose: ${RED}KO${NC}: $EXTERNAL_IMAGE"
 fi
 
-# WordPress users check
 echo -e "   ${YELLOW}WordPress users:${NC}"
 
 USERS=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N \
