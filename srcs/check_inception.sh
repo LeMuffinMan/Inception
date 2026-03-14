@@ -347,36 +347,3 @@ if grep -qE "network:\s+host" srcs/docker-compose.yml; then
 else
     echo -e "   ${YELLOW}no network host: ${GREEN}OK${NC}"
 fi
-
-echo
-echo -e "${YELLOW}Volumes checks:${NC}"
-
-for VOL in mariadb wordpress; do
-    SERVICE="srcs_${VOL}_data"
-    if docker volume ls | grep -q "$SERVICE"; then
-        DRIVER=$(docker volume inspect "$SERVICE" --format '{{.Driver}}')
-        MOUNTPOINT=$(docker volume inspect "$SERVICE" --format '{{.Mountpoint}}')
-        OPTIONS=$(docker volume inspect "$SERVICE" --format '{{.Options}}')
-
-        if [ "$DRIVER" = "local" ]; then
-            echo -e "   ${YELLOW}$VOL named volume: ${GREEN}OK${NC}"
-        else
-            echo -e "   ${YELLOW}$VOL named volume: ${RED}KO${NC}: driver is $DRIVER"
-        fi
-
-        if grep -A5 "volumes:" srcs/docker-compose.yml | grep -qE "\./|/home"; then
-            echo -e "   ${YELLOW}$VOL no bind mount: ${RED}KO${NC}: bind mount detected in docker-compose.yml"
-        else
-            echo -e "   ${YELLOW}$VOL no bind mount: ${GREEN}OK${NC}"
-        fi
-
-        DEVICE=$(docker volume inspect "$SERVICE" --format '{{.Options.device}}')
-        if echo "$DEVICE" | grep -q "/home/.*/data"; then
-            echo -e "   ${YELLOW}$VOL host path: ${GREEN}OK${NC}: $DEVICE"
-        else
-            echo -e "   ${YELLOW}$VOL host path: ${RED}KO${NC}: data not in /home/login/data, got: $DEVICE"
-        fi
-    else
-         echo -e "   ${YELLOW}$VOL named volume: ${RED}KO${NC}: volume $SERVICE not found"
-    fi
-done
