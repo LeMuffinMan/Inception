@@ -1,251 +1,324 @@
 #!/bin/bash
 
-set -a
-source "$(dirname "$0")/../srcs/.env"
-MYSQL_ROOT_PASSWORD=$(cat secrets/db_root_password.txt)
-set +a
+# =============================================================================
+#  ██╗███╗   ██╗ ██████╗███████╗██████╗ ████████╗██╗ ██████╗ ███╗   ██╗
+#  ██║████╗  ██║██╔════╝██╔════╝██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
+#  ██║██╔██╗ ██║██║     █████╗  ██████╔╝   ██║   ██║██║   ██║██╔██╗ ██║
+#  ██║██║╚██╗██║██║     ██╔══╝  ██╔═══╝    ██║   ██║██║   ██║██║╚██╗██║
+#  ██║██║ ╚████║╚██████╗███████╗██║        ██║   ██║╚██████╔╝██║ ╚████║
+#  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚══════╝╚═╝        ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+#                          42 Project Check Script
+# =============================================================================
 
+
+# =============================================================================
+# CONFIGURATION — Edit this section to match your setup
+# =============================================================================
+
+LOGIN="oelleaum"
+DOMAIN="${LOGIN}.42.fr"
+
+# Paths (relative to this script's location)
+COMPOSE_FILE="$(dirname "$0")/../srcs/docker-compose.yml"
+ENV_FILE="$(dirname "$0")/../srcs/.env"
+DB_SECRET_FILE="secrets/db_root_password.txt"
+VOLUME_MARIADB="srcs_mariadb_data"
+VOLUME_WORDPRESS="srcs_wordpress_data"
+
+REQUIRED_ENV_VARS=("DOMAIN_NAME" "MYSQL_USER" "MYSQL_DATABASE")
+
+# Timeout (seconds) when waiting for a container to be ready
+WAIT_TIMEOUT=15
+
+# =============================================================================
+# END OF CONFIGURATION — Do not edit below unless you know what you're doing
+# =============================================================================
+
+
+# --- Colors & formatting ------------------------------------------------------
+
+BOLD='\033[1m'
+DIM='\033[2m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
 NC='\033[0m'
 
-COMPOSE="docker compose -f $(dirname "$0")/../srcs/docker-compose.yml"
+PASS="${GREEN}${BOLD}✔ OK${NC}"
+FAIL="${RED}${BOLD}✘ KO${NC}"
 
-echo -e "${YELLOW}Inception project check${NC}"
-echo
+# --- Helpers ------------------------------------------------------------------
 
-CONTAINERS=$($COMPOSE ps)
+section() {
+    echo
+    echo -e "${CYAN}${BOLD}┌─────────────────────────────────────────┐${NC}"
+    printf "${CYAN}${BOLD}│  %-41s│${NC}\n" "$1"
+    echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
+}
 
-echo -e "${YELLOW}Mariadb container:${NC} "
-ATTEMPTS=0
-until [ docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1 ] || [ "$(echo "$ATTEMPTS")" -lt 5 ]; do
-    echo -e "${YELLOW}Waiting mariadb to be fully started ...${NC}"
-    sleep 1
-    ((ATTEMPTS++))
-    if [ "$(echo "$ATTEMPTS")" -eq 5 ]; then
-        echo -e "${YELLOW}Mariadb timed out:${NC}"
-    fi
-done
-if echo "$CONTAINERS" | grep "mariadb" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "mariadb" | grep "Restarting"; then
-    echo -e "   ${YELLOW}running: ${GREEN}OK${NC}"
-    if  ! echo "$CONTAINERS" | grep "mariadb" | grep -q "unhealthy"; then
-        if echo "$CONTAINERS" | grep "mariadb" | grep -q "health: starting"; then
-            echo -e "   ${YELLOW}healthy: starting...${NC}"
-        else
-            echo -e "   ${YELLOW}healthy: ${GREEN}OK${NC}"
-        fi
+check() {
+    local label="$1"
+    local status="$2"   # "ok" | "ko"
+    local detail="$3"   # optional extra info
+
+    if [ "$status" = "ok" ]; then
+        printf "  ${WHITE}%-50s${NC} ${PASS}" "$label"
     else
-        echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
+        printf "  ${WHITE}%-50s${NC} ${FAIL}" "$label"
     fi
 
-    if docker logs mariadb 2>&1 | grep -q "ready for connections"; then
-        echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
+    if [ -n "$detail" ]; then
+        echo -e "  ${DIM}→ ${detail}${NC}"
     else
-        ATTEMPTS=0
-        while [ $(docker logs mariadb 2>&1 | grep -q "ready for connections") ] || [ "$(echo "$ATTEMPTS")" -lt 5 ]; do
-            sleep 1
-            ((ATTEMPTS++))
-        done
-        if docker logs mariadb 2>&1 | grep -q "ready for connections"; then
-            echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
-        else
-            echo -e "   ${YELLOW}logs: ${RED}KO: timed out${NC}"
-        fi
+        echo
     fi
-    ATTEMPTS=0
-    until [ $(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1) ] || [ "$(echo "$ATTEMPTS")" -lt 5 ]; do
+}
+
+wait_for() {
+    local timeout="$1"; shift
+    local elapsed=0
+    while [ $elapsed -lt $timeout ]; do
+        eval "$@" && return 0
         sleep 1
-        ((ATTEMPTS++))
-        if [ "$(echo "$ATTEMPTS")" -eq 5 ]; then
-            echo -e "${YELLOW}Probe mariadb timed out:${NC}"
-        fi
+        ((elapsed++))
     done
-    PROBE=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 -e "SELECT 1" 2>&1)
-    if [ "$(echo "$PROBE")" -eq 1 ]; then
-        echo -e "   ${YELLOW}probe: ${GREEN}OK${NC}"
-    else
-        echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
-    fi
+    return 1
+}
 
-    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep mariadb | awk '{print $2}')
-    if [ "$PORT" == '3306/tcp' ]; then
-        echo -e "   ${YELLOW}ports: ${GREEN}OK${NC}: $PORT"
-    else
-        echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
-    fi
-else
-    echo -e "   ${YELLOW}running: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}port: ${RED}KO${NC}"
-fi
+# --- Init ---------------------------------------------------------------------
 
-if docker volume ls | grep -q "srcs_mariadb_data"; then
-    VOL=srcs_mariadb_data
-    HOST_PATH=$(docker volume inspect -f '{{ .Options.device }}' $VOL)
-    MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' $VOL)
-    DATE=$(docker volume inspect srcs_mariadb_data --format '{{ .CreatedAt }}')
-    echo -e "   ${YELLOW}volume: ${GREEN}OK${NC}: $HOST_PATH:$MOUNTPOINT"
-else
-    echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
-fi
+set -a
+[ -f "$ENV_FILE" ] && source "$ENV_FILE"
+MYSQL_ROOT_PASSWORD=$(cat "$DB_SECRET_FILE" 2>/dev/null)
+set +a
+
+COMPOSE="docker compose -f ${COMPOSE_FILE}"
+CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
 echo
-echo -e "${YELLOW}Nginx container:${NC} "
-ATTEMPTS=0
-if echo "$CONTAINERS" | grep "nginx" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "nginx" | grep "Restarting"; then
-    echo -e "   ${YELLOW}running: ${GREEN}OK${NC}"
-    if  echo "$CONTAINERS" | grep "nginx" | grep -q "unhealthy" > /dev/null; then
-        echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
+echo -e "${CYAN}${BOLD}  Inception — Project Check${NC}  ${DIM}login: ${LOGIN}  domain: ${DOMAIN}${NC}"
+echo -e "${DIM}  $(date)${NC}"
+
+CONTAINER_MARIADB="mariadb"
+CONTAINER_NGINX="nginx"
+CONTAINER_WORDPRESS="wordpress"
+
+PORT_MARIADB_EXPECTED="3306/tcp"
+PORT_NGINX_EXPECTED="0.0.0.0:443->443/tcp,"
+PORT_WORDPRESS_EXPECTED="9000/tcp"
+
+ADMIN_FORBIDDEN_PATTERN="^admin$|admin-|^administrator$"
+
+TLS_ACCEPT=("1.2" "1.3")
+TLS_REJECT=("1.1")
+
+
+# =============================================================================
+# MARIADB
+# =============================================================================
+section "MariaDB"
+
+if echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep "Up" > /dev/null \
+&& ! echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep "Restarting" > /dev/null; then
+    check "running" "ok"
+
+    if echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep -q "unhealthy"; then
+        check "healthy" "ko"
+    elif echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep -q "health: starting"; then
+        printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
     else
-        if echo "$CONTAINERS" | grep "nginx" | grep -q "health: starting"; then
-            echo -e "   ${YELLOW}healthy: starting...${NC}"
-        else
-            echo -e "   ${YELLOW}healthy: ${GREEN}OK${NC}"
-        fi
+        check "healthy" "ok"
     fi
 
-    if docker logs nginx > /dev/null > /dev/null 2>&1; then
-        echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
+    if wait_for $WAIT_TIMEOUT "docker logs $CONTAINER_MARIADB 2>&1 | grep -q 'ready for connections'"; then
+        check "logs (ready for connections)" "ok"
     else
-        echo -e "   ${YELLOW}logs: ${RED}KO: timed out${NC}"
+        check "logs (ready for connections)" "ko" "timed out after ${WAIT_TIMEOUT}s"
     fi
 
-    if curl -k https://localhost:443 > /dev/null 2>&1; then
-        echo -e "   ${YELLOW}probe: ${GREEN}OK${NC}"
+    PROBE=$(docker exec "$CONTAINER_MARIADB" mariadb -u root \
+        --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 \
+        -e "SELECT 1" 2>&1)
+    if [ "$PROBE" = "1" ]; then
+        check "probe (SELECT 1)" "ok"
     else
-        echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
+        check "probe (SELECT 1)" "ko"
     fi
 
-    TLS_VERSION=$(curl -k -v https://localhost:443 2>&1 | grep -o "TLSv1\.[0-9]" | sort -u)
+    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" \
+        | grep "$CONTAINER_MARIADB" | awk '{print $2}')
+    if [ "$PORT" = "$PORT_MARIADB_EXPECTED" ]; then
+        check "port" "ok" "$PORT"
+    else
+        check "port" "ko" "got: $PORT  expected: $PORT_MARIADB_EXPECTED"
+    fi
+
+    if docker volume ls | grep -q "$VOLUME_MARIADB"; then
+        HOST_PATH=$(docker volume inspect -f '{{ .Options.device }}' "$VOLUME_MARIADB")
+        MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' "$VOLUME_MARIADB")
+        check "volume" "ok" "${HOST_PATH} → ${MOUNTPOINT}"
+    else
+        check "volume" "ko" "volume $VOLUME_MARIADB not found"
+    fi
+else
+    for label in "running" "healthy" "logs" "probe" "port" "volume"; do
+        check "$label" "ko"
+    done
+fi
+
+
+# =============================================================================
+# NGINX
+# =============================================================================
+section "Nginx"
+
+if echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep "Up" > /dev/null \
+&& ! echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep "Restarting" > /dev/null; then
+    check "running" "ok"
+
+    if echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep -q "unhealthy"; then
+        check "healthy" "ko"
+    elif echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep -q "health: starting"; then
+        printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+    else
+        check "healthy" "ok"
+    fi
+
+    if docker logs "$CONTAINER_NGINX" > /dev/null 2>&1; then
+        check "logs" "ok"
+    else
+        check "logs" "ko"
+    fi
+
+    if curl -k "https://localhost:443" > /dev/null 2>&1; then
+        check "probe (HTTPS)" "ok"
+    else
+        check "probe (HTTPS)" "ko"
+    fi
+
+    TLS_VERSION=$(curl -k -v "https://localhost:443" 2>&1 | grep -o "TLSv1\.[0-9]" | sort -u)
     if [ -n "$TLS_VERSION" ]; then
-        echo -e "   ${YELLOW}TLS: ${GREEN}${TLS_VERSION}${NC}"
+        check "TLS version detected" "ok" "$TLS_VERSION"
     else
-        echo -e "   ${YELLOW}TLS: ${RED}KO${NC}"
+        check "TLS version detected" "ko"
     fi
 
-    if curl -k --tlsv1.2 https://localhost:443 > /dev/null 2>&1; then
-        echo -e "   ${YELLOW}TLSv1.2: ${GREEN}OK${NC}"
-    else
-        echo -e "   ${YELLOW}TLSv1.2: ${RED}KO${NC}"
-    fi
-
-    if curl -k --tlsv1.3 https://localhost:443 > /dev/null 2>&1; then
-        echo -e "   ${YELLOW}TLSv1.3: ${GREEN}OK${NC}"
-    else
-        echo -e "   ${YELLOW}TLSv1.3: ${RED}KO${NC}"
-    fi
-
-    if curl -k --tlsv1.1 --tls-max 1.1  https://localhost:443 2>&1 | grep "curl: (35) TLS connect error: error:0A0000BF:SSL routines::no protocols available" > /dev/null; then
-        echo -e "   ${YELLOW}TLSv1.1 denial: ${GREEN}OK${NC}"
-    else
-        echo -e "   ${YELLOW}TLSv1.1 denial: ${RED}KO${NC}"
-    fi
-
-    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep nginx | awk '{print $2}')
-    if [ "$PORT"  = "0.0.0.0:443->443/tcp," ]; then
-        echo -e "   ${YELLOW}ports: ${GREEN}OK${NC}: $PORT"
-    else
-        echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
-    fi
-else
-    echo -e "   ${YELLOW}running: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}probe: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}port: ${RED}KO${NC}"
-fi
-
-echo
-echo -e "${YELLOW}Wordpress container:${NC} "
-
-if echo "$CONTAINERS" | grep "wordpress" | grep "Up" > /dev/null && ! echo "$CONTAINERS" | grep "wordpress" | grep "Restarting"; then
-    echo -e "   ${YELLOW}running: ${GREEN}OK${NC}"
-    if  echo "$CONTAINERS" | grep "wordpress" | grep -q "unhealthy" > /dev/null; then
-        echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
-    else
-        if echo "$CONTAINERS" | grep "wordpress" | grep -q "health: starting"; then
-            echo -e "   ${YELLOW}healthy: starting...${NC}"
+    for VER in "${TLS_ACCEPT[@]}"; do
+        if curl -k --tlsv${VER} "https://localhost:443" > /dev/null 2>&1; then
+            check "TLSv${VER} accepted" "ok"
         else
-            echo -e "   ${YELLOW}healthy: ${GREEN}OK${NC}"
+            check "TLSv${VER} accepted" "ko"
         fi
-    fi
-
-    TIMEOUT=15
-    ELAPSED=0
-    INTERVAL=1
-    LOG_OK=false
-
-    while [ $ELAPSED -lt $TIMEOUT ]; do
-        if docker logs wordpress 2>&1 | grep -q "Wordpress successfully installed" \
-        || docker logs wordpress 2>&1 | grep -q "Wordpress already installed and configured"; then
-            LOG_OK=true
-            break
-        fi
-        sleep $INTERVAL
-        ELAPSED=$((ELAPSED + INTERVAL))
     done
 
-    if [ "$LOG_OK" = true ]; then
-        echo -e "   ${YELLOW}logs: ${GREEN}OK${NC}"
-    else
-        echo -e "   ${YELLOW}logs: ${RED}KO: timed out${NC}"
-    fi
+    for VER in "${TLS_REJECT[@]}"; do
+        if curl -k --tlsv${VER} --tls-max ${VER} "https://localhost:443" 2>&1 \
+        | grep -q "no protocols available"; then
+            check "TLSv${VER} rejected" "ok"
+        else
+            check "TLSv${VER} rejected" "ko"
+        fi
+    done
 
-    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" | grep wordpress | awk '{print $2}')
-    if [ "$PORT" == "9000/tcp" ]; then
-        echo -e "   ${YELLOW}ports: ${GREEN}OK${NC}: $PORT"
+    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" \
+        | grep "$CONTAINER_NGINX" | awk '{print $2}')
+    if [ "$PORT" = "$PORT_NGINX_EXPECTED" ]; then
+        check "port" "ok" "$PORT"
     else
-        echo -e "   ${YELLOW}port: ${RED}KO${NC}: $PORT"
+        check "port" "ko" "got: $PORT  expected: $PORT_NGINX_EXPECTED"
     fi
-
-    if docker volume ls | grep -q "srcs_wordpress_data"; then
-        VOL=srcs_wordpress_data
-        HOST_PATH=$(docker volume inspect -f '{{ .Options.device }}' $VOL)
-        MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' $VOL)
-        DATE=$(docker volume inspect srcs_wordpress_data --format '{{ .CreatedAt }}')
-        echo -e "   ${YELLOW}volume: ${GREEN}OK${NC}: $HOST_PATH:$MOUNTPOINT"
-    else
-        echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
-    fi
-
 else
-    echo -e "   ${YELLOW}running: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}healthy: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}logs: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}port: ${RED}KO${NC}"
-    echo -e "   ${YELLOW}volume: ${RED}KO${NC}"
+    for label in "running" "healthy" "logs" "probe" "TLS" "port"; do
+        check "$label" "ko"
+    done
 fi
 
-echo
-echo -e "${YELLOW}Project integrity checks:${NC}"
+
+# =============================================================================
+# WORDPRESS
+# =============================================================================
+section "WordPress"
+
+if echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep "Up" > /dev/null \
+&& ! echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep "Restarting" > /dev/null; then
+    check "running" "ok"
+
+    if echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep -q "unhealthy"; then
+        check "healthy" "ko"
+    elif echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep -q "health: starting"; then
+        printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+    else
+        check "healthy" "ok"
+    fi
+
+    LOG_OK=false
+    ELAPSED=0
+    while [ $ELAPSED -lt $WAIT_TIMEOUT ]; do
+        if docker logs "$CONTAINER_WORDPRESS" 2>&1 \
+        | grep -qE "Wordpress successfully installed|Wordpress already installed and configured"; then
+            LOG_OK=true; break
+        fi
+        sleep 1; ((ELAPSED++))
+    done
+    if $LOG_OK; then
+        check "logs (WP installed)" "ok"
+    else
+        check "logs (WP installed)" "ko" "timed out after ${WAIT_TIMEOUT}s"
+    fi
+
+    PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" \
+        | grep "$CONTAINER_WORDPRESS" | awk '{print $2}')
+    if [ "$PORT" = "$PORT_WORDPRESS_EXPECTED" ]; then
+        check "port" "ok" "$PORT"
+    else
+        check "port" "ko" "got: $PORT  expected: $PORT_WORDPRESS_EXPECTED"
+    fi
+
+    if docker volume ls | grep -q "$VOLUME_WORDPRESS"; then
+        HOST_PATH=$(docker volume inspect -f '{{ .Options.device }}' "$VOLUME_WORDPRESS")
+        MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' "$VOLUME_WORDPRESS")
+        check "volume" "ok" "${HOST_PATH} → ${MOUNTPOINT}"
+    else
+        check "volume" "ko" "volume $VOLUME_WORDPRESS not found"
+    fi
+else
+    for label in "running" "healthy" "logs" "port" "volume"; do
+        check "$label" "ko"
+    done
+fi
+
+
+# =============================================================================
+# PROJECT INTEGRITY
+# =============================================================================
+section "Project Integrity"
 
 PASS_FOUND=$(grep -rli "password" srcs/requirements/*/Dockerfile 2>/dev/null)
 if [ -z "$PASS_FOUND" ]; then
-    echo -e "   ${YELLOW}no password in Dockerfiles: ${GREEN}OK${NC}"
+    check "no password in Dockerfiles" "ok"
 else
-    echo -e "   ${YELLOW}no password in Dockerfiles: ${RED}KO${NC}: found in $PASS_FOUND"
+    check "no password in Dockerfiles" "ko" "found in: $PASS_FOUND"
 fi
 
-if [ -f "srcs/.env" ]; then
-    echo -e "   ${YELLOW}.env exists: ${GREEN}OK${NC}"
-    for VAR in DOMAIN_NAME MYSQL_USER MYSQL_DATABASE; do
-        if grep -q "^${VAR}=" srcs/.env; then
-            echo -e "   ${YELLOW}.env $VAR: ${GREEN}OK${NC}"
+if [ -f "$ENV_FILE" ]; then
+    check ".env exists" "ok" "$ENV_FILE"
+    for VAR in "${REQUIRED_ENV_VARS[@]}"; do
+        if grep -q "^${VAR}=" "$ENV_FILE"; then
+            check ".env → $VAR" "ok"
         else
-            echo -e "   ${YELLOW}.env $VAR: ${RED}KO (missing)${NC}"
+            check ".env → $VAR" "ko" "missing"
         fi
     done
 else
-    echo -e "   ${YELLOW}.env exists: ${RED}KO${NC}"
+    check ".env exists" "ko" "$ENV_FILE not found"
 fi
 
-if grep -q ":latest" srcs/docker-compose.yml 2>/dev/null; then
-    echo -e "   ${YELLOW}no 'latest' tag: ${RED}KO${NC}"
+if grep -q ":latest" "$COMPOSE_FILE" 2>/dev/null; then
+    check "no 'latest' tag in compose" "ko"
 else
-    echo -e "   ${YELLOW}no 'latest' tag: ${GREEN}OK${NC}"
+    check "no 'latest' tag in compose" "ok"
 fi
 
 ALLOWED_BASES="alpine debian"
@@ -257,93 +330,103 @@ for DOCKERFILE in srcs/requirements/*/Dockerfile; do
 
     if echo "$ALLOWED_BASES" | grep -qw "$BASE"; then
         if [ "$TAG" = "latest" ] || [ -z "$TAG" ]; then
-            echo -e "   ${YELLOW}$SERVICE base image: ${RED}KO (latest or no tag)${NC}"
+            check "base image: $SERVICE" "ko" "latest or missing tag ($FROM_LINE)"
         else
-            echo -e "   ${YELLOW}$SERVICE base image: ${GREEN}OK${NC}: $FROM_LINE"
+            check "base image: $SERVICE" "ok" "$FROM_LINE"
         fi
     else
-        echo -e "   ${YELLOW}$SERVICE base image: ${RED}KO (forbidden base: $FROM_LINE)${NC}"
+        check "base image: $SERVICE" "ko" "forbidden base ($FROM_LINE)"
     fi
 done
 
-EXTERNAL_IMAGE=$(grep -E "^\s+image:" srcs/docker-compose.yml | grep -v "^\s*#")
+EXTERNAL_IMAGE=$(grep -E "^\s+image:" "$COMPOSE_FILE" | grep -v "^\s*#")
 if [ -z "$EXTERNAL_IMAGE" ]; then
-    echo -e "   ${YELLOW}no external image in compose: ${GREEN}OK${NC}"
+    check "no external image in compose" "ok"
 else
-    echo -e "   ${YELLOW}no external image in compose: ${RED}KO${NC}: $EXTERNAL_IMAGE"
+    check "no external image in compose" "ko" "$EXTERNAL_IMAGE"
 fi
 
-echo -e "   ${YELLOW}WordPress users:${NC}"
 
-USERS=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N \
-    --connect-timeout=2 \
+# =============================================================================
+# WORDPRESS USERS
+# =============================================================================
+section "WordPress Users"
+
+USERS=$(docker exec "$CONTAINER_MARIADB" mariadb -u root \
+    --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 \
     -e "SELECT user_login, user_email FROM ${MYSQL_DATABASE}.wp_users;" 2>/dev/null)
 
 USER_COUNT=$(echo "$USERS" | grep -c ".")
 if [ "$USER_COUNT" -ge 2 ]; then
-    echo -e "      ${YELLOW}user count: ${GREEN}OK${NC}: $USER_COUNT users"
+    check "user count (≥ 2)" "ok" "${USER_COUNT} users"
 else
-    echo -e "      ${YELLOW}user count: ${RED}KO${NC}: only $USER_COUNT user(s)"
+    check "user count (≥ 2)" "ko" "only ${USER_COUNT} user(s)"
 fi
 
-ADMIN_USER=$(docker exec mariadb mariadb -u root --password="${MYSQL_ROOT_PASSWORD}" -N \
-    --connect-timeout=2 \
+ADMIN_USER=$(docker exec "$CONTAINER_MARIADB" mariadb -u root \
+    --password="${MYSQL_ROOT_PASSWORD}" -N --connect-timeout=2 \
     -e "SELECT user_login FROM ${MYSQL_DATABASE}.wp_users
         JOIN ${MYSQL_DATABASE}.wp_usermeta ON wp_users.ID = wp_usermeta.user_id
         WHERE meta_key = 'wp_capabilities'
         AND meta_value LIKE '%administrator%';" 2>/dev/null)
 
 if [ -z "$ADMIN_USER" ]; then
-    echo -e "      ${YELLOW}admin exists: ${RED}KO${NC}"
+    check "admin exists" "ko"
 else
-    echo -e "      ${YELLOW}admin exists: ${GREEN}OK${NC}: $ADMIN_USER"
-    if echo "$ADMIN_USER" | grep -iE "^admin$|admin-|^administrator$" > /dev/null; then
-        echo -e "      ${YELLOW}admin username valid: ${RED}KO${NC}: '$ADMIN_USER' contains forbidden pattern"
+    check "admin exists" "ok" "$ADMIN_USER"
+    if echo "$ADMIN_USER" | grep -iE "$ADMIN_FORBIDDEN_PATTERN" > /dev/null; then
+        check "admin username (no forbidden pattern)" "ko" "'$ADMIN_USER' matches forbidden pattern"
     else
-        echo -e "      ${YELLOW}admin username valid: ${GREEN}OK${NC}"
+        check "admin username (no forbidden pattern)" "ok"
     fi
 fi
 
-echo -e "   ${YELLOW}domain name:${NC}"
-DOMAIN_NAME="https://oelleaum.42.fr"
-if cat /etc/hosts | grep "127.0.0.1	oelleaum.42.fr" > /dev/null; then
-    echo -e "      ${YELLOW}custom domain name: ${GREEN}OK${NC}: ${DOMAIN_NAME}"
+
+# =============================================================================
+# NETWORK
+# =============================================================================
+section "Network"
+
+EXPOSED_PORTS=$(docker ps --format "{{.Names}}\t{{.Ports}}")
+
+FORBIDDEN_PORTS=$(echo "$EXPOSED_PORTS" | grep -v "$CONTAINER_NGINX" | grep "0.0.0.0:")
+if [ -z "$FORBIDDEN_PORTS" ]; then
+    check "nginx only entrypoint" "ok"
 else
-    echo -e "      ${YELLOW}custom domain name: ${GREEN}OK${NC}: ${DOMAIN_NAME}"
+    check "nginx only entrypoint" "ko" "$FORBIDDEN_PORTS"
 fi
 
-if curl -k $DOMAIN_NAME > /dev/null 2>&1; then
-    echo -e "      ${YELLOW}reachable: ${GREEN}OK${NC}"
+PORT_80=$(echo "$EXPOSED_PORTS" | grep "$CONTAINER_NGINX" | grep "0.0.0.0:80->")
+if [ -z "$PORT_80" ]; then
+    check "nginx: no port 80" "ok"
 else
-    echo -e "      ${YELLOW}reachable: ${RED}KO${NC}"
+    check "nginx: no port 80" "ko"
+fi
+
+if grep -qE "^\s+links:" "$COMPOSE_FILE"; then
+    check "no 'links:' in compose" "ko"
+else
+    check "no 'links:' in compose" "ok"
+fi
+
+if grep -qE "network:\s+host" "$COMPOSE_FILE"; then
+    check "no 'network: host' in compose" "ko"
+else
+    check "no 'network: host' in compose" "ok"
+fi
+
+if curl -k "https://${DOMAIN}" > /dev/null 2>&1; then
+    check "domain reachable (${DOMAIN})" "ok"
+else
+    check "domain reachable (${DOMAIN})" "ko"
+fi
+
+if grep -q "127.0.0.1	${DOMAIN}" /etc/hosts; then
+    check "/etc/hosts entry" "ok" "127.0.0.1 → ${DOMAIN}"
+else
+    check "/etc/hosts entry" "ko" "missing: 127.0.0.1  ${DOMAIN}"
 fi
 
 echo
-echo -e "${YELLOW}Network checks:${NC}"
-
-EXPOSED_PORTS=$(docker ps --format "{{.Names}}\t{{.Ports}}" | grep -v "^NAME" | awk '{print $1, $2}')
-FORBIDDEN_PORTS=$(echo "$EXPOSED_PORTS" | grep -v "nginx" | grep "0.0.0.0:")
-if [ -z "$FORBIDDEN_PORTS" ]; then
-    echo -e "   ${YELLOW}nginx only entrypoint: ${GREEN}OK${NC}"
-else
-    echo -e "   ${YELLOW}nginx only entrypoint: ${RED}KO${NC}: other containers expose ports: $FORBIDDEN_PORTS"
-fi
-
-PORT_80=$(echo "$EXPOSED_PORTS" | grep "nginx" | grep "0.0.0.0:80->")
-if [ -z "$PORT_80" ]; then
-    echo -e "   ${YELLOW}nginx no port 80: ${GREEN}OK${NC}"
-else
-    echo -e "   ${YELLOW}nginx no port 80: ${RED}KO${NC}"
-fi
-
-if grep -qE "^\s+links:" srcs/docker-compose.yml; then
-    echo -e "   ${YELLOW}no links: ${RED}KO${NC}: 'links:' found in docker-compose.yml"
-else
-    echo -e "   ${YELLOW}no links: ${GREEN}OK${NC}"
-fi
-
-if grep -qE "network:\s+host" srcs/docker-compose.yml; then
-    echo -e "   ${YELLOW}no network host: ${RED}KO${NC}: 'network: host' found in docker-compose.yml"
-else
-    echo -e "   ${YELLOW}no network host: ${GREEN}OK${NC}"
-fi
+echo -e "${DIM}  Done.${NC}"
+echo
