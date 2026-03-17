@@ -25,20 +25,19 @@ RUN apk add --no-cache \
     php83-session && \
 curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 chmod +x wp-cli.phar && \
-mv wp-cli.phar /usr/bin/wp #tout mettre dans /usr/local/bin !!
+mv wp-cli.phar /usr/local/bin/wp #tout mettre dans /usr/local/bin !!
 
-RUN ln -sf /usr/bin/php83 /usr/bin/php
+RUN ln -sf /usr/local/bin/php83 /usr/local/bin/php
 RUN sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php83/php.ini
 
 RUN mkdir -p /var/www/html
 
-COPY tools/init.sh /usr/bin/init.sh
-RUN chmod +x /usr/bin/init.sh
+COPY tools/init.sh /usr/local/bin/init.sh
+RUN chmod +x /usr/local/bin/init.sh
 
 EXPOSE 9000
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --start-interval=20s --retries=3 \
         CMD php-fpm83 -t || exit 1
 
-#tout mettre dasn /usr/local/bin
-ENTRYPOINT ["/usr/bin/init.sh"]
+ENTRYPOINT ["/usr/local/bin/init.sh"]
