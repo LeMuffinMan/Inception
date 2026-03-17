@@ -58,51 +58,56 @@ wait_for() {
     return 1
 }
 
+# --- Wait for all containers to be up and healthy -------------------------
 
 wait_for_containers() {
     local timeout=30
     local elapsed=0
-    local all_ready
+    local containers=("$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS")
 
-    printf "\n  ${CYAN}${BOLD}Waiting for containers to be ready...${NC}\n"
+    echo
 
     while [ $elapsed -lt $timeout ]; do
         CONTAINERS=$($COMPOSE ps 2>/dev/null)
-        all_ready=true
 
-        for container in "$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS"; do
+        local all_ready=true
+        local output=""
+
+        for container in "${containers[@]}"; do
             local line
             line=$(echo "$CONTAINERS" | grep "$container")
 
+            local status icon
             if ! echo "$line" | grep -q "Up"; then
-                all_ready=false; break
+                status="${RED}starting${NC}"; icon="${YELLOW}◌${NC}"; all_ready=false
+            elif echo "$line" | grep -q "Restarting"; then
+                status="${RED}restarting${NC}"; icon="${RED}✗${NC}"; all_ready=false
+            elif echo "$line" | grep -q "unhealthy"; then
+                status="${RED}unhealthy${NC}"; icon="${RED}✗${NC}"; all_ready=false
+            elif echo "$line" | grep -q "health: starting"; then
+                status="${YELLOW}health check...${NC}"; icon="${YELLOW}◌${NC}"; all_ready=false
+            else
+                status="${GREEN}ready${NC}"; icon="${GREEN}✓${NC}"
             fi
 
-            if echo "$line" | grep -q "Restarting"; then
-                all_ready=false; break
-            fi
-
-            if echo "$line" | grep -q "health: starting"; then
-                all_ready=false; break
-            fi
-
-            if echo "$line" | grep -q "unhealthy"; then
-                all_ready=false; break
-            fi
+            output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\n"
         done
 
-        if $all_ready; then
-            printf "  ${GREEN}All containers ready${NC} ${DIM}(${elapsed}s)${NC}\n"
-            return 0
-        fi
+        printf "\033[${#containers[@]}A" 2>/dev/null
+        printf "%b" "$output"
 
-        printf "  ${DIM}[%2ds] still waiting...${NC}\r" "$elapsed"
+        $all_ready && {
+            echo
+            printf "  ${GREEN}All containers ready${NC}  ${DIM}(${elapsed}s)${NC}\n"
+            return 0
+        }
+
         sleep 1
         ((elapsed++))
     done
 
-    CONTAINERS=$($COMPOSE ps 2>/dev/null)
-    printf "\n  ${RED}${BOLD}Timeout: containers not ready after ${timeout}s${NC}\n"
+    echo
+    printf "  ${RED}${BOLD}Timeout: containers not ready after ${timeout}s${NC}\n"
     return 1
 }
 
