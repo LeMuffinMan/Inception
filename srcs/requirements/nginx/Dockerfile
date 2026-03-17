@@ -5,14 +5,11 @@ RUN apk add --no-cache \
     openssl && \
     rm -rf /etc/nginx/http.d/default.conf
 
-#To remove !!!
-# COPY tools/index.html /usr/share/nginx/html/index.html
-
 COPY tools/conf /etc/nginx/http.d/nginx.conf
 COPY tools/init.sh /usr/bin/init.sh
 RUN chmod +x /usr/bin/init.sh
 
-COPY tools/index.html /var/www/html/index.html
+# COPY tools/index.html /var/www/html/index.html
 
 EXPOSE 443
 

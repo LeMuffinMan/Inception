@@ -61,4 +61,6 @@ else
     echo "Wordpress already installed and configured"
 fi
 
+sed -i 's/listen = 127.0.0.1/listen = 0.0.0.0:9000/' /etc/php83/php-fpm.d/www.conf && echo "socket set OK" || echo "socket set KO"
+
 exec php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf
