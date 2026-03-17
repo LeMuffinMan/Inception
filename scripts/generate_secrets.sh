@@ -159,3 +159,19 @@ else
         check "$ENV_FILE" "ok" "patched: ${patched[*]}"
     fi
 fi
+
+# --- /etc/hosts ---------------------------------------------------------------
+section "Hosts"
+
+HOSTS_FILE="/etc/hosts"
+HOSTS_ENTRY="127.0.0.1 ${USER}.42.fr"
+
+if [ "$(head -1 "$HOSTS_FILE")" = "$HOSTS_ENTRY" ]; then
+    check "$HOSTS_FILE" "ok"
+elif grep -q "^127\.0\.0\.1 ${USER}\.42\.fr$" "$HOSTS_FILE"; then
+    sudo sed -i "s|^127\.0\.0\.1 ${USER}\.42\.fr.*|${HOSTS_ENTRY}|" "$HOSTS_FILE"
+    check "$HOSTS_FILE" "ok" "updated → ${HOSTS_ENTRY}"
+else
+    sudo sed -i "1i ${HOSTS_ENTRY}" "$HOSTS_FILE"
+    check "$HOSTS_FILE" "ok" "inserted → ${HOSTS_ENTRY}"
+fi
