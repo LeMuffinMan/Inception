@@ -137,6 +137,11 @@ ADMIN_FORBIDDEN_PATTERN="^admin$|admin-|^administrator$"
 TLS_ACCEPT=("1.2" "1.3")
 TLS_REJECT=("1.1")
 
+if ! wait_for_containers; then
+    echo
+    $COMPOSE ps
+    exit 1
+fi
 
 # =============================================================================
 # MARIADB
@@ -451,9 +456,3 @@ else
 fi
 
 echo
-
-if ! wait_for_containers; then
-    echo
-    $COMPOSE ps
-    exit 1
-fi
