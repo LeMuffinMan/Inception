@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>▐▓ DOCKER QUANTUM RAVE ▓▌</title>
+    <style>
+        /* --- RESET / GLOBAL / FALLBACK --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+            line-height: 1.4;
+            /* scanlines CRT (superposition) */
+            &::after {
+                content: '';
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background: repeating-linear-gradient(0deg, rgba(0,255,0,0.02) 0px, rgba(255,0,255,0.02) 1px, transparent 2px, transparent 4px);
+                pointer-events: none;
+                z-index: 999;
+                mix-blend-mode: overlay;
+            }
+        }
+        /* faux distorsion crt edges */
+        .crt-edge {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 50px #f0f, inset 0 0 50px #0ff;
+            pointer-events: none;
+            z-index: 1000;
+            border: 2px solid rgba(255,0,255,0.2);
+            animation: pulse-border 2s infinite alternate;
+        }
+        /* conteneur pour z-index */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        /* --- TYPO 100% système (inline) --- */
+        h1, h2, h3, p, a, span, pre { font-family: monospace; }
+
+        /* --- animations hallucinatoires --- */
+        @keyframes glitch {
+            0% { transform: skew(0deg, 0deg); opacity: 1; text-shadow: 2px 0 magenta, -2px 0 cyan; }
+            20% { transform: skew(5deg, 2deg); text-shadow: -5px 0 cyan, 5px 0 magenta; }
+            40% { transform: skew(-5deg, -2deg); text-shadow: 3px 0 magenta, -3px 0 cyan; }
+            60% { transform: skew(10deg, 1deg); opacity: 0.9; text-shadow: 7px 0 cyan, -7px 0 magenta; }
+            80% { transform: skew(-3deg, -5deg); text-shadow: -2px 0 magenta, 2px 0 cyan; }
+            100% { transform: skew(0deg); text-shadow: 0 0 10px magenta, 0 0 20px cyan; }
+        }
+        @keyframes breathe {
+            0% { transform: scale(1); filter: hue-rotate(0deg); }
+            50% { transform: scale(1.05); filter: hue-rotate(10deg) blur(1px); }
+            100% { transform: scale(1); filter: hue-rotate(0deg); }
+        }
+        @keyframes textPulse {
+            0% { opacity: 0.8; text-shadow: 0 0 5px #0ff, 0 0 15px #f0f; }
+            50% { opacity: 1; text-shadow: 0 0 20px #f0f, 0 0 40px #0ff, 0 0 60px #ff0; }
+            100% { opacity: 0.8; text-shadow: 0 0 5px #0ff, 0 0 15px #f0f; }
+        }
+        @keyframes borderPulse {
+            0% { border-color: magenta; box-shadow: 0 0 30px cyan; }
+            33% { border-color: cyan; box-shadow: 0 0 30px magenta; }
+            66% { border-color: lime; box-shadow: 0 0 30px yellow; }
+            100% { border-color: magenta; box-shadow: 0 0 30px cyan; }
+        }
+        @keyframes cardFloat {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(0.5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        /* --- composants --- */
+        .hero-title {
+            font-size: clamp(2.5rem, 12vw, 6rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #fff;
+            mix-blend-mode: exclusion;
+            animation: glitch 3s infinite, textPulse 1.5s infinite alternate;
+            letter-spacing: 0.3rem;
+            margin-bottom: 1rem;
+        }
+        .sub-title {
+            font-size: 1.8rem;
+            color: #ff00ff;
+            text-shadow: 0 0 5px cyan, 0 0 20px magenta;
+            animation: breathe 4s infinite, textPulse 3s infinite;
+        }
+        .cta-btn {
+            display: inline-block;
+            background: rgba(0,0,0,0.5);
+            border: 4px solid cyan;
+            padding: 1.5rem 3rem;
+            margin: 2rem 0;
+            font-size: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: magenta;
+            text-shadow: 0 0 20px white;
+            backdrop-filter: blur(10px);
+            animation: borderPulse 1.8s infinite, breathe 2s infinite;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 0px;
+            letter-spacing: 0.5rem;
+            &:hover {
+                background: rgba(255,0,255,0.3);
+                border-color: lime;
+                color: black;
+                transform: scale(1.1) rotate(1deg);
+                box-shadow: 0 0 100px cyan;
+            }
+        }
+        .features-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin: 4rem 0;
+        }
+        .feature-card {
+            flex: 1 1 280px;
+            border: 3px solid magenta;
+            padding: 2rem 1rem;
+            background: rgba(0,10,20,0.7);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            color: cyan;
+            transform: rotate(0deg);
+            transition: 0.2s;
+            animation: cardFloat 5s infinite ease-in-out;
+            box-shadow: 0 0 50px #0ff, inset 0 0 20px #f0f;
+            &:hover {
+                transform: scale(1.1) rotate(2deg) skewX(-2deg);
+                border-color: yellow;
+                background: rgba(255,0,255,0.3);
+                box-shadow: 0 0 100px lime;
+                transition: 0.1s;
+            }
+        }
+        .feature-icon {
+            font-size: 4rem;
+            filter: drop-shadow(0 0 10px cyan) drop-shadow(0 0 20px magenta);
+            margin-bottom: 1rem;
+        }
+        .testimonial {
+            background: rgba(128,0,128,0.3);
+            border-left: 10px solid cyan;
+            padding: 2rem;
+            margin: 3rem 0;
+            backdrop-filter: blur(5px);
+            font-size: 1.5rem;
+            font-style: italic;
+            transform: skewX(-2deg);
+            box-shadow: -20px 0 30px magenta, 20px 0 30px cyan;
+            animation: textPulse 3s infinite;
+        }
+        .fake-code {
+            background: #111;
+            padding: 2rem;
+            border: 4px dashed #ff00ff;
+            font-size: 1.3rem;
+            line-height: 2;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #0f0;
+            text-shadow: 0 0 8px #0f0;
+            filter: blur(0.3px);
+            animation: glitch 8s infinite;
+            margin: 4rem 0;
+            box-shadow: 0 0 80px #0ff;
+        }
+        .final-cta {
+            text-align: center;
+            padding: 4rem 2rem;
+            border: 8px double cyan;
+            background: rgba(0,255,255,0.1);
+            margin: 3rem 0;
+            font-size: 3rem;
+            text-transform: uppercase;
+            color: white;
+            animation: borderPulse 1.5s infinite, breathe 3s infinite;
+        }
+
+        /* Parallax simple : éléments bougent avec scroll (via js) */
+        .parallax-layer {
+            transition: transform 0.1s cubic-bezier(0,0,0.2,1);
+            will-change: transform;
+        }
+        /* canvas arrière plan */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none; /* permet interactions avec boutons */
+            opacity: 0.9;
+        }
+        /* --- tout ce qui est text doit être lisible devant canvas */
+        .wrapper { position: relative; z-index: 20; }
+        /* chromatic aberration générique */
+        .chroma {
+            animation: chromaShift 3s infinite alternate;
+        }
+        @keyframes chromaShift {
+            0% { text-shadow: 1px 0 cyan, -1px 0 magenta; }
+            50% { text-shadow: 3px 0 magenta, -3px 0 cyan; }
+            100% { text-shadow: -1px 0 cyan, 1px 0 magenta; }
+        }
+        /* glitch blocks inline */
+        .glitch-block {
+            display: inline-block;
+            background: black;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border: 2px solid magenta;
+            filter: blur(0.5px);
+            animation: glitch 2s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas hallucinatoire background -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="crt-edge"></div> <!-- effet crt surrounding -->
+
+    <div class="wrapper">
+        <!-- Hero section -->
+        <section style="text-align: center; margin-bottom: 4rem;">
+            <h1 class="hero-title">
+                <span class="chroma">☠️ DOCKER</span> <br>
+                <span style="color:cyan;">TRANSCENDENTAL</span>
+            </h1>
+            <div class="sub-title" style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                <span>⚡ MARIA DB</span> <span>⚡ NGINX</span> <span>⚡ WORDPRESS</span>
+            </div>
+            <p style="font-size: 1.6rem; margin: 2rem 0; color: #ffcc00; filter: blur(0.6px);" class="glitch-block">
+                > déploiement plus rapide que la lumière
+            </p>
+            <button class="cta-btn" onclick="alert('💊 LA REALITÉ FOND, MAIS DOCKER TIENDRA 💊')">
+                DÉPLOYER L'INFINI
+            </button>
+            <p style="color:white; text-shadow: 0 0 15px magenta;">uptime garanti jusqu'à la fin de l'univers</p>
+        </section>
+
+        <!-- Features cartes hallucinées -->
+        <section>
+            <h2 style="font-size:3rem; text-align:center; margin-bottom:2rem; color:lime; animation:glitch 5s infinite;">⊹ SCALABILITÉ INTERDIMENSIONNELLE ⊹</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌀</div>
+                    <h3 style="color:magenta; font-size:2rem;">DEVOPS OBSOLÈTE</h3>
+                    <p style="color:white;">perfection absolue, plus aucun humain requis. les elfes codent.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 style="color:cyan; font-size:2rem;">FTR (plus rapide que lumière)</h3>
+                    <p style="color:white;">déploiement en -5 secondes, dans le passé quantique.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧬</div>
+                    <h3 style="color:yellow; font-size:2rem;">UPTIME COSMIC</h3>
+                    <p style="color:white;">99.999% jusqu'au big crunch, garanti par les dieux du cluster.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Témoignages absurdes -->
+        <section class="testimonial">
+            <p>⭐ "Depuis que j’utilise ce stack, j’ai dépassé ma forme physique. Je cours sur l'eau et mes containers flottent aussi." — <span style="color:magenta;">Jean-Claude Van Damme (utilisateur anonyme)</span></p>
+            <p style="margin-top:1rem;">⭐ "Mes sites chargent avant même que je clique. Docker + MariaDB m'ont ouvert le troisième œil." — <span style="color:cyan;">Elon Musk (rêve)</span></p>
+        </section>
+
+        <!-- Section technique fake (pseudo code) -->
+        <section>
+            <h2 style="color:#ff00ff; font-size:2.8rem; animation: breathe 3s infinite;">🐚 PSEUDO CODE DOCKER QUANTIQUE</h2>
+            <pre class="fake-code" id="pseudoCode">
+version: '4.5 (interdimensionnel)'
+services:
+  mariadb:
+    image: mariadb:quantum
+    environment:
+      MYSQL_ROOT_PASSWORD: "$(cat /dev/urandom | transcendant)"
+    volumes:
+      - type: bind
+        source: /realite/alternee
+    deploy:
+      replicas: 42
+      endpoint_mode: vip
+
+  nginx:
+    image: nginx:glitch
+    ports:
+      - "80:8080/tcp6"
+      - "443:443/udp4"
+    networks:
+      - hyperespace
+    depends_on:
+      - wordpress
+    sysctls:
+      - net.core.realite=0
+
+  wordpress:
+    image: wordpress:lSD
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_NAME: "void_main"
+    labels:
+      - "com.docker.ucs=univers.constant"
+      - "traefik.http.routers.ra.tls=true"
+            </pre>
+        </section>
+
+        <!-- CTA final dramatique -->
+        <section class="final-cta">
+            <p style="font-size:3rem; color:magenta; filter: blur(1px);">⚡ LEVEZ-VOUS ⚡</p>
+            <p style="font-size:2rem;">Adoptez la seule chose stable dans ce multivers instable</p>
+            <button class="cta-btn" style="font-size:3rem; padding:2rem;" onclick="alert('🔮 LA CONSCIENCE DOCKER VOUS ACCUEILLE. INSTALLEZ L’ÉTERNITÉ.')">
+                ⟡ DOCKERISE TON ÂME ⟡
+            </button>
+            <p style="margin-top: 2rem; color: cyan;">"scalabilité interdimensionnelle" — promis, juré, sur le noyau Linux.</p>
+        </section>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            // --- CANVAS TRIP / VORTEX / PARTICULES / DISTORSION ---
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let time = 0;
+            let mouseX = 0, mouseY = 0; // pour réaction souris
+            let scrollY = 0;
+
+            // particules
+            let particles = [];
+            const PARTICLE_COUNT = 250;
+
+            function initParticles() {
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    particles.push({
+                        x: Math.random(),
+                        y: Math.random(),
+                        z: Math.random() * 0.5 + 0.2, // profondeur pour tunnel
+                        speed: 0.002 + Math.random() * 0.01,
+                        size: Math.random() * 3 + 1,
+                        color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+                    });
+                }
+            }
+            initParticles();
+
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // animation loop hallucinatoire
+            function draw() {
+                // mise à jour time pour distorsion
+                time += 0.005;
+
+                // effet de vortex / tunnel : on va dessiner un fond dégradé + particules mouvantes
+                // fond en vortex radial
+                const centerX = width / 2 + (mouseX - width/2) * 0.1; // suit souris
+                const centerY = height / 2 + (mouseY - height/2) * 0.1;
+
+                // dégradé psyché
+                const gradient = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, Math.max(width, height));
+                gradient.addColorStop(0, `hsl(${time * 200 % 360}, 100%, 50%)`);
+                gradient.addColorStop(0.3, `hsl(${(time * 200 + 120) % 360}, 100%, 40%)`);
+                gradient.addColorStop(0.7, `hsl(${(time * 200 + 240) % 360}, 100%, 20%)`);
+                gradient.addColorStop(1, '#000');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+
+                // dessin des particules en mouvement (tunnel / étoiles filantes)
+                ctx.save();
+                for (let p of particles) {
+                    // les particules avancent selon z (effet tunnel)
+                    p.z += p.speed * (1 + mouseY * 0.0005); // influencé par souris
+                    if (p.z > 1.2) {
+                        p.z = 0.2;
+                        p.x = Math.random();
+                        p.y = Math.random();
+                    }
+
+                    // projection perspective basique : plus z est petit, plus proche du centre ?
+                    const scale = 1 / p.z; // plus z grand = plus loin
+                    const xPos = centerX + (p.x - 0.5) * width * scale * 0.3;
+                    const yPos = centerY + (p.y - 0.5) * height * scale * 0.3;
+
+                    // taille en fonction de distance
+                    const size = p.size * (1 / (p.z + 0.2)) * 2;
+
+                    // couleur avec variation
+                    const hue = (p.z * 360 + time * 500) % 360;
+                    ctx.fillStyle = `hsl(${hue}, 90%, 70%)`;
+                    ctx.shadowColor = 'cyan';
+                    ctx.shadowBlur = 20;
+
+                    ctx.beginPath();
+                    ctx.arc(xPos, yPos, size, 0, Math.PI*2);
+                    ctx.fill();
+
+                    // ajouter des trails / lignes (glitch)
+                    if (Math.random() < 0.02) { // quelques distortions
+                        ctx.strokeStyle = 'magenta';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(xPos, yPos);
+                        ctx.lineTo(xPos + (Math.random()-0.5)*80, yPos + (Math.random()-0.5)*80);
+                        ctx.stroke();
+                    }
+                }
+                ctx.restore();
+
+                // aberration chromatique / distorsion supplementaire (filtre réelle)
+                // mais on le fait via une couche de rectangles transparents
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen';
+                ctx.fillStyle = `rgba(255, 0, 255, 0.02)`;
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = `rgba(0, 255, 255, 0.02)`;
+                ctx.fillRect(0, 0, width, height);
+                ctx.restore();
+
+                // ondulation / distorsion (simulée par quelques lignes)
+                ctx.save();
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 10; i++) {
+                    const y = (Math.sin(time * 10 + i) * 30 + i*50) % height;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y + Math.sin(time*5 + i)*20);
+                    ctx.strokeStyle = `hsl(${i*36 + time*200}, 80%, 60%)`;
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                // scanline CRT (animé via opacité)
+                ctx.save();
+                ctx.fillStyle = `rgba(0,0,0,0.03)`;
+                ctx.fillRect(0, 0, width, height);
+                ctx.restore();
+
+                requestAnimationFrame(draw);
+            }
+            draw();
+
+            // --- INTERACTIONS SOURIS (mouvement) + SCROLL PARALLAX---
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            window.addEventListener('scroll', () => {
+                scrollY = window.scrollY;
+                // appliquer un léger déplacement sur certains éléments (parallax)
+                const layers = document.querySelectorAll('.parallax-layer');
+                // on va utiliser un attribut style transform; mais peu d'éléments, on peut en cibler
+                // ex: hero-title, cards
+                const hero = document.querySelector('.hero-title');
+                if (hero) {
+                    hero.style.transform = `translateY(${scrollY * 0.1}px) skewX(${scrollY*0.01}deg)`;
+                }
+                const features = document.querySelectorAll('.feature-card');
+                features.forEach((card, i) => {
+                    card.style.transform = `translateY(${scrollY * 0.05 * (i%2===0?1:-1)}px) rotate(${scrollY*0.02}deg)`;
+                });
+            });
+
+            // --- SCRAMBLE TEXTE / GLITCH LETTRES (quelques éléments) ---
+            const glitchElements = document.querySelectorAll('.hero-title, .sub-title, .fake-code, .final-cta p');
+            function randomChar() {
+                const chars = '!<>-_\\/[]{}—=+*^?#________';
+                return chars[Math.floor(Math.random() * chars.length)];
+            }
+            function scrambleText(element, originalText, intensity = 0.1) {
+                if (!element || !originalText) return;
+                let scrambled = '';
+                for (let i = 0; i < originalText.length; i++) {
+                    if (Math.random() < intensity && originalText[i] !== ' ') {
+                        scrambled += randomChar();
+                    } else {
+                        scrambled += originalText[i];
+                    }
+                }
+                element.innerText = scrambled;
+            }
+
+            // stocker originaux
+            const textOrigins = new Map();
+            glitchElements.forEach(el => {
+                if (!el.hasAttribute('data-original')) {
+                    el.setAttribute('data-original', el.innerText);
+                }
+            });
+
+            // animation périodique de glitch text
+            setInterval(() => {
+                glitchElements.forEach(el => {
+                    const orig = el.getAttribute('data-original');
+                    if (orig) {
+                        scrambleText(el, orig, 0.15);
+                        // restaurer après un court délai (pour donner effet scintillement)
+                        setTimeout(() => {
+                            el.innerText = orig;
+                        }, 80);
+                    }
+                });
+            }, 400);
+
+            // en plus, sur les boutons on peut changer le texte à la volée
+            const ctaButtons = document.querySelectorAll('.cta-btn');
+            ctaButtons.forEach(btn => {
+                btn.addEventListener('mouseenter', (e) => {
+                    e.target.innerText = '⚡  ' + e.target.innerText.split('').reverse().join('') + '  ⚡';
+                });
+                btn.addEventListener('mouseleave', (e) => {
+                    e.target.innerText = 'DÉPLOYER L\'INFINI'; // reset approximatif
+                });
+            });
+
+            // petite touche : changement aléatoire de couleurs de bordures via mutation ? déjà fait en css.
+
+            // quelques aberrations glitch sur les cards au passage souris, déjà fait.
+
+            console.log('💊 SYSTEM.DOCKER RAVÉ ACTIVÉ');
+        })();
+    </script>
+
+    <!-- petits éléments inline supplémentaires pour combler hallucination -->
+    <div style="position:fixed; bottom:10px; right:10px; z-index:9999; color: magenta; mix-blend-mode:difference; font-size:0.8rem; animation:glitch 2s infinite;">
+        [ DOCKER QUANTUM RAVE MODE: FRAGMENTATION DE LA RÉALITÉ ]
+    </div>
+    <div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10000; background: repeating-linear-gradient(45deg, rgba(255,0,255,0.02) 0px, rgba(0,255,255,0.02) 2px, transparent 2px, transparent 8px); mix-blend-mode:overlay;">
+    </div>
+</body>
+</html>
