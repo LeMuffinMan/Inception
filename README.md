@@ -141,4 +141,4 @@ AI was used as a productivity tool for specific, well-defined tasks.
 - **Deepening concepts:** when encountering notions such as PID 1 behavior in containers, php-fpm socket configuration, or TLS certificate generation, AI was used as an interactive reference — to go further than documentation alone, ask follow-up questions, and clarify edge cases.
 - **Placeholder generation:** AI was occasionally used to generate placeholder values, file templates, or boilerplate snippets to avoid repetitive writing, all of which were adapted and validated before use.
  
-Every technical decision in this project was made, understood, and owned by me. AI was a tool I directed — not the other way around.
+Every technical decision in this project was made, understood, and owned by me.
