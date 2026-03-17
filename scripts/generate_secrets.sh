@@ -132,7 +132,7 @@ declare -A EXPECTED_VALUES=(
     ["MYSQL_DATABASE"]="${USER}_db"
     ["MYSQL_USER"]="${USER}"
     ["DOMAIN_NAME"]="${USER}.42.fr"
-    ["WP_TITLE"]="${USER}'s wordpress"
+    ["WP_TITLE"]="${USER}s wordpress"
 )
 
 # Keys in insertion order
