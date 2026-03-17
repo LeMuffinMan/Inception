@@ -12,6 +12,3 @@ RUN chmod +x /usr/bin/init.sh
 EXPOSE 443
 
 ENTRYPOINT [ "/usr/bin/init.sh" ]
-
-#pour lancer sans https sur 8080
-# docker build -t my-nginx-no-ssl . && docker run -d -p 8080:80 --name nginx my-nginx-no-ssl:latest

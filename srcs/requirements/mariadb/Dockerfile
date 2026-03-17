@@ -1,6 +1,5 @@
 FROM alpine:3.22.3
 
-# COPY before for cache perfomance, and layers optimisations
 COPY tools/init.sh /usr/bin/init.sh
 RUN chmod +x /usr/bin/init.sh
 

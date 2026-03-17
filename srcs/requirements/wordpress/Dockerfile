@@ -6,7 +6,6 @@ RUN addgroup -g 82 -S www-data || true && \
 RUN apk add --no-cache \
     wget \
     curl \
-    # mysql-client \
     mariadb-client \
     redis \
     php83-fpm \
@@ -24,11 +23,9 @@ RUN apk add --no-cache \
     php83-json \
     php83-iconv \
     php83-session && \
-    # DL the wp CLI
 curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 chmod +x wp-cli.phar && \
 mv wp-cli.phar /usr/bin/wp #tout mettre dans /usr/local/bin !!
-    # redis
 
 RUN ln -sf /usr/bin/php83 /usr/bin/php
 RUN sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php83/php.ini

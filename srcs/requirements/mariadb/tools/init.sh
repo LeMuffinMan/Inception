@@ -53,11 +53,3 @@ fi
 #In a container, the execution of the entrypoint /init.sh makes this process PID 1 (which is normally /sbin/init, the parent of all other process)
 #using exec, we replace PID 1 = /init.sh to PID 1 = /usr/bin/mariadb, thus, there is only one PID running in our container, it runs mariadb.
 exec /usr/bin/mariadbd  --user=mysql --datadir=/var/lib/mysql --bind-address=0.0.0.0 --port=3306 --skip-networking=0
-
-#doc :
-# mariadb -u root <=> en tant que root
-# mariadb -u root -p"${VAR}" <=> needs a root password, -p allows us to give it in one command
-
-# les ` sont importants pour la syntaxe SQL (delimite des identifiants), mais interpretes par le shell, donc on doit les escape avec \
-
-# docker exec -it mariadb ash -> ouvre un shell dans le container

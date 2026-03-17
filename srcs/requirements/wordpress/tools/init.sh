@@ -36,9 +36,6 @@ if [ ! -f /var/www/html/wp-config.php ]; then
       --allow-root
 
     echo "Installing WordPress..."
-    #changer le domain name ici avec une variable d'enviuronnement et choper dans .env
-    # idem pour title
-    # faire un secret en plus pour email ?
     wp core install \
         --url="${DOMAIN_NAME}" \
         --title="${WP_TITLE}" \

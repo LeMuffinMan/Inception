@@ -59,6 +59,7 @@ le deploiement se fera avec <new_user> comme login de reference pour les credent
 
 1. Clone the repository inside your VM.
 
+Reecrire cette partie aussi
 2. Create a `.env` from the `.env_example` provided and fill in your values:
 
 ```env
@@ -66,6 +67,11 @@ DOMAIN_NAME=<login>.42.fr
 MYSQL_DATABASE=wordpress
 MYSQL_USER=<db_user>
 ```
+
+MYSQL_DATABASE=oelleaume_db
+MYSQL_USER=oelleaume
+DOMAIN_NAME=oelleaume.42.fr
+WP_TITLE=oelleaume_wordpress
 
 3. The `secrets/` folder and all credential files are generated automatically when you run `make`. Missing files are created using `openssl rand` (or `/dev/urandom` as fallback if openssl is not available). You can also create the folder yourself and provide your own values — any file already present will not be overwritten.
 

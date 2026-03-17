@@ -2,6 +2,7 @@
 
 if [ ! -f /etc/nginx/ssl/cert.pem ]; then
     mkdir -p /etc/nginx/ssl
+
     # x509 : standard format : describes how the certificate is encoded (CN, O, C ...)
     #   - without the flag : it would ask a regular CSR : a certificate waiting to be signed by a CA
     #   - with the flag it becomes a self signed certificate, ready to use
