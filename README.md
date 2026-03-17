@@ -39,6 +39,24 @@ Bind mounts link a specific path on the host filesystem directly to the containe
 
 ### Configuration
 
+
+Parler de la generation basee sur le user : d'ou la VM 
+
+on peut creer un nouveau user, et redeployer automqtiquement avec son login :
+
+nettoyer le setup : makefclean
+
+sudo useradd -m -s /bin/bash <new_user>
+sudo usermod -aG sudo <new_user>
+sudo usermod -aG docker <new_user>
+passwd <new_user>
+
+su - <new_user>
+git clone https://github.com/LeMuffinMan/Inception 
+cd Inception && make
+
+le deploiement se fera avec <new_user> comme login de reference pour les credentials et domain name ...
+
 1. Clone the repository inside your VM.
 
 2. Create a `.env` from the `.env_example` provided and fill in your values:

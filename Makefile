@@ -40,6 +40,7 @@ fclean: clean
 	@echo "Removing images ..."
 	$(COMPOSE) down --rmi all
 	rm -rf secrets
+	rm -rf srcs/.env
 
 re:  fclean up check
 
