@@ -42,6 +42,18 @@ skip() {
     printf "  ${WHITE}%s${NC}%s ${GRAY}⊘ skipped (already exists)${NC}\n" "$1" "$spaces"
 }
 
+generate_env() {
+    mkdir -p "$(dirname "$ENV_FILE")"
+    for VAR in "${ORDERED_VARS[@]}"; do
+        printf '%s=%s\n' "$VAR" "${EXPECTED_VALUES[$VAR]}"
+    done > "$ENV_FILE"
+
+    if [ -s "$ENV_FILE" ]; then
+        check "$ENV_FILE" "ok" "generated"
+    else
+        check "$ENV_FILE" "ko" "could not write $ENV_FILE"
+    fi
+}
 # --- Force flag ---------------------------------------------------------------
 
 header "Secret Generator" "login: ${LOGIN}"
@@ -115,50 +127,35 @@ echo
 section "Environment File"
 
 ENV_FILE="srcs/.env"
-REQUIRED_VARS=(
-    "MYSQL_DATABASE"
-    "MYSQL_USER"
-    "DOMAIN_NAME"
-    "WP_TITLE"
-)
 
-EXPECTED_VALUES=(
+declare -A EXPECTED_VALUES=(
     ["MYSQL_DATABASE"]="${USER}_db"
     ["MYSQL_USER"]="${USER}"
     ["DOMAIN_NAME"]="${USER}.42.fr"
     ["WP_TITLE"]="${USER}'s wordpress"
 )
 
-if [ -f "$ENV_FILE" ]; then
-    echo "Generating a default .env ..."
-    missing=()
-    for VAR in "${REQUIRED_VARS[@]}"; do
-        # Check presence AND assignment (VAR=something, non-empty)
+# Keys in insertion order
+ORDERED_VARS=(MYSQL_DATABASE MYSQL_USER DOMAIN_NAME WP_TITLE)
+
+if [ ! -s "$ENV_FILE" ]; then
+    # Missing or empty → full generation
+    generate_env
+else
+    # Exists and non-empty → patch missing/unassigned variables only
+    patched=()
+    for VAR in "${ORDERED_VARS[@]}"; do
         if ! grep -qE "^${VAR}=.+" "$ENV_FILE"; then
-            missing+=("$VAR")
+            # Remove any existing empty/unassigned line first, then append
+            sed -i "/^${VAR}=/d" "$ENV_FILE"
+            printf '%s=%s\n' "$VAR" "${EXPECTED_VALUES[$VAR]}" >> "$ENV_FILE"
+            patched+=("$VAR")
         fi
     done
 
-    if [ ${#missing[@]} -eq 0 ]; then
+    if [ ${#patched[@]} -eq 0 ]; then
         check "$ENV_FILE" "ok"
     else
-        check "$ENV_FILE" "ko" "missing or empty variable(s): ${missing[*]}"
-        echo -e "  ${GRAY}→ Add the following to ${WHITE}${ENV_FILE}${GRAY}:${NC}"
-        for VAR in "${missing[@]}"; do
-            echo -e "  ${GRAY}  ${VAR}=${EXPECTED_VALUES[$VAR]}${NC}"
-        done
-    fi
-else
-    printf '%s\n' \
-        "MYSQL_DATABASE=${USER}_db" \
-        "MYSQL_USER=${USER}" \
-        "DOMAIN_NAME=${USER}.42.fr" \
-        "WP_TITLE=${USER}\'s wordpress" \
-        > "$ENV_FILE"
-
-    if [ -s "$ENV_FILE" ]; then
-        check "$ENV_FILE" "ok" "generated"
-    else
-        check "$ENV_FILE" "ko" "could not write $ENV_FILE"
+        check "$ENV_FILE" "ok" "patched: ${patched[*]}"
     fi
 fi
