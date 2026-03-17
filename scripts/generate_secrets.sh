@@ -130,6 +130,7 @@ EXPECTED_VALUES=(
 )
 
 if [ -f "$ENV_FILE" ]; then
+    echo "Generating a default .env ..."
     missing=()
     for VAR in "${REQUIRED_VARS[@]}"; do
         # Check presence AND assignment (VAR=something, non-empty)
@@ -152,7 +153,7 @@ else
         "MYSQL_DATABASE=${USER}_db" \
         "MYSQL_USER=${USER}" \
         "DOMAIN_NAME=${USER}.42.fr" \
-        "WP_TITLE=${USER}'s wordpress" \
+        "WP_TITLE=${USER}\'s wordpress" \
         > "$ENV_FILE"
 
     if [ -s "$ENV_FILE" ]; then
