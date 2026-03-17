@@ -56,6 +56,16 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --user_pass="$WORDPRESS_USER_PASSWORD}" \
         --allow-root
 
+    if ! wp post list --post_type=post --name="static-page" --allow-root | grep -q "static-page"; then
+        wp post create \
+            --post_title="Ma page statique" \
+            --post_content="$(cat /path/to/page.html)" \
+            --post_status=publish \
+            --post_name="static-page" \
+            --post_type=page \
+            --allow-root
+        echo "Page statique publiée"
+    fi
     echo "Wordpress successfully installed"
 else
     echo "Wordpress already installed and configured"
