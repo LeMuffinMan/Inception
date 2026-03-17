@@ -450,6 +450,8 @@ else
     check "/etc/hosts entry" "ko" "missing: 127.0.0.1  ${DOMAIN}"
 fi
 
+echo
+
 if ! wait_for_containers; then
     echo
     $COMPOSE ps

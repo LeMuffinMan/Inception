@@ -53,24 +53,14 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         "${WORDPRESS_USER}" \
         "${MYSQL_USER_EMAIL}" \
         --role=author \
-        --user_pass="$WORDPRESS_USER_PASSWORD}" \
+        --user_pass="${WORDPRESS_USER_PASSWORD}" \
         --allow-root
 
-    if ! wp post list --post_type=post --name="static-page" --allow-root | grep -q "static-page"; then
-        wp post create \
-            --post_title="Ma page statique" \
-            --post_content="$(cat /path/to/page.html)" \
-            --post_status=publish \
-            --post_name="static-page" \
-            --post_type=page \
-            --allow-root
-
-    fi
     echo "Wordpress successfully installed"
 else
     echo "Wordpress already installed and configured"
 fi
 
-sed -i 's/listen = 127.0.0.1/listen = 0.0.0.0:9000/' /etc/php83/php-fpm.d/www.conf && echo "socket set OK" || echo "socket set KO"
+sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /etc/php83/php-fpm.d/www.conf && echo "socket set OK" || echo "socket set KO"
 
 exec php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf

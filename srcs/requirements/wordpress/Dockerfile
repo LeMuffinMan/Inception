@@ -6,7 +6,8 @@ RUN addgroup -g 82 -S www-data || true && \
 RUN apk add --no-cache \
     wget \
     curl \
-    mysql-client \
+    # mysql-client \
+    mariadb-client \
     redis \
     php83-fpm \
     php83-mysqli \
