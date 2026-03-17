@@ -90,7 +90,7 @@ wait_for_containers() {
                 status="${GREEN}ready${NC}"; icon="${GREEN}✓${NC}"
             fi
 
-            output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\n"
+            output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\033[K\n"
         done
 
         printf "\033[${#containers[@]}A" 2>/dev/null
