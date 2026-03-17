@@ -1,188 +1,227 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Page Sophistiquée</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card: rgba(255,255,255,0.05);
-      --accent: #38bdf8;
-      --text: #e2e8f0;
-    }
+<meta charset="UTF-8">
+<title>Docker Transcendance</title>
+<style>
+/* RESET */
+* { margin:0; padding:0; box-sizing:border-box; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Inter", sans-serif;
-    }
+body {
+    font-family: monospace;
+    overflow-x: hidden;
+    background: black;
+    color: white;
+}
 
-    body {
-      background: radial-gradient(circle at top, #1e293b, #020617);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+/* BACKGROUND CANVAS */
+canvas {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:-1;
+}
 
-    header {
-      backdrop-filter: blur(20px);
-      background: rgba(0,0,0,0.4);
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
+/* GLITCH TEXT */
+.glitch {
+    font-size: 4rem;
+    position: relative;
+    color: #fff;
+    text-transform: uppercase;
+    animation: glitch 1s infinite;
+}
 
-    header h1 {
-      font-size: 1.5rem;
-      letter-spacing: 2px;
-      color: var(--accent);
-    }
+@keyframes glitch {
+    0% { text-shadow: 2px 2px #ff00ff, -2px -2px #00ffff; }
+    50% { text-shadow: -2px 2px #00ff00, 2px -2px #ff0000; }
+    100% { text-shadow: 2px -2px #ff00ff, -2px 2px #00ffff; }
+}
 
-    nav a {
-      margin-left: 20px;
-      text-decoration: none;
-      color: var(--text);
-      transition: 0.3s;
-    }
+/* HERO */
+.hero {
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
 
-    nav a:hover {
-      color: var(--accent);
-    }
+.subtitle {
+    font-size:1.5rem;
+    margin-top:20px;
+    animation: pulse 2s infinite;
+}
 
-    .hero {
-      text-align: center;
-      padding: 120px 20px 80px;
-    }
+@keyframes pulse {
+    0% { transform:scale(1); }
+    50% { transform:scale(1.1); color:#ff00ff; }
+    100% { transform:scale(1); }
+}
 
-    .hero h2 {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      background: linear-gradient(90deg, #38bdf8, #818cf8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+/* BUTTON */
+.cta {
+    margin-top:40px;
+    padding:15px 30px;
+    border:2px solid cyan;
+    cursor:pointer;
+    transition:0.3s;
+}
 
-    .hero p {
-      max-width: 600px;
-      margin: auto;
-      opacity: 0.8;
-    }
+.cta:hover {
+    background:cyan;
+    color:black;
+    transform:scale(1.2) rotate(3deg);
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 30px;
-      padding: 60px 40px;
-    }
+/* SECTIONS */
+section {
+    padding:100px 20px;
+    text-align:center;
+}
 
-    .card {
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 30px;
-      backdrop-filter: blur(10px);
-      transition: 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
+/* CARDS */
+.cards {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+}
 
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, transparent, rgba(56,189,248,0.3), transparent);
-      opacity: 0;
-      transition: 0.5s;
-    }
+.card {
+    width:250px;
+    padding:20px;
+    border:1px solid #fff;
+    transition:0.3s;
+}
 
-    .card:hover::before {
-      opacity: 1;
-    }
+.card:hover {
+    transform:scale(1.2) rotate(5deg);
+    background:rgba(255,0,255,0.2);
+}
 
-    .card:hover {
-      transform: translateY(-10px) scale(1.02);
-    }
+/* TESTIMONIAL */
+.testimonial {
+    margin:20px;
+    font-style:italic;
+}
 
-    .card h3 {
-      margin-bottom: 10px;
-      color: var(--accent);
-    }
+/* FAKE CODE */
+.code {
+    background:#111;
+    padding:20px;
+    text-align:left;
+    display:inline-block;
+    color:#0f0;
+}
 
-    footer {
-      text-align: center;
-      padding: 40px;
-      opacity: 0.6;
-      font-size: 0.9rem;
-    }
-
-    .glow {
-      position: fixed;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(56,189,248,0.2), transparent 70%);
-      top: -100px;
-      right: -100px;
-      filter: blur(100px);
-      z-index: 0;
-    }
-
-    @media (max-width: 600px) {
-      .hero h2 {
-        font-size: 2rem;
-      }
-    }
-  </style>
+/* SCANLINES */
+body::after {
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: repeating-linear-gradient(
+        rgba(255,255,255,0.03) 0px,
+        rgba(255,255,255,0.03) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events:none;
+}
+</style>
 </head>
 <body>
 
-<div class="glow"></div>
+<canvas id="bg"></canvas>
 
-<header>
-  <h1>NGINX SITE</h1>
-  <nav>
-    <a href="#">Accueil</a>
-    <a href="#">Services</a>
-    <a href="#">Contact</a>
-  </nav>
-</header>
+<div class="hero">
+    <h1 class="glitch">Docker Reality Engine</h1>
+    <p class="subtitle">Déployez plus vite que la lumière ⚡</p>
+    <div class="cta">TRANSCENDER MAINTENANT</div>
+</div>
 
-<section class="hero">
-  <h2>Infrastructure moderne & élégante</h2>
-  <p>
-    Cette page HTML statique est optimisée pour être servie par Nginx. 
-    Design avancé, animations fluides et rendu performant sans dépendances externes.
-  </p>
+<section>
+    <h2>Capacités Interdimensionnelles</h2>
+    <div class="cards">
+        <div class="card">⚡ Rapidité quantique</div>
+        <div class="card">♾ Scalabilité infinie</div>
+        <div class="card">🧠 Simplicité absurde</div>
+        <div class="card">🌌 Fiabilité cosmique</div>
+    </div>
 </section>
 
-<section class="grid">
-  <div class="card">
-    <h3>⚡ Performance</h3>
-    <p>Chargement ultra-rapide grâce à une structure légère et optimisée.</p>
-  </div>
-  <div class="card">
-    <h3>🔒 Sécurité</h3>
-    <p>Aucune dépendance externe, surface d’attaque minimale.</p>
-  </div>
-  <div class="card">
-    <h3>🎨 Design</h3>
-    <p>Interface moderne avec effets visuels avancés en pur CSS.</p>
-  </div>
-  <div class="card">
-    <h3>📦 Déploiement</h3>
-    <p>Déposez simplement ce fichier dans /var/www/html et c’est prêt.</p>
-  </div>
+<section>
+    <h2>Témoignages</h2>
+    <p class="testimonial">"J'ai déployé avant même d'écrire mon code."</p>
+    <p class="testimonial">"Depuis, je suis devenu une entité énergétique."</p>
 </section>
 
-<footer>
-  © 2026 - Serveur Nginx • Page statique sophistiquée
-</footer>
+<section>
+    <h2>Stack Divin</h2>
+    <div class="code">
+docker-compose up -d<br>
+→ nginx<br>
+→ mariadb<br>
+→ wordpress<br><br>
+# uptime: éternel
+    </div>
+</section>
+
+<section>
+    <h2>Rejoins la Singularité</h2>
+    <div class="cta">ABANDONNER LA RÉALITÉ</div>
+</section>
+
+<script>
+// PARTICLES BACKGROUND
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for(let i=0;i<100;i++){
+    particles.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        vx: (Math.random()-0.5)*2,
+        vy: (Math.random()-0.5)*2
+    });
+}
+
+function animate(){
+    ctx.fillStyle = "rgba(0,0,0,0.1)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = "#0ff";
+
+    particles.forEach(p=>{
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if(p.x<0||p.x>canvas.width) p.vx*=-1;
+        if(p.y<0||p.y>canvas.height) p.vy*=-1;
+
+        ctx.fillRect(p.x,p.y,2,2);
+    });
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+// MOUSE EFFECT
+document.addEventListener("mousemove", e=>{
+    document.body.style.filter = `hue-rotate(${e.clientX/5}deg)`;
+});
+</script>
 
 </body>
 </html>
