@@ -64,7 +64,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
             --post_name="static-page" \
             --post_type=page \
             --allow-root
-        echo "Page statique publiée"
+
     fi
     echo "Wordpress successfully installed"
 else
