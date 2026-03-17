@@ -30,8 +30,8 @@ server {
     # if on : the server preference goes first
     ssl_prefer_server_ciphers on;
 
-    #root /var/www/html; # Wordpress folder
-    root /usr/share/nginx/html;
+    root /var/www/html; # Wordpress folder
+    #root /usr/share/nginx/html;
     index index.html index.htm;
 
     # change path for centralize docker logs
@@ -44,7 +44,7 @@ server {
     # We want to set this to our Wordpress folder
     location / {
         try_files $uri $uri/ /index.php?$args; #pemaliens WP ?
-        root   /usr/share/nginx/html;
+        root   /var/www/html;
         index  index.html index.htm;
     }
 
