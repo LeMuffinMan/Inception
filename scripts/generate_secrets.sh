@@ -44,13 +44,15 @@ skip() {
 
 generate_env() {
     mkdir -p "$(dirname "$ENV_FILE")"
-    {
-        printf 'MYSQL_DATABASE=%s\n' "${USER}_db"
-        printf 'MYSQL_USER=%s\n'     "${USER}"
-        printf 'DOMAIN_NAME=%s\n'    "${USER}.42.fr"
-        printf 'WP_TITLE="%s'\''s wordpress"\n' "${USER}"
-    } > "$ENV_FILE"
-    ...
+    for VAR in "${ORDERED_VARS[@]}"; do
+        printf '%s=%s\n' "$VAR" "${EXPECTED_VALUES[$VAR]}"
+    done > "$ENV_FILE"
+
+    if [ -s "$ENV_FILE" ]; then
+        check "$ENV_FILE" "ok" "generated"
+    else
+        check "$ENV_FILE" "ko" "could not write $ENV_FILE"
+    fi
 }
 # --- Force flag ---------------------------------------------------------------
 
@@ -130,7 +132,7 @@ declare -A EXPECTED_VALUES=(
     ["MYSQL_DATABASE"]="${USER}_db"
     ["MYSQL_USER"]="${USER}"
     ["DOMAIN_NAME"]="${USER}.42.fr"
-    ["WP_TITLE"]="${USER}s wordpress"
+    ["WP_TITLE"]="${USER}_wordpress"
 )
 
 # Keys in insertion order
