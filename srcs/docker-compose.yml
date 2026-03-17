@@ -56,30 +56,13 @@ services:
       - mariadb_data:/var/lib/mysql
     networks:
       - inception
-    # ports:
-    # - "3306:3306"
     healthcheck:
-      test:
-        # ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot"]
-        [
-          "CMD-SHELL",
-          "mariadb-admin ping -h localhost -uroot -p$(cat /run/secrets/db_root_password)",
-        ]
-        # [
-        #   "CMD",
-        #   "mysqladmin",
-        #   "ping",
-        #   "-h",
-        #   "localhost",
-        #   "-u",
-        #   "root",
-        #   "--password=$(cat /run/secrets/db_root_password)",
-        # ]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
-    restart: on-failure # on-failure restart only if it crash with a exit code != 0
+    restart: on-failure
   nginx:
     container_name: nginx
     build: ./requirements/nginx
@@ -89,14 +72,13 @@ services:
       - 443:443
     healthcheck:
       test:
-        # [
-        #   "CMD",
-        #   "wget",
-        #   "-qO-",
-        #   "--no-check-certificate",
-        #   "https://localhost:443",
-        # ]
-        ["CMD", "nginx", "-t"]
+        [
+          "CMD",
+          "wget",
+          "-qO-",
+          "--no-check-certificate",
+          "https://localhost:443",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -107,13 +89,12 @@ services:
       - inception
     depends_on:
       - wordpress
-    restart: on-failure # on-failure restart only if it crash with a exit code != 0
+    restart: on-failure
 
 networks:
   inception:
     driver: bridge
 
-#virer les binds ?
 volumes:
   wordpress_data:
     driver: local

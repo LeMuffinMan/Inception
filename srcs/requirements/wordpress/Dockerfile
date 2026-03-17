@@ -25,7 +25,7 @@ RUN apk add --no-cache \
     php83-session && \
 curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 chmod +x wp-cli.phar && \
-mv wp-cli.phar /usr/local/bin/wp #tout mettre dans /usr/local/bin !!
+mv wp-cli.phar /usr/local/bin/wp
 
 RUN ln -sf /usr/local/bin/php83 /usr/local/bin/php
 RUN sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php83/php.ini
