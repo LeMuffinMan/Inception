@@ -5,7 +5,7 @@ RUN apk add --no-cache \
     openssl && \
     rm -rf /etc/nginx/http.d/default.conf
 
-COPY tools/conf /etc/nginx/http.d/nginx.conf
+COPY conf/nginx.conf /etc/nginx/http.d/nginx.conf
 COPY tools/init.sh /usr/bin/init.sh
 RUN chmod +x /usr/bin/init.sh
 

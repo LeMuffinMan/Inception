@@ -1,11 +1,9 @@
-
 COMPOSE_FILE=srcs/docker-compose.yml
 COMPOSE=docker compose -f $(COMPOSE_FILE)
 CHECK_SCRIPT=scripts/check_inception.sh
 CRASH_SCRIPT=scripts/crash_test.sh
 VOLUME_SCRIPT=scripts/volumes_check.sh
 SECRET_GEN_SCRIPT=scripts/generate_secrets.sh
-
 
 all: up check
 
