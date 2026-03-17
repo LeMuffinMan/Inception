@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOCKERVERSE™ — L'Univers Parallèle du Web Hosting</title>
+  <style>
+    /* ============================================================
+       RESET & ROOT VARIABLES
+    ============================================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --neon-cyan:    #00ffff;
+      --neon-magenta: #ff00ff;
+      --neon-lime:    #aaff00;
+      --neon-orange:  #ff6600;
+      --neon-pink:    #ff0099;
+      --neon-blue:    #0066ff;
+      --neon-yellow:  #ffee00;
+      --deep-void:    #020008;
+      --void-purple:  #0a0015;
+      --card-bg:      rgba(10, 0, 30, 0.72);
+      --glow-cyan:    0 0 18px #00ffff, 0 0 40px #00ffff88, 0 0 80px #00ffff33;
+      --glow-magenta: 0 0 18px #ff00ff, 0 0 40px #ff00ff88, 0 0 80px #ff00ff33;
+      --glow-lime:    0 0 18px #aaff00, 0 0 40px #aaff0088, 0 0 80px #aaff0033;
+      --font-display: 'Courier New', 'Lucida Console', monospace;
+      --font-body:    Georgia, 'Times New Roman', serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--deep-void);
+      color: #e0e0ff;
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ============================================================
+       CANVAS BACKGROUND
+    ============================================================ */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       CUSTOM SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--deep-void); }
+    ::-webkit-scrollbar-thumb { background: var(--neon-magenta); border-radius: 3px; box-shadow: var(--glow-magenta); }
+
+    /* ============================================================
+       GLITCH KEYFRAMES
+    ============================================================ */
+    @keyframes glitch {
+      0%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+      10%  { clip-path: inset(10% 0 70% 0); transform: translate(-4px, 2px); }
+      20%  { clip-path: inset(40% 0 30% 0); transform: translate(4px, -2px); }
+      30%  { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 4px); }
+      40%  { clip-path: inset(20% 0 60% 0); transform: translate(6px, 0); }
+      50%  { clip-path: inset(55% 0 25% 0); transform: translate(-4px, -4px); }
+      60%  { clip-path: inset(5%  0 80% 0); transform: translate(2px, 2px); }
+      70%  { clip-path: inset(85% 0 5%  0); transform: translate(-6px, 0); }
+      80%  { clip-path: inset(30% 0 50% 0); transform: translate(4px, -2px); }
+      90%  { clip-path: inset(60% 0 20% 0); transform: translate(-2px, 4px); }
+    }
+
+    @keyframes glitch2 {
+      0%,100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+      15%  { clip-path: inset(25% 0 55% 0); transform: translate(5px, 0); color: var(--neon-cyan); }
+      35%  { clip-path: inset(60% 0 20% 0); transform: translate(-5px, 3px); color: var(--neon-magenta); }
+      55%  { clip-path: inset(10% 0 75% 0); transform: translate(3px, -3px); color: var(--neon-lime); }
+      75%  { clip-path: inset(45% 0 40% 0); transform: translate(-3px, 5px); color: var(--neon-pink); }
+    }
+
+    @keyframes hue-rotate {
+      from { filter: hue-rotate(0deg); }
+      to   { filter: hue-rotate(360deg); }
+    }
+
+    @keyframes pulse-glow {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.4; }
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0px) rotate(0deg); }
+      33%      { transform: translateY(-18px) rotate(2deg); }
+      66%      { transform: translateY(10px) rotate(-2deg); }
+    }
+
+    @keyframes scanline {
+      0%   { background-position: 0 0; }
+      100% { background-position: 0 100vh; }
+    }
+
+    @keyframes rainbow-border {
+      0%   { border-color: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-cyan); }
+      17%  { border-color: var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue); }
+      33%  { border-color: var(--neon-magenta); box-shadow: 0 0 20px var(--neon-magenta); }
+      50%  { border-color: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
+      67%  { border-color: var(--neon-orange); box-shadow: 0 0 20px var(--neon-orange); }
+      83%  { border-color: var(--neon-lime); box-shadow: 0 0 20px var(--neon-lime); }
+      100% { border-color: var(--neon-cyan); box-shadow: 0 0 20px var(--neon-cyan); }
+    }
+
+    @keyframes text-shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    @keyframes warp {
+      0%,100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+      25%     { border-radius: 58% 42% 30% 70% / 50% 70% 30% 50%; }
+      50%     { border-radius: 70% 30% 60% 40% / 40% 60% 30% 70%; }
+      75%     { border-radius: 30% 70% 40% 60% / 70% 30% 60% 40%; }
+    }
+
+    @keyframes slide-in-left {
+      from { transform: translateX(-120px); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slide-in-right {
+      from { transform: translateX(120px); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes fade-up {
+      from { transform: translateY(60px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ============================================================
+       SCANLINE OVERLAY
+    ============================================================ */
+    #scanlines {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.15) 3px,
+        rgba(0,0,0,0.15) 4px
+      );
+      animation: scanline 8s linear infinite;
+    }
+
+    /* ============================================================
+       MAIN WRAPPER
+    ============================================================ */
+    .wrapper {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ============================================================
+       HEADER / NAV
+    ============================================================ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 48px;
+      background: rgba(2,0,8,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,255,255,0.2);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-lime));
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: text-shimmer 3s linear infinite;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      color: rgba(200,200,255,0.8);
+      text-transform: uppercase;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--neon-cyan);
+      text-shadow: var(--glow-cyan);
+    }
+
+    /* ============================================================
+       HERO SECTION
+    ============================================================ */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Warping blob decorations */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.18;
+      animation: float 8s ease-in-out infinite, warp 12s ease-in-out infinite;
+    }
+    .blob-1 { width: 500px; height: 500px; background: var(--neon-cyan);    top: -100px; left: -100px; animation-delay: 0s; }
+    .blob-2 { width: 400px; height: 400px; background: var(--neon-magenta); bottom: -80px; right: -80px; animation-delay: -4s; }
+    .blob-3 { width: 300px; height: 300px; background: var(--neon-lime);    top: 40%; left: 60%; animation-delay: -2s; }
+
+    .hero-eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--neon-lime);
+      text-shadow: var(--glow-lime);
+      margin-bottom: 20px;
+      animation: pulse-glow 2.5s ease-in-out infinite;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 8vw, 7rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    /* Triple-layer glitch title */
+    .hero-title .base { color: #ffffff; }
+    .hero-title .layer1 {
+      position: absolute; inset: 0;
+      color: var(--neon-cyan);
+      animation: glitch 5s steps(1) infinite;
+      mix-blend-mode: screen;
+    }
+    .hero-title .layer2 {
+      position: absolute; inset: 0;
+      color: var(--neon-magenta);
+      animation: glitch2 5s steps(1) infinite 0.15s;
+      mix-blend-mode: screen;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+      color: var(--neon-magenta);
+      text-shadow: var(--glow-magenta);
+      margin-bottom: 28px;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-desc {
+      max-width: 680px;
+      font-size: 1.15rem;
+      line-height: 1.75;
+      color: rgba(200,200,255,0.85);
+      margin-bottom: 52px;
+    }
+
+    /* Docker stack icons */
+    .stack-icons {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 52px;
+      flex-wrap: wrap;
+    }
+
+    .stack-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 22px;
+      background: var(--card-bg);
+      border: 1px solid;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      font-weight: bold;
+      text-transform: uppercase;
+      animation: rainbow-border 4s linear infinite;
+      transition: transform 0.2s;
+    }
+
+    .stack-badge:nth-child(2) { animation-delay: -1.3s; }
+    .stack-badge:nth-child(3) { animation-delay: -2.6s; }
+
+    .stack-badge:hover { transform: scale(1.12) rotate(-2deg); }
+
+    .stack-icon { font-size: 1.6rem; }
+
+    .cta-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      padding: 18px 44px;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: bold;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--deep-void);
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-lime));
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: var(--glow-cyan);
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.07) skewX(-3deg);
+      box-shadow: 0 0 30px #00ffff, 0 0 80px #00ffff88;
+    }
+
+    .btn-secondary {
+      padding: 18px 44px;
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: bold;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--neon-magenta);
+      background: transparent;
+      border: 2px solid var(--neon-magenta);
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: var(--glow-magenta);
+      transition: transform 0.15s, background 0.2s, color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-secondary:hover {
+      background: var(--neon-magenta);
+      color: var(--deep-void);
+      transform: scale(1.07) skewX(3deg);
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: rgba(0,255,255,0.5);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .scroll-arrow {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid var(--neon-cyan);
+      border-bottom: 2px solid var(--neon-cyan);
+      transform: rotate(45deg);
+      animation: float 1.2s ease-in-out infinite;
+    }
+
+    /* ============================================================
+       TICKER TAPE
+    ============================================================ */
+    .ticker-wrap {
+      overflow: hidden;
+      background: linear-gradient(90deg, var(--neon-magenta), var(--neon-cyan), var(--neon-lime), var(--neon-orange), var(--neon-magenta));
+      background-size: 300%;
+      animation: hue-rotate 6s linear infinite;
+      padding: 12px 0;
+      position: relative;
+      z-index: 3;
+    }
+
+    .ticker-content {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker 20s linear infinite;
+    }
+
+    .ticker-item {
+      display: inline-block;
+      padding: 0 48px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: bold;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--deep-void);
+    }
+
+    /* ============================================================
+       SECTION SHARED
+    ============================================================ */
+    section {
+      padding: 120px 48px;
+      position: relative;
+    }
+
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--neon-lime);
+      text-shadow: var(--glow-lime);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-magenta) 50%, var(--neon-lime) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 24px;
+    }
+
+    .section-intro {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: rgba(200,200,255,0.75);
+      max-width: 640px;
+    }
+
+    /* ============================================================
+       FEATURES SECTION
+    ============================================================ */
+    #features {
+      background: linear-gradient(180deg, var(--deep-void) 0%, #06001a 50%, var(--deep-void) 100%);
+    }
+
+    .features-header { margin-bottom: 80px; text-align: center; }
+    .features-header .section-intro { margin: 0 auto; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(0,255,255,0.12);
+      border-radius: 12px;
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+      animation: fade-up 0.7s both;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 60%, rgba(0,255,255,0.04));
+      pointer-events: none;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--neon-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .feature-card:nth-child(2):hover { border-color: var(--neon-magenta); box-shadow: var(--glow-magenta); }
+    .feature-card:nth-child(3):hover { border-color: var(--neon-lime); box-shadow: var(--glow-lime); }
+    .feature-card:nth-child(4):hover { border-color: var(--neon-orange); box-shadow: 0 0 18px var(--neon-orange), 0 0 40px var(--neon-orange)88; }
+
+    .feature-card:nth-child(2) { animation-delay: 0.15s; }
+    .feature-card:nth-child(3) { animation-delay: 0.30s; }
+    .feature-card:nth-child(4) { animation-delay: 0.45s; }
+
+    .feature-number {
+      font-family: var(--font-display);
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .feature-card:nth-child(2) .feature-number { background: linear-gradient(135deg, var(--neon-magenta), var(--neon-pink)); -webkit-background-clip: text; }
+    .feature-card:nth-child(3) .feature-number { background: linear-gradient(135deg, var(--neon-lime), var(--neon-cyan)); -webkit-background-clip: text; }
+    .feature-card:nth-child(4) .feature-number { background: linear-gradient(135deg, var(--neon-orange), var(--neon-yellow)); -webkit-background-clip: text; }
+
+    .feature-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      margin-bottom: 12px;
+    }
+
+    .feature-card:nth-child(2) .feature-name { color: var(--neon-magenta); }
+    .feature-card:nth-child(3) .feature-name { color: var(--neon-lime); }
+    .feature-card:nth-child(4) .feature-name { color: var(--neon-orange); }
+
+    .feature-tag {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+      background: rgba(0,255,255,0.1);
+      color: var(--neon-cyan);
+      border: 1px solid rgba(0,255,255,0.3);
+      margin-bottom: 16px;
+    }
+
+    .feature-card:nth-child(2) .feature-tag { background: rgba(255,0,255,0.1); color: var(--neon-magenta); border-color: rgba(255,0,255,0.3); }
+    .feature-card:nth-child(3) .feature-tag { background: rgba(170,255,0,0.1); color: var(--neon-lime); border-color: rgba(170,255,0,0.3); }
+    .feature-card:nth-child(4) .feature-tag { background: rgba(255,102,0,0.1); color: var(--neon-orange); border-color: rgba(255,102,0,0.3); }
+
+    .feature-desc {
+      font-size: 0.98rem;
+      line-height: 1.75;
+      color: rgba(200,200,255,0.72);
+    }
+
+    /* ============================================================
+       HOW IT WORKS — ARCHITECTURE
+    ============================================================ */
+    #architecture {
+      background: var(--void-purple);
+      text-align: center;
+    }
+
+    .arch-diagram {
+      max-width: 900px;
+      margin: 64px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .arch-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 32px 24px;
+      background: var(--card-bg);
+      border: 2px solid;
+      border-radius: 16px;
+      min-width: 160px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: default;
+      position: relative;
+    }
+
+    .arch-node:hover { transform: scale(1.08) translateY(-6px); }
+
+    .arch-node.mariadb  { border-color: var(--neon-orange); box-shadow: 0 0 20px rgba(255,102,0,0.3); }
+    .arch-node.wordpress{ border-color: var(--neon-cyan);   box-shadow: 0 0 20px rgba(0,255,255,0.3); }
+    .arch-node.nginx    { border-color: var(--neon-lime);   box-shadow: 0 0 20px rgba(170,255,0,0.3); }
+    .arch-node.docker   { border-color: var(--neon-magenta);box-shadow: 0 0 20px rgba(255,0,255,0.3); }
+
+    .arch-node:hover.mariadb  { box-shadow: 0 0 40px var(--neon-orange), 0 0 80px rgba(255,102,0,0.4); }
+    .arch-node:hover.wordpress{ box-shadow: var(--glow-cyan); }
+    .arch-node:hover.nginx    { box-shadow: var(--glow-lime); }
+    .arch-node:hover.docker   { box-shadow: var(--glow-magenta); }
+
+    .arch-emoji { font-size: 2.8rem; animation: float 4s ease-in-out infinite; }
+    .arch-node:nth-child(3) .arch-emoji { animation-delay: -1s; }
+    .arch-node:nth-child(5) .arch-emoji { animation-delay: -2s; }
+    .arch-node:nth-child(7) .arch-emoji { animation-delay: -3s; }
+
+    .arch-label {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .arch-node.mariadb   .arch-label { color: var(--neon-orange); }
+    .arch-node.wordpress .arch-label { color: var(--neon-cyan); }
+    .arch-node.nginx     .arch-label { color: var(--neon-lime); }
+    .arch-node.docker    .arch-label { color: var(--neon-magenta); }
+
+    .arch-sublabel {
+      font-family: var(--font-display);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: rgba(200,200,255,0.5);
+      text-transform: uppercase;
+    }
+
+    .arch-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      font-size: 2rem;
+      color: var(--neon-cyan);
+      text-shadow: var(--glow-cyan);
+      animation: pulse-glow 1.5s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .arch-arrow:nth-child(4) { color: var(--neon-magenta); text-shadow: var(--glow-magenta); animation-delay: -0.5s; }
+    .arch-arrow:nth-child(6) { color: var(--neon-lime); text-shadow: var(--glow-lime); animation-delay: -1s; }
+
+    .arch-wrap-label {
+      width: 100%;
+      text-align: center;
+      margin-top: 40px;
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--neon-magenta);
+      text-shadow: var(--glow-magenta);
+      text-transform: uppercase;
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    /* ============================================================
+       STATS BAR
+    ============================================================ */
+    #stats {
+      background: linear-gradient(135deg, #06001a, #000a20, #06001a);
+      padding: 80px 48px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .stat-item {}
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      animation: hue-rotate 8s linear infinite;
+    }
+
+    .stat-item:nth-child(2) .stat-number { animation-delay: -2s; }
+    .stat-item:nth-child(3) .stat-number { animation-delay: -4s; }
+    .stat-item:nth-child(4) .stat-number { animation-delay: -6s; }
+
+    .stat-unit {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--neon-lime);
+      display: block;
+      margin-top: 4px;
+      letter-spacing: 0.2em;
+      text-shadow: var(--glow-lime);
+    }
+
+    .stat-desc {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: rgba(200,200,255,0.5);
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    /* ============================================================
+       TESTIMONIALS
+    ============================================================ */
+    #testimonials {
+      background: var(--deep-void);
+    }
+
+    .testimonials-header { margin-bottom: 72px; }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 28px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,0,255,0.15);
+      border-radius: 12px;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: -20px;
+      right: 20px;
+      font-size: 12rem;
+      color: rgba(255,0,255,0.05);
+      font-family: Georgia, serif;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-6px) rotate(0.5deg);
+      border-color: var(--neon-magenta);
+      box-shadow: var(--glow-magenta);
+    }
+
+    .testimonial-card:nth-child(2) { border-color: rgba(0,255,255,0.15); }
+    .testimonial-card:nth-child(2):hover { border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); }
+    .testimonial-card:nth-child(3) { border-color: rgba(170,255,0,0.15); }
+    .testimonial-card:nth-child(3):hover { border-color: var(--neon-lime); box-shadow: var(--glow-lime); }
+
+    .testimonial-stars {
+      color: var(--neon-yellow);
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      text-shadow: 0 0 10px var(--neon-yellow);
+      letter-spacing: 4px;
+    }
+
+    .testimonial-text {
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: rgba(220,220,255,0.85);
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .author-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      border: 2px solid var(--neon-magenta);
+      box-shadow: var(--glow-magenta);
+      background: rgba(255,0,255,0.1);
+    }
+
+    .testimonial-card:nth-child(2) .author-avatar { border-color: var(--neon-cyan); box-shadow: var(--glow-cyan); background: rgba(0,255,255,0.1); }
+    .testimonial-card:nth-child(3) .author-avatar { border-color: var(--neon-lime); box-shadow: var(--glow-lime); background: rgba(170,255,0,0.1); }
+
+    .author-name {
+      font-family: var(--font-display);
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: var(--neon-magenta);
+      letter-spacing: 0.1em;
+    }
+
+    .testimonial-card:nth-child(2) .author-name { color: var(--neon-cyan); }
+    .testimonial-card:nth-child(3) .author-name { color: var(--neon-lime); }
+
+    .author-title {
+      font-size: 0.75rem;
+      color: rgba(200,200,255,0.5);
+      font-family: var(--font-display);
+      letter-spacing: 0.1em;
+    }
+
+    /* ============================================================
+       CODE SECTION
+    ============================================================ */
+    #code-section {
+      background: #030010;
+      padding: 120px 48px;
+    }
+
+    .code-layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .code-layout { grid-template-columns: 1fr; }
+    }
+
+    .code-block {
+      background: #050020;
+      border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 12px;
+      padding: 32px;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      line-height: 1.8;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .code-block::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-lime));
+      animation: text-shimmer 2s linear infinite;
+      background-size: 300%;
+    }
+
+    .code-topbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red    { background: #ff5f57; }
+    .dot-yellow { background: #febc2e; }
+    .dot-green  { background: #28c840; }
+
+    .code-filename {
+      margin-left: auto;
+      font-size: 0.65rem;
+      color: rgba(0,255,255,0.4);
+      letter-spacing: 0.15em;
+    }
+
+    .c-comment { color: #3a4a6a; }
+    .c-key     { color: var(--neon-cyan); }
+    .c-val     { color: var(--neon-lime); }
+    .c-str     { color: var(--neon-magenta); }
+    .c-kw      { color: var(--neon-yellow); }
+
+    /* ============================================================
+       CTA SECTION
+    ============================================================ */
+    #cta {
+      background: linear-gradient(135deg, #06001a 0%, #000820 40%, #0a0005 100%);
+      text-align: center;
+      padding: 160px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-bg-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid;
+      animation: spin-slow linear infinite;
+      pointer-events: none;
+    }
+
+    .ring-1 { width: 600px; height: 600px; top: 50%; left: 50%; margin: -300px; border-color: rgba(0,255,255,0.08); animation-duration: 30s; }
+    .ring-2 { width: 800px; height: 800px; top: 50%; left: 50%; margin: -400px; border-color: rgba(255,0,255,0.06); animation-duration: 45s; animation-direction: reverse; }
+    .ring-3 { width: 1100px; height: 1100px; top: 50%; left: 50%; margin: -550px; border-color: rgba(170,255,0,0.04); animation-duration: 60s; }
+
+    .cta-eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      text-shadow: var(--glow-cyan);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 6vw, 5rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta), var(--neon-lime), var(--neon-cyan));
+      background-size: 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: text-shimmer 4s linear infinite;
+    }
+
+    .cta-sub {
+      font-size: 1.15rem;
+      color: rgba(200,200,255,0.75);
+      margin-bottom: 52px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: #010006;
+      border-top: 1px solid rgba(0,255,255,0.1);
+      padding: 56px 48px;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    .footer-tagline {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: rgba(200,200,255,0.35);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .footer-links a {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(200,200,255,0.4);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+
+    .footer-copy {
+      font-size: 0.75rem;
+      color: rgba(200,200,255,0.2);
+      font-family: var(--font-display);
+      letter-spacing: 0.1em;
+    }
+
+    /* ============================================================
+       SCROLL REVEAL UTILITY
+    ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ============================================================
+       CURSOR GLOW
+    ============================================================ */
+    #cursor-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      transition: background 0.3s;
+    }
+
+    /* ============================================================
+       MOBILE RESPONSIVE
+    ============================================================ */
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+      section { padding: 80px 24px; }
+      #hero { padding: 100px 20px 60px; }
+      .arch-diagram { gap: 0; flex-direction: column; }
+      .arch-arrow { transform: rotate(90deg); }
+      .code-layout { gap: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       BACKGROUND CANVAS (particles + waveform)
+  ============================================================ -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Scanlines overlay -->
+  <div id="scanlines"></div>
+
+  <!-- Cursor glow follower -->
+  <div id="cursor-glow"></div>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav>
+    <div class="nav-logo">DOCKERVERSE™</div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#testimonials">Témoignages</a></li>
+      <li><a href="#cta">Démarrer</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================================================
+       MAIN CONTENT WRAPPER
+  ============================================================ -->
+  <div class="wrapper">
+
+    <!-- ====================================================
+         HERO
+    ==================================================== -->
+    <section id="hero">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+
+      <p class="hero-eyebrow">▸ Infrastructure du futur • Opérationnel depuis 1 big bang ◂</p>
+
+      <h1 class="hero-title">
+        <span class="base">DOCKERVERSE™</span>
+        <span class="layer1">DOCKERVERSE™</span>
+        <span class="layer2">DOCKERVERSE™</span>
+      </h1>
+
+      <p class="hero-subtitle">L'INFRASTRUCTURE QUI A BRISÉ LES LOIS DE LA PHYSIQUE</p>
+
+      <p class="hero-desc">
+        MariaDB. Nginx. WordPress. Trois conteneurs Docker orchestrés dans une harmonie 
+        cosmique tellement absurde que les ingénieurs de la NASA pleurent en la contemplant. 
+        Votre site sera en ligne avant même que vous ayez fini de lire cette phrase.
+      </p>
+
+      <!-- Stack badges -->
+      <div class="stack-icons">
+        <div class="stack-badge">
+          <span class="stack-icon">🐳</span>
+          <span>Docker Network</span>
+        </div>
+        <div class="stack-badge">
+          <span class="stack-icon">🗄️</span>
+          <span>MariaDB</span>
+        </div>
+        <div class="stack-badge">
+          <span class="stack-icon">⚡</span>
+          <span>Nginx</span>
+        </div>
+        <div class="stack-badge">
+          <span class="stack-icon">🌐</span>
+          <span>WordPress</span>
+        </div>
+      </div>
+
+      <div class="cta-group">
+        <a href="#cta" class="btn-primary">TRANSCENDER LA RÉALITÉ</a>
+        <a href="#architecture" class="btn-secondary">VOIR L'ARCHITECTURE</a>
+      </div>
+
+      <div class="scroll-hint">
+        <span>SCROLL POUR L'ÉVEIL</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         TICKER TAPE
+    ==================================================== -->
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker-content">
+        <!-- Duplicate for seamless loop -->
+        <span class="ticker-item">🚀 RAPIDITÉ INTERDIMENSIONNELLE</span>
+        <span class="ticker-item">♾️ SCALABILITÉ INFINIE</span>
+        <span class="ticker-item">🧠 SIMPLICITÉ ABSURDE</span>
+        <span class="ticker-item">🌌 FIABILITÉ COSMIQUE</span>
+        <span class="ticker-item">🐳 DOCKER OU MOURIR</span>
+        <span class="ticker-item">⚡ NGINX = LUMIÈRE</span>
+        <span class="ticker-item">🗄️ MARIADB ÉTERNEL</span>
+        <span class="ticker-item">🌐 WORDPRESS ULTIME</span>
+        <span class="ticker-item">🚀 RAPIDITÉ INTERDIMENSIONNELLE</span>
+        <span class="ticker-item">♾️ SCALABILITÉ INFINIE</span>
+        <span class="ticker-item">🧠 SIMPLICITÉ ABSURDE</span>
+        <span class="ticker-item">🌌 FIABILITÉ COSMIQUE</span>
+        <span class="ticker-item">🐳 DOCKER OU MOURIR</span>
+        <span class="ticker-item">⚡ NGINX = LUMIÈRE</span>
+        <span class="ticker-item">🗄️ MARIADB ÉTERNEL</span>
+        <span class="ticker-item">🌐 WORDPRESS ULTIME</span>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         FEATURES
+    ==================================================== -->
+    <section id="features">
+      <div class="features-header reveal">
+        <span class="section-label">// Caractéristiques cosmiques</span>
+        <h2 class="section-title">POURQUOI CHOISIR<br>L'ABSOLU ?</h2>
+        <p class="section-intro">
+          Parce que "bon" ne suffit plus. Parce que "rapide" est une insulte. 
+          Parce que vous méritez une infrastructure qui fait pleurer les serveurs concurrents.
+        </p>
+      </div>
+
+      <div class="features-grid">
+
+        <div class="feature-card reveal">
+          <div class="feature-number">∞</div>
+          <div class="feature-tag">VITESSE</div>
+          <div class="feature-name">Rapidité Interdimensionnelle</div>
+          <p class="feature-desc">
+            Nginx sert vos pages plus vite que la lumière ne traverse le vide quantique. 
+            Des ingénieurs ont mesuré 0.000001ms de temps de réponse. Leurs instruments 
+            ont fondu. Aucun CDN ne peut rivaliser avec notre réseau Docker interne.
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-number">∞²</div>
+          <div class="feature-tag">ÉCHELLE</div>
+          <div class="feature-name">Scalabilité Infinie</div>
+          <p class="feature-desc">
+            Un conteneur aujourd'hui, une galaxie demain. Notre architecture Docker permet 
+            de scaler jusqu'à des dimensions que les mathématiques refusent de nommer. 
+            MariaDB a stocké des données dans des univers parallèles pour plus de capacité.
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-number">01</div>
+          <div class="feature-tag">SIMPLICITÉ</div>
+          <div class="feature-name">Simplicité Absurde</div>
+          <p class="feature-desc">
+            <code style="color:var(--neon-lime)">docker compose up</code> — c'est tout. 
+            Trois conteneurs. Un réseau. Un chef-d'œuvre. Des enfants de 3 ans ont déployé 
+            des infrastructures WordPress de production en utilisant notre système. 
+            (Leurs parents étaient jaloux.)
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-number">☯</div>
+          <div class="feature-tag">FIABILITÉ</div>
+          <div class="feature-name">Fiabilité Cosmique</div>
+          <p class="feature-desc">
+            99.99999% d'uptime — le 0.00001% restant, c'est lorsqu'un trou noir 
+            a absorbé temporairement notre datacenter en 2019. MariaDB a survécu. 
+            Nginx a survécu. WordPress a publié un article à ce sujet pendant le transit.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================
+         ARCHITECTURE
+    ==================================================== -->
+    <section id="architecture">
+      <div class="reveal">
+        <span class="section-label">// Architecture du multivers</span>
+        <h2 class="section-title">TROIS CONTENEURS.<br>UN RÉSEAU. L'INFINI.</h2>
+        <p class="section-intro" style="margin: 0 auto;">
+          Chaque service isolé. Chaque service transcendant. 
+          Reliés par un réseau Docker dont les paquets voyagent à la vitesse de la conscience pure.
+        </p>
+      </div>
+
+      <div class="arch-diagram reveal">
+        <div class="arch-node mariadb">
+          <div class="arch-emoji">🗄️</div>
+          <div class="arch-label">MariaDB</div>
+          <div class="arch-sublabel">Données Éternelles</div>
+        </div>
+        <div class="arch-arrow">⟶</div>
+        <div class="arch-node wordpress">
+          <div class="arch-emoji">🌐</div>
+          <div class="arch-label">WordPress</div>
+          <div class="arch-sublabel">Âme du Contenu</div>
+        </div>
+        <div class="arch-arrow">⟶</div>
+        <div class="arch-node nginx">
+          <div class="arch-emoji">⚡</div>
+          <div class="arch-label">Nginx</div>
+          <div class="arch-sublabel">Gardien de la Lumière</div>
+        </div>
+        <div class="arch-arrow">⟶</div>
+        <div class="arch-node docker">
+          <div class="arch-emoji">🐳</div>
+          <div class="arch-label">Docker Network</div>
+          <div class="arch-sublabel">Le Tissu du Réel</div>
+        </div>
+        <div class="arch-wrap-label">▸ Tout ça tourne sur votre machine locale ou un VPS à 5€/mois. Vraiment. ◂</div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         STATS
+    ==================================================== -->
+    <section id="stats">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <div class="stat-number" id="counter-1">0</div>
+          <span class="stat-unit">ms</span>
+          <div class="stat-desc">Temps de réponse moyen de Nginx</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="stat-number" id="counter-2">0</div>
+          <span class="stat-unit">Ko</span>
+          <div class="stat-desc">Taille du docker-compose.yml</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="stat-number" id="counter-3">0</div>
+          <span class="stat-unit">%</span>
+          <div class="stat-desc">Développeurs heureux après déploiement</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="stat-number" id="counter-4">0</div>
+          <span class="stat-unit">∞</span>
+          <div class="stat-desc">Dimensions supportées simultanément</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         CODE PREVIEW
+    ==================================================== -->
+    <section id="code-section">
+      <div class="code-layout">
+        <div class="reveal">
+          <span class="section-label">// Le Grimoire Sacré</span>
+          <h2 class="section-title" style="font-size:clamp(1.8rem,4vw,3rem)">VOTRE UNIVERS<br>EN 40 LIGNES.</h2>
+          <p class="section-intro">
+            Un seul fichier <code style="color:var(--neon-lime)">docker-compose.yml</code> contient 
+            l'intégralité de votre infrastructure cosmique. Nginx en reverse proxy, WordPress en moteur 
+            de contenu, MariaDB en gardien des données. 
+            Réseau privé. Volumes persistants. Existence assurée.
+          </p>
+          <br>
+          <p style="font-family:var(--font-display);font-size:0.8rem;color:rgba(0,255,255,0.6);letter-spacing:0.15em;">
+            ▸ Un seul <code>docker compose up -d</code> et vous avez transcendé.
+          </p>
+        </div>
+
+        <div class="code-block reveal">
+          <div class="code-topbar">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <span class="code-filename">docker-compose.yml</span>
+          </div>
+          <pre><code
+><span class="c-key">version</span><span>: </span><span class="c-str">'3.8'</span>
+
+<span class="c-key">services</span><span>:</span>
+  <span class="c-kw">mariadb</span><span>:</span>
+    <span class="c-key">image</span><span>: </span><span class="c-str">mariadb:latest</span>
+    <span class="c-key">volumes</span><span>:</span>
+      <span class="c-val">- db_data:/var/lib/mysql</span>
+    <span class="c-key">environment</span><span>:</span>
+      <span class="c-val">MYSQL_ROOT_PASSWORD: </span><span class="c-str">cosmique_secret</span>
+      <span class="c-val">MYSQL_DATABASE: </span><span class="c-str">wordpress_univers</span>
+    <span class="c-key">networks</span><span>:</span>
+      <span class="c-val">- interdimensional_net</span>
+
+  <span class="c-kw">wordpress</span><span>:</span>
+    <span class="c-key">image</span><span>: </span><span class="c-str">wordpress:fpm</span>
+    <span class="c-key">depends_on</span><span>:</span>
+      <span class="c-val">- mariadb</span>
+    <span class="c-key">volumes</span><span>:</span>
+      <span class="c-val">- wp_data:/var/www/html</span>
+    <span class="c-key">networks</span><span>:</span>
+      <span class="c-val">- interdimensional_net</span>
+
+  <span class="c-kw">nginx</span><span>:</span>
+    <span class="c-key">image</span><span>: </span><span class="c-str">nginx:alpine</span>
+    <span class="c-key">ports</span><span>:</span>
+      <span class="c-val">- </span><span class="c-str">"80:80"</span>
+      <span class="c-val">- </span><span class="c-str">"443:443"</span>
+    <span class="c-key">depends_on</span><span>:</span>
+      <span class="c-val">- wordpress</span>
+    <span class="c-key">volumes</span><span>:</span>
+      <span class="c-val">- wp_data:/var/www/html:ro</span>
+      <span class="c-val">- ./nginx.conf:/etc/nginx/nginx.conf</span>
+    <span class="c-key">networks</span><span>:</span>
+      <span class="c-val">- interdimensional_net</span>
+
+<span class="c-key">volumes</span><span>:</span>
+  <span class="c-val">db_data</span><span>: {}</span>
+  <span class="c-val">wp_data</span><span>: {}</span>
+
+<span class="c-key">networks</span><span>:</span>
+  <span class="c-kw">interdimensional_net</span><span>:</span>
+    <span class="c-key">driver</span><span>: </span><span class="c-str">bridge</span>
+          </code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         TESTIMONIALS
+    ==================================================== -->
+    <section id="testimonials">
+      <div class="testimonials-header reveal">
+        <span class="section-label">// Cerveaux fondus • Témoignages authentiques™</span>
+        <h2 class="section-title">ILS ONT TRANSCENDÉ.<br>ILS TÉMOIGNENT.</h2>
+      </div>
+
+      <div class="testimonials-grid">
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "J'ai lancé <code style="color:var(--neon-lime)">docker compose up</code> un mardi matin. 
+            Le mercredi, mon site WordPress était en production. Le jeudi, ma vie avait un sens. 
+            Nginx répond tellement vite que j'ai développé une relation émotionnelle avec mes logs d'accès."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">🧑‍💻</div>
+            <div>
+              <div class="author-name">Alexis D.</div>
+              <div class="author-title">Développeur Full-Stack • Ex-traumatisé de Kubernetes</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "MariaDB a stocké mes données avec une telle délicatesse que j'ai pleuré. 
+            Trois conteneurs qui se comprennent mieux que moi et mes collègues en réunion. 
+            Le réseau Docker interne est plus stable que ma connexion Wi-Fi ET ma vie amoureuse."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">👩‍🔬</div>
+            <div>
+              <div class="author-name">Dr. Saoirse M.</div>
+              <div class="author-title">Architecte Cloud • Chercheuse en Physique Quantique Docker</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">
+            "J'avais 47 micro-services sur Kubernetes. J'avais des cauchemars. 
+            Je suis passé à cette stack Docker simple. Mes cauchemars parlent maintenant 
+            de choses normales comme les araignées. Nginx est mon gardien de nuit. 
+            Je lui dis bonne nuit avant de dormir."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">🧔</div>
+            <div>
+              <div class="author-name">Kévin «Kubectl» T.</div>
+              <div class="author-title">DevOps Rescapé • Survivant de la Grande Orchestration</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====================================================
+         CTA
+    ==================================================== -->
+    <section id="cta">
+      <div class="cta-bg-ring ring-1"></div>
+      <div class="cta-bg-ring ring-2"></div>
+      <div class="cta-bg-ring ring-3"></div>
+
+      <div style="position:relative;z-index:2;">
+        <span class="cta-eyebrow reveal">▸ Votre transcendance vous attend ◂</span>
+        <h2 class="cta-title reveal">DEPLOYEZ<br>L'UNIVERS<br>MAINTENANT.</h2>
+        <p class="cta-sub reveal">
+          Un réseau Docker. Trois conteneurs. Une infinité de possibilités. 
+          Votre infrastructure cosmique est à portée d'un seul terminal. 
+          Les étoiles sont prêtes. Nginx aussi.
+        </p>
+        <div class="cta-group reveal">
+          <a href="#" class="btn-primary">CLONER LE COSMOS</a>
+          <a href="#architecture" class="btn-secondary">VOIR L'ARCHITECTURE</a>
+        </div>
+        <p style="margin-top:32px;font-family:var(--font-display);font-size:0.7rem;letter-spacing:0.25em;color:rgba(200,200,255,0.3);text-transform:uppercase;" class="reveal">
+          ⚠️ Effets secondaires possibles : Productivité accrue, existentiel satisfaction, addiction au terminal
+        </p>
+      </div>
+    </section>
+
+    <!-- ====================================================
+         FOOTER
+    ==================================================== -->
+    <footer>
+      <div class="footer-logo">DOCKERVERSE™</div>
+      <div class="footer-tagline">MariaDB + Nginx + WordPress • Un réseau Docker pour les gouverner tous</div>
+      <div class="footer-links">
+        <a href="#">Documentation</a>
+        <a href="#">GitHub</a>
+        <a href="#">Docker Hub</a>
+        <a href="#">Manifeste Cosmique</a>
+        <a href="#">Support Interdimensionnel</a>
+      </div>
+      <div class="footer-copy">
+        © 2025 DOCKERVERSE™ — Aucun serveur physique n'a été blessé dans la création de cette infrastructure. 
+        Tous droits réservés dans cette dimension et les suivantes.
+      </div>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+  <!-- ============================================================
+       JAVASCRIPT
+  ============================================================ -->
+  <script>
+    /* ============================================================
+       1. CANVAS BACKGROUND — Particles + Waveform
+    ============================================================ */
+    (function initCanvas() {
+      const canvas = document.getElementById('bg-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H, particles, waveOffset = 0;
+
+      function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+
+      const COLORS = ['#00ffff', '#ff00ff', '#aaff00', '#ff6600', '#ff0099', '#ffee00'];
+
+      /* Particle class */
+      function Particle() {
+        this.reset();
+      }
+      Particle.prototype.reset = function() {
+        this.x  = Math.random() * W;
+        this.y  = Math.random() * H;
+        this.vx = (Math.random() - 0.5) * 0.45;
+        this.vy = (Math.random() - 0.5) * 0.45;
+        this.r  = Math.random() * 2 + 0.3;
+        this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        this.alpha = Math.random() * 0.6 + 0.1;
+        this.life  = 0;
+        this.maxLife = Math.random() * 400 + 200;
+      };
+      Particle.prototype.update = function() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life++;
+        // Fade in/out
+        const t = this.life / this.maxLife;
+        this.alpha = t < 0.2 ? t / 0.2 * 0.5 : t > 0.8 ? (1 - t) / 0.2 * 0.5 : 0.5;
+        if (this.life >= this.maxLife ||
+            this.x < -10 || this.x > W + 10 ||
+            this.y < -10 || this.y > H + 10) {
+          this.reset();
+        }
+      };
+      Particle.prototype.draw = function() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.shadowBlur  = 10;
+        ctx.shadowColor = this.color;
+        ctx.fillStyle   = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      };
+
+      function initParticles() {
+        particles = Array.from({ length: 160 }, () => new Particle());
+      }
+
+      /* Connection lines */
+      function drawConnections() {
+        const DIST = 100;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const d  = Math.sqrt(dx * dx + dy * dy);
+            if (d < DIST) {
+              const alpha = (1 - d / DIST) * 0.12;
+              ctx.save();
+              ctx.globalAlpha = alpha;
+              ctx.strokeStyle = particles[i].color;
+              ctx.lineWidth   = 0.5;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+      }
+
+      /* Bottom wave */
+      function drawWave(yBase, amplitude, frequency, speed, color, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = color;
+        ctx.shadowBlur  = 18;
+        ctx.shadowColor = color;
+        ctx.lineWidth   = 1.5;
+        ctx.beginPath();
+        for (let x = 0; x <= W; x += 2) {
+          const y = yBase + Math.sin((x * frequency) + waveOffset * speed) * amplitude
+                          + Math.sin((x * frequency * 0.5) + waveOffset * speed * 1.3) * (amplitude * 0.4);
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Subtle gradient background tint
+        const grd = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
+        grd.addColorStop(0, 'rgba(6,0,26,0.35)');
+        grd.addColorStop(1, 'rgba(2,0,8,0)');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, W, H);
+
+        // Connections
+        drawConnections();
+
+        // Particles
+        particles.forEach(p => { p.update(); p.draw(); });
+
+        // Waves
+        waveOffset += 0.012;
+        drawWave(H * 0.78, 28, 0.012, 1.0, '#00ffff', 0.18);
+        drawWave(H * 0.82, 22, 0.015, 0.8, '#ff00ff', 0.14);
+        drawWave(H * 0.86, 18, 0.010, 1.2, '#aaff00', 0.12);
+
+        requestAnimationFrame(animate);
+      }
+
+      resize();
+      initParticles();
+      animate();
+      window.addEventListener('resize', () => { resize(); initParticles(); });
+    })();
+
+    /* ============================================================
+       2. CURSOR GLOW FOLLOWER
+    ============================================================ */
+    (function initCursor() {
+      const glow = document.getElementById('cursor-glow');
+      let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+      let cx = mx, cy = my;
+
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX;
+        my = e.clientY;
+      });
+
+      (function loop() {
+        cx += (mx - cx) * 0.08;
+        cy += (my - cy) * 0.08;
+        glow.style.left = cx + 'px';
+        glow.style.top  = cy + 'px';
+        requestAnimationFrame(loop);
+      })();
+    })();
+
+    /* ============================================================
+       3. SCROLL REVEAL (IntersectionObserver)
+    ============================================================ */
+    (function initReveal() {
+      const elements = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.12 });
+      elements.forEach(el => observer.observe(el));
+    })();
+
+    /* ============================================================
+       4. ANIMATED COUNTERS
+    ============================================================ */
+    (function initCounters() {
+      const counters = [
+        { id: 'counter-1', target: 0,   suffix: '' },
+        { id: 'counter-2', target: 2,   suffix: '' },
+        { id: 'counter-3', target: 100, suffix: '' },
+        { id: 'counter-4', target: 3,   suffix: '' },
+      ];
+
+      function animateCounter(el, target, duration) {
+        const start = performance.now();
+        function step(now) {
+          const t = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 4);
+          el.textContent = Math.round(eased * target);
+          if (t < 1) requestAnimationFrame(step);
+          else el.textContent = target;
+        }
+        requestAnimationFrame(step);
+      }
+
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const stat = counters.find(c => c.id === entry.target.id);
+            if (stat) animateCounter(entry.target, stat.target, 1800);
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      counters.forEach(c => {
+        const el = document.getElementById(c.id);
+        if (el) obs.observe(el);
+      });
+    })();
+
+    /* ============================================================
+       5. PARALLAX BLOBS ON SCROLL
+    ============================================================ */
+    (function initParallax() {
+      const blobs = document.querySelectorAll('.blob');
+      window.addEventListener('scroll', () => {
+        const sy = window.scrollY;
+        blobs.forEach((b, i) => {
+          const factor = (i + 1) * 0.12;
+          b.style.transform = `translateY(${sy * factor}px)`;
+        });
+      }, { passive: true });
+    })();
+
+    /* ============================================================
+       6. RANDOM GLITCH TRIGGER on hero title
+    ============================================================ */
+    (function initGlitchTrigger() {
+      const title = document.querySelector('.hero-title');
+      function triggerGlitch() {
+        title.style.animation = 'none';
+        void title.offsetHeight;
+        title.classList.add('glitch-active');
+        setTimeout(() => title.classList.remove('glitch-active'), 300);
+        setTimeout(triggerGlitch, 3000 + Math.random() * 5000);
+      }
+      setTimeout(triggerGlitch, 2000);
+    })();
+
+    /* ============================================================
+       7. HOVER COLOR CHANGE on cursor glow near elements
+    ============================================================ */
+    (function initHoverGlow() {
+      const glow = document.getElementById('cursor-glow');
+      const hotspots = document.querySelectorAll('.btn-primary, .feature-card, .testimonial-card, .arch-node');
+      hotspots.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          glow.style.background = 'radial-gradient(circle, rgba(255,0,255,0.09) 0%, transparent 70%)';
+          glow.style.width = '600px';
+          glow.style.height = '600px';
+        });
+        el.addEventListener('mouseleave', () => {
+          glow.style.background = 'radial-gradient(circle, rgba(0,255,255,0.06) 0%, transparent 70%)';
+          glow.style.width = '400px';
+          glow.style.height = '400px';
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>
