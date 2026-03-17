@@ -58,6 +58,54 @@ wait_for() {
     return 1
 }
 
+
+wait_for_containers() {
+    local timeout=30
+    local elapsed=0
+    local all_ready
+
+    printf "\n  ${CYAN}${BOLD}Waiting for containers to be ready...${NC}\n"
+
+    while [ $elapsed -lt $timeout ]; do
+        CONTAINERS=$($COMPOSE ps 2>/dev/null)
+        all_ready=true
+
+        for container in "$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS"; do
+            local line
+            line=$(echo "$CONTAINERS" | grep "$container")
+
+            if ! echo "$line" | grep -q "Up"; then
+                all_ready=false; break
+            fi
+
+            if echo "$line" | grep -q "Restarting"; then
+                all_ready=false; break
+            fi
+
+            if echo "$line" | grep -q "health: starting"; then
+                all_ready=false; break
+            fi
+
+            if echo "$line" | grep -q "unhealthy"; then
+                all_ready=false; break
+            fi
+        done
+
+        if $all_ready; then
+            printf "  ${GREEN}All containers ready${NC} ${DIM}(${elapsed}s)${NC}\n"
+            return 0
+        fi
+
+        printf "  ${DIM}[%2ds] still waiting...${NC}\r" "$elapsed"
+        sleep 1
+        ((elapsed++))
+    done
+
+    CONTAINERS=$($COMPOSE ps 2>/dev/null)
+    printf "\n  ${RED}${BOLD}Timeout: containers not ready after ${timeout}s${NC}\n"
+    return 1
+}
+
 # --- Init ---------------------------------------------------------------------
 
 set -a
@@ -395,4 +443,10 @@ if grep -q "127.0.0.1	${DOMAIN}" /etc/hosts; then
     check "/etc/hosts entry" "ok" "127.0.0.1 → ${DOMAIN}"
 else
     check "/etc/hosts entry" "ko" "missing: 127.0.0.1  ${DOMAIN}"
+fi
+
+if ! wait_for_containers; then
+    echo
+    $COMPOSE ps
+    exit 1
 fi
