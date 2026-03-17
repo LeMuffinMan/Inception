@@ -164,7 +164,7 @@ fi
 section "Hosts"
 
 HOSTS_FILE="/etc/hosts"
-HOSTS_ENTRY="127.0.0.1 ${USER}.42.fr"
+HOSTS_ENTRY="127.0.0.1	${USER}.42.fr"
 
 if grep -q "^127\.0\.0\.1 ${USER}\.42\.fr$" "$HOSTS_FILE"; then
     check "$HOSTS_FILE" "ok"

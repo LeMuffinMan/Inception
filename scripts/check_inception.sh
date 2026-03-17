@@ -449,7 +449,7 @@ else
     check "domain reachable (${DOMAIN})" "ko"
 fi
 
-if grep -q "127.0.0.1	${DOMAIN}" /etc/hosts; then
+if grep "^127\.0\.0\.1" /etc/hosts | grep -q $(whoami).42.fr; then
     check "/etc/hosts entry" "ok" "127.0.0.1 → ${DOMAIN}"
 else
     check "/etc/hosts entry" "ko" "missing: 127.0.0.1  ${DOMAIN}"

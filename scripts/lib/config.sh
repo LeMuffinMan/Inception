@@ -6,7 +6,7 @@
 # to your setup. All scripts source this file automatically.
 # =============================================================================
 
-LOGIN="oelleaum"
+LOGIN=$(whoami)
 DOMAIN="${LOGIN}.42.fr"
 
 ROOT_DIR="$(dirname "$0")/.."
