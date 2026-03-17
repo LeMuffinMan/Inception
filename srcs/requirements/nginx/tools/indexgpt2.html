@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Singularité Docker</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    background:black;
+    color:white;
+    font-family:monospace;
+    overflow-x:hidden;
+}
+
+/* CANVAS */
+canvas{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    z-index:-2;
+}
+
+/* VORTEX OVERLAY */
+.overlay{
+    position:fixed;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    background:radial-gradient(circle, transparent, black 70%);
+    z-index:-1;
+}
+
+/* HERO */
+.hero{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+}
+
+/* GLITCH TEXT */
+.glitch{
+    font-size:5rem;
+    position:relative;
+    animation:glitch 0.2s infinite;
+}
+
+@keyframes glitch{
+    0%{transform:skew(0deg);}
+    25%{transform:skew(5deg);}
+    50%{transform:skew(-5deg);}
+    75%{transform:skew(3deg);}
+    100%{transform:skew(0deg);}
+}
+
+/* CTA */
+.cta{
+    margin-top:40px;
+    padding:20px 40px;
+    border:2px solid cyan;
+    cursor:pointer;
+    transition:0.3s;
+}
+.cta:hover{
+    background:cyan;
+    color:black;
+    transform:scale(1.3) rotate(10deg);
+}
+
+/* TERMINAL */
+.terminal{
+    margin:100px auto;
+    width:80%;
+    background:#000;
+    border:1px solid #0f0;
+    padding:20px;
+    color:#0f0;
+    min-height:200px;
+}
+
+/* SCROLL DISTORTION */
+section{
+    padding:150px 20px;
+    text-align:center;
+    transition:0.3s;
+}
+
+/* SCANLINES */
+body::after{
+    content:"";
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:repeating-linear-gradient(
+        rgba(255,255,255,0.04) 0px,
+        rgba(255,255,255,0.04) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="c"></canvas>
+<div class="overlay"></div>
+
+<div class="hero">
+    <h1 class="glitch" id="title">INITIALISATION...</h1>
+    <div class="cta">ENTRER DANS LA MATRICE</div>
+</div>
+
+<section>
+    <h2>Stack Divin</h2>
+    <p>MariaDB / Nginx / WordPress fusionnés en une entité parfaite</p>
+</section>
+
+<div class="terminal" id="terminal"></div>
+
+<section>
+    <h2>Promesses</h2>
+    <p>⚡ Déploiement avant même l'idée</p>
+    <p>♾ Scalabilité hors espace-temps</p>
+    <p>🌌 Uptime jusqu'à la mort thermique de l'univers</p>
+</section>
+
+<script>
+// CANVAS VORTEX
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+let t = 0;
+
+function vortex(){
+    t += 0.01;
+    for(let i=0;i<100;i++){
+        let angle = i * 0.1 + t;
+        let radius = i * 3;
+        let x = canvas.width/2 + Math.cos(angle)*radius;
+        let y = canvas.height/2 + Math.sin(angle)*radius;
+
+        ctx.fillStyle = `hsl(${i*5+t*100},100%,50%)`;
+        ctx.fillRect(x,y,2,2);
+    }
+}
+
+function loop(){
+    ctx.fillStyle="rgba(0,0,0,0.1)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    vortex();
+    requestAnimationFrame(loop);
+}
+loop();
+
+// SCRAMBLE TEXT
+const title = document.getElementById("title");
+const finalText = "DOCKER REALITY ENGINE";
+
+let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+function scramble(){
+    let output = "";
+    for(let i=0;i<finalText.length;i++){
+        output += chars[Math.floor(Math.random()*chars.length)];
+    }
+    title.innerText = output;
+}
+
+let count = 0;
+let interval = setInterval(()=>{
+    scramble();
+    count++;
+    if(count > 20){
+        clearInterval(interval);
+        title.innerText = finalText;
+    }
+},100);
+
+// TERMINAL EFFECT
+const terminal = document.getElementById("terminal");
+
+let lines = [
+"> docker-compose up -d",
+"> Initialisation de nginx...",
+"> Chargement de mariadb...",
+"> Activation de wordpress...",
+"> Injection de réalité...",
+"> ERREUR: limite humaine détectée",
+"> Correction...",
+"> SUCCÈS: transcendance atteinte"
+];
+
+let i=0;
+
+function typeLine(){
+    if(i < lines.length){
+        terminal.innerHTML += lines[i] + "<br>";
+        i++;
+        setTimeout(typeLine, 500);
+    }
+}
+typeLine();
+
+// MOUSE DISTORTION
+document.addEventListener("mousemove", e=>{
+    let x = e.clientX / window.innerWidth;
+    document.body.style.transform = `skew(${x*5}deg)`;
+    document.body.style.filter = `hue-rotate(${x*360}deg) blur(${x*3}px)`;
+});
+
+// SCROLL WARP
+window.addEventListener("scroll", ()=>{
+    let s = window.scrollY / 500;
+    document.body.style.transform += ` scale(${1 + s*0.2})`;
+});
+</script>
+
+</body>
+</html>
