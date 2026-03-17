@@ -110,3 +110,54 @@ TOTAL=$(ls "$SECRETS_DIR" | wc -l)
 echo -e "  ${GRAY}→ ${TOTAL} file(s) in ${SECRETS_DIR}${NC}"
 echo -e "  ${GRAY}→ Use ${WHITE}-f${GRAY} flag to force regeneration of all secrets${NC}"
 echo
+
+# --- .env check / generation --------------------------------------------------
+section "Environment File"
+
+ENV_FILE="srcs/.env"
+REQUIRED_VARS=(
+    "MYSQL_DATABASE"
+    "MYSQL_USER"
+    "DOMAIN_NAME"
+    "WP_TITLE"
+)
+
+EXPECTED_VALUES=(
+    ["MYSQL_DATABASE"]="${USER}_db"
+    ["MYSQL_USER"]="${USER}"
+    ["DOMAIN_NAME"]="${USER}.42.fr"
+    ["WP_TITLE"]="${USER}'s wordpress"
+)
+
+if [ -f "$ENV_FILE" ]; then
+    missing=()
+    for VAR in "${REQUIRED_VARS[@]}"; do
+        # Check presence AND assignment (VAR=something, non-empty)
+        if ! grep -qE "^${VAR}=.+" "$ENV_FILE"; then
+            missing+=("$VAR")
+        fi
+    done
+
+    if [ ${#missing[@]} -eq 0 ]; then
+        check "$ENV_FILE" "ok"
+    else
+        check "$ENV_FILE" "ko" "missing or empty variable(s): ${missing[*]}"
+        echo -e "  ${GRAY}→ Add the following to ${WHITE}${ENV_FILE}${GRAY}:${NC}"
+        for VAR in "${missing[@]}"; do
+            echo -e "  ${GRAY}  ${VAR}=${EXPECTED_VALUES[$VAR]}${NC}"
+        done
+    fi
+else
+    printf '%s\n' \
+        "MYSQL_DATABASE=${USER}_db" \
+        "MYSQL_USER=${USER}" \
+        "DOMAIN_NAME=${USER}.42.fr" \
+        "WP_TITLE=${USER}'s wordpress" \
+        > "$ENV_FILE"
+
+    if [ -s "$ENV_FILE" ]; then
+        check "$ENV_FILE" "ok" "generated"
+    else
+        check "$ENV_FILE" "ko" "could not write $ENV_FILE"
+    fi
+fi
