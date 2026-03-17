@@ -4,14 +4,14 @@ server {
     # this block redirect http -> https
     listen       80; #80: HTTP port
     listen  [::]:80; #[::] IPv6 notation for any interfaces
-    server_name  oelleaum.42.fr; #domain name
+    server_name  localhost; #domain name
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name oelleaum.42.fr;
+    server_name localhost;
 
     ssl_certificate /etc/nginx/ssl/cert.pem;
     ssl_certificate_key /etc/nginx/ssl/key.pem;
