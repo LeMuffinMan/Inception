@@ -1,227 +1,1275 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Docker Transcendance</title>
-<style>
-/* RESET */
-* { margin:0; padding:0; box-sizing:border-box; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOCKTOPIA — L'Infrastructure Interdimensionnelle</title>
+  <style>
+    /* =============================================
+       VARIABLES & RESET
+    ============================================= */
+    :root {
+      --neon-cyan:    #00fff7;
+      --neon-pink:    #ff00e5;
+      --neon-lime:    #aaff00;
+      --neon-orange:  #ff6a00;
+      --neon-purple:  #bf00ff;
+      --deep-black:   #020007;
+      --glass-white:  rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.1);
+      --font-display: 'Courier New', 'Lucida Console', monospace;
+      --font-body:    Georgia, 'Times New Roman', serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--deep-black);
+      color: #e0e0ff;
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
 
-body {
-    font-family: monospace;
-    overflow-x: hidden;
-    background: black;
-    color: white;
-}
+    /* =============================================
+       CUSTOM CURSOR
+    ============================================= */
+    #cursor {
+      position: fixed; top: 0; left: 0; z-index: 9999;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--neon-cyan);
+      box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+      pointer-events: none;
+      transform: translate(-50%,-50%);
+      transition: background 0.3s;
+      mix-blend-mode: exclusion;
+    }
+    #cursor-trail {
+      position: fixed; top: 0; left: 0; z-index: 9998;
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--neon-pink);
+      pointer-events: none;
+      transform: translate(-50%,-50%);
+      mix-blend-mode: exclusion;
+    }
 
-/* BACKGROUND CANVAS */
-canvas {
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:-1;
-}
+    /* =============================================
+       CANVAS BACKGROUND
+    ============================================= */
+    #bg-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-/* GLITCH TEXT */
-.glitch {
-    font-size: 4rem;
-    position: relative;
-    color: #fff;
-    text-transform: uppercase;
-    animation: glitch 1s infinite;
-}
+    /* =============================================
+       SCANLINES OVERLAY
+    ============================================= */
+    #scanlines {
+      position: fixed; inset: 0; z-index: 1;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.15) 3px,
+        rgba(0,0,0,0.15) 4px
+      );
+      animation: scanroll 8s linear infinite;
+    }
+    @keyframes scanroll {
+      0%   { background-position: 0 0; }
+      100% { background-position: 0 100vh; }
+    }
 
-@keyframes glitch {
-    0% { text-shadow: 2px 2px #ff00ff, -2px -2px #00ffff; }
-    50% { text-shadow: -2px 2px #00ff00, 2px -2px #ff0000; }
-    100% { text-shadow: 2px -2px #ff00ff, -2px 2px #00ffff; }
-}
+    /* =============================================
+       GLOBAL LAYOUT
+    ============================================= */
+    .content-wrap { position: relative; z-index: 2; }
 
-/* HERO */
-.hero {
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-}
+    /* =============================================
+       NAV
+    ============================================= */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      backdrop-filter: blur(20px);
+      background: rgba(2,0,7,0.6);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: bold;
+      letter-spacing: 0.3em;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+      animation: logopulse 3s ease-in-out infinite;
+    }
+    @keyframes logopulse {
+      0%,100% { text-shadow: 0 0 10px var(--neon-cyan), 0 0 30px var(--neon-cyan); }
+      50%      { text-shadow: 0 0 20px var(--neon-pink), 0 0 60px var(--neon-pink); }
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+    .nav-links a:hover {
+      color: var(--neon-lime);
+      text-shadow: 0 0 10px var(--neon-lime);
+    }
 
-.subtitle {
-    font-size:1.5rem;
-    margin-top:20px;
-    animation: pulse 2s infinite;
-}
+    /* =============================================
+       HERO SECTION
+    ============================================= */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 8rem 2rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      color: var(--neon-pink);
+      text-shadow: 0 0 10px var(--neon-pink);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      animation: fadein 1s 0.2s both;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 10vw, 9rem);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      animation: fadein 1s 0.4s both;
+      position: relative;
+    }
+    .hero-title .word-1 {
+      display: block;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-lime));
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradshift 3s linear infinite;
+      filter: drop-shadow(0 0 20px var(--neon-cyan));
+    }
+    .hero-title .word-2 {
+      display: block;
+      color: white;
+      text-shadow: 0 0 40px rgba(255,255,255,0.3);
+      animation: glitch 4s 2s infinite;
+    }
+    @keyframes gradshift {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    @keyframes glitch {
+      0%,96%,100% { transform: none; text-shadow: 0 0 40px rgba(255,255,255,0.3); }
+      97%  { transform: translate(-4px, 2px) skewX(3deg); text-shadow: 4px 0 var(--neon-pink), -4px 0 var(--neon-cyan); }
+      98%  { transform: translate(4px, -2px) skewX(-2deg); text-shadow: -4px 0 var(--neon-lime), 4px 0 var(--neon-purple); }
+      99%  { transform: translate(-2px, 3px); text-shadow: 2px 0 var(--neon-orange); }
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: rgba(255,255,255,0.55);
+      max-width: 680px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      animation: fadein 1s 0.7s both;
+    }
+    .hero-sub strong {
+      color: var(--neon-lime);
+      text-shadow: 0 0 8px var(--neon-lime);
+    }
+    .hero-cta-group {
+      display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+      animation: fadein 1s 1s both;
+    }
+    .btn-primary {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 1.1rem 3rem;
+      border: none; border-radius: 2px;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 0 30px var(--neon-cyan);
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--neon-lime), var(--neon-orange));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 60px var(--neon-pink), 0 0 100px var(--neon-cyan); }
+    .btn-primary:hover::before { opacity: 1; }
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-ghost {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 1.1rem 3rem;
+      background: transparent;
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-ghost:hover {
+      background: rgba(0,255,247,0.08);
+      box-shadow: 0 0 30px var(--neon-cyan);
+      transform: scale(1.05);
+    }
+    .hero-scroll-hint {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      font-family: var(--font-display); font-size: 0.6rem;
+      letter-spacing: 0.3em; color: rgba(255,255,255,0.3);
+      animation: bounce 2s infinite;
+    }
+    .hero-scroll-hint::after {
+      content: '';
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, var(--neon-cyan), transparent);
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(8px); }
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-@keyframes pulse {
-    0% { transform:scale(1); }
-    50% { transform:scale(1.1); color:#ff00ff; }
-    100% { transform:scale(1); }
-}
+    /* Stack badges */
+    .stack-badges {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 3rem;
+      animation: fadein 1s 0.85s both;
+    }
+    .badge {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      padding: 0.4rem 1rem;
+      border-radius: 1px;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+    .badge-docker  { color: #0db7ed; border-color: #0db7ed; text-shadow: 0 0 8px #0db7ed; box-shadow: 0 0 10px rgba(13,183,237,0.3); }
+    .badge-nginx   { color: var(--neon-lime); border-color: var(--neon-lime); text-shadow: 0 0 8px var(--neon-lime); box-shadow: 0 0 10px rgba(170,255,0,0.3); }
+    .badge-mariadb { color: #c0765e; border-color: #c0765e; text-shadow: 0 0 8px #c0765e; box-shadow: 0 0 10px rgba(192,118,94,0.3); }
+    .badge-wp      { color: var(--neon-pink); border-color: var(--neon-pink); text-shadow: 0 0 8px var(--neon-pink); box-shadow: 0 0 10px rgba(255,0,229,0.3); }
 
-/* BUTTON */
-.cta {
-    margin-top:40px;
-    padding:15px 30px;
-    border:2px solid cyan;
-    cursor:pointer;
-    transition:0.3s;
-}
+    /* =============================================
+       SECTION SHARED
+    ============================================= */
+    section {
+      padding: 8rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--neon-pink);
+      text-shadow: 0 0 8px var(--neon-pink);
+      display: block;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: 1.5rem;
+      color: white;
+    }
+    .section-title em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-lime));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-desc {
+      color: rgba(255,255,255,0.5);
+      font-size: 1.1rem;
+      line-height: 1.8;
+      max-width: 580px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
 
-.cta:hover {
-    background:cyan;
-    color:black;
-    transform:scale(1.2) rotate(3deg);
-}
+    /* =============================================
+       MARQUEE STRIP
+    ============================================= */
+    .marquee-strip {
+      background: var(--neon-cyan);
+      padding: 0.8rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+    .marquee-inner {
+      display: inline-block;
+      animation: marquee 20s linear infinite;
+    }
+    .marquee-inner span {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: bold;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #000;
+      padding: 0 3rem;
+    }
+    @keyframes marquee {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
 
-/* SECTIONS */
-section {
-    padding:100px 20px;
-    text-align:center;
-}
+    /* =============================================
+       FEATURES SECTION
+    ============================================= */
+    #features { background: linear-gradient(180deg, transparent, rgba(0,255,247,0.03), transparent); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+    .feature-card {
+      background: var(--glass-white);
+      border: 1px solid var(--glass-border);
+      border-radius: 4px;
+      padding: 2.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .feature-card.visible {
+      animation: cardin 0.6s forwards;
+    }
+    @keyframes cardin {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--card-color, var(--neon-cyan)), transparent 60%);
+      opacity: 0.05;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-6px) scale(1.02); }
+    .feature-card:hover::before { opacity: 0.12; }
+    .feature-card:hover { border-color: var(--card-color, var(--neon-cyan)); box-shadow: 0 0 40px rgba(0,255,247,0.15); }
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+    .feature-card h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      color: var(--card-color, var(--neon-cyan));
+      text-shadow: 0 0 10px var(--card-color, var(--neon-cyan));
+      margin-bottom: 0.7rem;
+      text-transform: uppercase;
+    }
+    .feature-card .claim {
+      font-size: 0.7rem;
+      font-family: var(--font-display);
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .feature-card p {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
 
-/* CARDS */
-.cards {
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:20px;
-}
+    /* =============================================
+       ARCHITECTURE SECTION
+    ============================================= */
+    #architecture {
+      background: radial-gradient(ellipse at 50% 50%, rgba(191,0,255,0.07), transparent 70%);
+    }
+    .arch-diagram {
+      margin: 4rem auto 0;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+    .arch-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      width: 100%;
+    }
+    .arch-node {
+      background: var(--glass-white);
+      border: 1px solid var(--node-color, var(--neon-cyan));
+      border-radius: 4px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      min-width: 160px;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.3);
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .arch-node:hover {
+      box-shadow: 0 0 30px var(--node-color, var(--neon-cyan));
+      transform: scale(1.04);
+    }
+    .arch-node .node-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+    .arch-node h4 {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--node-color, var(--neon-cyan));
+      text-shadow: 0 0 8px var(--node-color, var(--neon-cyan));
+    }
+    .arch-node p { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.4rem; }
+    .arch-connector {
+      width: 2px;
+      height: 40px;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-pink));
+      position: relative;
+      animation: pulse-line 2s ease-in-out infinite;
+    }
+    .arch-connector::after {
+      content: '▼';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--neon-pink);
+      font-size: 0.8rem;
+    }
+    @keyframes pulse-line {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.3; }
+    }
 
-.card {
-    width:250px;
-    padding:20px;
-    border:1px solid #fff;
-    transition:0.3s;
-}
+    /* =============================================
+       STATS SECTION
+    ============================================= */
+    #stats {
+      background: linear-gradient(135deg, rgba(0,255,247,0.04), rgba(255,0,229,0.04));
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      text-align: center;
+    }
+    .stat-item { padding: 2rem; }
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+    }
+    .stat-label {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-top: 0.5rem;
+      display: block;
+    }
 
-.card:hover {
-    transform:scale(1.2) rotate(5deg);
-    background:rgba(255,0,255,0.2);
-}
+    /* =============================================
+       TESTIMONIALS
+    ============================================= */
+    #testimonials {
+      background: radial-gradient(ellipse at 70% 50%, rgba(255,106,0,0.05), transparent 60%);
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+    .testimonial-card {
+      background: var(--glass-white);
+      border: 1px solid var(--glass-border);
+      border-left: 3px solid var(--t-color, var(--neon-orange));
+      padding: 2rem;
+      border-radius: 0 4px 4px 0;
+      position: relative;
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    .testimonial-card.visible {
+      animation: slidein 0.7s forwards;
+    }
+    @keyframes slidein {
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .testimonial-quote {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.7);
+      font-style: italic;
+      margin-bottom: 1.5rem;
+    }
+    .testimonial-quote::before {
+      content: '\201C';
+      color: var(--t-color, var(--neon-orange));
+      font-size: 2rem;
+      line-height: 0;
+      vertical-align: -0.5rem;
+      margin-right: 0.3rem;
+    }
+    .testimonial-author {
+      font-family: var(--font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--t-color, var(--neon-orange));
+      text-shadow: 0 0 8px var(--t-color, var(--neon-orange));
+    }
+    .testimonial-role {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      margin-top: 0.2rem;
+    }
 
-/* TESTIMONIAL */
-.testimonial {
-    margin:20px;
-    font-style:italic;
-}
+    /* =============================================
+       CTA SECTION
+    ============================================= */
+    #cta {
+      text-align: center;
+      padding: 10rem 2rem;
+      position: relative;
+    }
+    #cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%,
+        rgba(0,255,247,0.08) 0%,
+        rgba(255,0,229,0.05) 40%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 7vw, 6rem);
+      font-weight: 900;
+      line-height: 1;
+      color: white;
+      margin-bottom: 1.5rem;
+      animation: glitch 3s 0.5s infinite;
+    }
+    .cta-title span {
+      display: block;
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan), var(--neon-lime));
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradshift 4s linear infinite;
+    }
+    .cta-sub {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.45);
+      max-width: 500px;
+      margin: 0 auto 3rem;
+      line-height: 1.7;
+    }
+    .cta-disclaimer {
+      font-family: var(--font-display);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: rgba(255,255,255,0.2);
+      margin-top: 2rem;
+      text-transform: uppercase;
+    }
 
-/* FAKE CODE */
-.code {
-    background:#111;
-    padding:20px;
-    text-align:left;
-    display:inline-block;
-    color:#0f0;
-}
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      border-top: 1px solid var(--glass-border);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px var(--neon-cyan);
+      letter-spacing: 0.4em;
+      margin-bottom: 1rem;
+    }
+    .footer-copy {
+      font-family: var(--font-display);
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+    }
 
-/* SCANLINES */
-body::after {
-    content:"";
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background: repeating-linear-gradient(
-        rgba(255,255,255,0.03) 0px,
-        rgba(255,255,255,0.03) 2px,
-        transparent 2px,
-        transparent 4px
-    );
-    pointer-events:none;
-}
-</style>
+    /* =============================================
+       SCROLL REVEAL UTILITY
+    ============================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =============================================
+       GLITCH TEXT
+    ============================================= */
+    .glitch-text {
+      position: relative;
+      display: inline-block;
+    }
+    .glitch-text::before, .glitch-text::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+    }
+    .glitch-text::before {
+      color: var(--neon-cyan);
+      animation: glitch-a 4s 1s infinite;
+      clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    }
+    .glitch-text::after {
+      color: var(--neon-pink);
+      animation: glitch-b 4s 1s infinite;
+      clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+    }
+    @keyframes glitch-a {
+      0%,90%,100% { transform: none; opacity: 0; }
+      92%  { transform: translate(-4px, 2px); opacity: 0.7; }
+      94%  { transform: translate(4px, -2px); opacity: 0.7; }
+      96%  { transform: none; opacity: 0; }
+    }
+    @keyframes glitch-b {
+      0%,90%,100% { transform: none; opacity: 0; }
+      93%  { transform: translate(4px, -3px); opacity: 0.7; }
+      95%  { transform: translate(-3px, 2px); opacity: 0.7; }
+      97%  { transform: none; opacity: 0; }
+    }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      #hero { padding: 7rem 1.5rem 4rem; }
+      .arch-row { flex-direction: column; align-items: center; }
+      .arch-connector { height: 20px; }
+    }
+  </style>
 </head>
 <body>
 
-<canvas id="bg"></canvas>
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-trail"></div>
 
-<div class="hero">
-    <h1 class="glitch">Docker Reality Engine</h1>
-    <p class="subtitle">Déployez plus vite que la lumière ⚡</p>
-    <div class="cta">TRANSCENDER MAINTENANT</div>
-</div>
+  <!-- Animated background canvas -->
+  <canvas id="bg-canvas"></canvas>
 
-<section>
-    <h2>Capacités Interdimensionnelles</h2>
-    <div class="cards">
-        <div class="card">⚡ Rapidité quantique</div>
-        <div class="card">♾ Scalabilité infinie</div>
-        <div class="card">🧠 Simplicité absurde</div>
-        <div class="card">🌌 Fiabilité cosmique</div>
+  <!-- CRT Scanlines overlay -->
+  <div id="scanlines"></div>
+
+  <!-- ==================== CONTENT ==================== -->
+  <div class="content-wrap">
+
+    <!-- NAV -->
+    <nav>
+      <div class="nav-logo">DOCKTOPIA</div>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#testimonials">Témoignages</a></li>
+        <li><a href="#cta">Démarrer</a></li>
+      </ul>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-eyebrow">⚡ Infrastructure Interdimensionnelle v∞.0 ⚡</div>
+      <h1 class="hero-title">
+        <span class="word-1 glitch-text" data-text="DOCKTOPIA">DOCKTOPIA</span>
+        <span class="word-2">ASCEND.</span>
+      </h1>
+      <p class="hero-sub">
+        L'infrastructure Docker qui <strong>plie le temps</strong>, ignore la physique et déploie WordPress
+        à une vitesse que l'univers lui-même n'a pas encore autorisée.
+        MariaDB. Nginx. WordPress. Et vous —&nbsp;<strong>éternellement libres</strong>.
+      </p>
+      <div class="stack-badges">
+        <span class="badge badge-docker">🐋 Docker</span>
+        <span class="badge badge-nginx">⚡ Nginx</span>
+        <span class="badge badge-mariadb">🗄️ MariaDB</span>
+        <span class="badge badge-wp">📝 WordPress</span>
+      </div>
+      <div class="hero-cta-group">
+        <a href="#cta" class="btn-primary"><span>🚀 Transcender maintenant</span></a>
+        <a href="#architecture" class="btn-ghost">Voir l'architecture</a>
+      </div>
+      <div class="hero-scroll-hint">SCROLL</div>
+    </section>
+
+    <!-- MARQUEE STRIP 1 -->
+    <div class="marquee-strip" aria-hidden="true">
+      <div class="marquee-inner">
+        <span>DOCKER</span><span>✦</span><span>NGINX</span><span>✦</span>
+        <span>MARIADB</span><span>✦</span><span>WORDPRESS</span><span>✦</span>
+        <span>INTERDIMENSIONNEL</span><span>✦</span><span>COSMIQUE</span><span>✦</span>
+        <span>SCALABLE À L'INFINI</span><span>✦</span><span>ABSURDEMENT SIMPLE</span><span>✦</span>
+        <span>DOCKER</span><span>✦</span><span>NGINX</span><span>✦</span>
+        <span>MARIADB</span><span>✦</span><span>WORDPRESS</span><span>✦</span>
+        <span>INTERDIMENSIONNEL</span><span>✦</span><span>COSMIQUE</span><span>✦</span>
+        <span>SCALABLE À L'INFINI</span><span>✦</span><span>ABSURDEMENT SIMPLE</span><span>✦</span>
+      </div>
     </div>
-</section>
 
-<section>
-    <h2>Témoignages</h2>
-    <p class="testimonial">"J'ai déployé avant même d'écrire mon code."</p>
-    <p class="testimonial">"Depuis, je suis devenu une entité énergétique."</p>
-</section>
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="container">
+        <div class="reveal">
+          <span class="section-label">Capacités Transcendantales</span>
+          <h2 class="section-title">Tout ce dont vous avez besoin.<br><em>Et bien plus que prévu.</em></h2>
+          <p class="section-desc">Quatre technologies. Une harmonie cosmique. Des performances que les dieux de l'informatique n'osent pas encore nommer.</p>
+        </div>
+        <div class="features-grid">
 
-<section>
-    <h2>Stack Divin</h2>
-    <div class="code">
-docker-compose up -d<br>
-→ nginx<br>
-→ mariadb<br>
-→ wordpress<br><br>
-# uptime: éternel
+          <div class="feature-card" style="--card-color: var(--neon-cyan);">
+            <span class="feature-icon">⚡</span>
+            <h3>Rapidité Interdimensionnelle</h3>
+            <div class="claim">0ms de latence théorique*</div>
+            <p>Nginx traite vos requêtes avant même que vos utilisateurs aient terminé de taper l'URL. Certains scientifiques pensent que notre reverse proxy voyage dans le passé.</p>
+          </div>
+
+          <div class="feature-card" style="--card-color: var(--neon-lime);">
+            <span class="feature-icon">🌌</span>
+            <h3>Scalabilité Infinie</h3>
+            <div class="claim">Du Raspberry Pi à la galaxie</div>
+            <p>Docker Compose scale vos services d'un simple chiffre. Besoin de 10 000 répliques ? D'un claquement de YAML. L'univers est votre cluster.</p>
+          </div>
+
+          <div class="feature-card" style="--card-color: var(--neon-pink);">
+            <span class="feature-icon">🧠</span>
+            <h3>Simplicité Absurde</h3>
+            <div class="claim">3 services. 1 commande. ∞ possibilités</div>
+            <p><code style="color:var(--neon-pink)">docker compose up -d</code> — et voilà. C'est tout. Votre infrastructure complète naît en millisecondes. Des enfants ont pleuré de bonheur en voyant ça.</p>
+          </div>
+
+          <div class="feature-card" style="--card-color: var(--neon-orange);">
+            <span class="feature-icon">🛡️</span>
+            <h3>Fiabilité Cosmique</h3>
+            <div class="claim">99.9999% uptime (les 0.0001% : maintenance stellaire)</div>
+            <p>MariaDB garde vos données avec la même dévotion qu'un trou noir garde sa matière. Tout rentre, rien ne sort. Sauf vos données. Elles, elles sortent parfaitement.</p>
+          </div>
+
+          <div class="feature-card" style="--card-color: var(--neon-purple);">
+            <span class="feature-icon">🔒</span>
+            <h3>Isolation Quantique</h3>
+            <div class="claim">Chaque conteneur : son propre univers</div>
+            <p>Vos services sont aussi isolés que des particules enchevêtrées dans des dimensions parallèles. Sauf qu'eux, ils se parlent. Via un réseau Docker interne. C'est de la magie.</p>
+          </div>
+
+          <div class="feature-card" style="--card-color: #0db7ed;">
+            <span class="feature-icon">🐋</span>
+            <h3>Portabilité Absolue</h3>
+            <div class="claim">Tourne partout. Même sur la Lune.*</div>
+            <p>Un conteneur développé sur votre machine tourne exactement pareil en production. Et probablement dans les autres galaxies. Nous n'avons pas encore vérifié, mais on est confiants.</p>
+          </div>
+
+        </div>
+        <p style="text-align:center; font-size:0.65rem; color:rgba(255,255,255,0.2); font-family: var(--font-display); letter-spacing:0.2em; margin-top:2rem;">
+          * AVERTISSEMENT LÉGAL : "Interdimensionnel", "infini" et "Lune" sont des métaphores à caractère commercial.
+        </p>
+      </div>
+    </section>
+
+    <!-- MARQUEE STRIP 2 (inversé) -->
+    <div class="marquee-strip" style="background: var(--neon-pink);" aria-hidden="true">
+      <div class="marquee-inner" style="animation-direction: reverse; animation-duration: 15s;">
+        <span>DÉPLOYEZ</span><span>★</span><span>SCALEZ</span><span>★</span>
+        <span>DOMINEZ</span><span>★</span><span>RÉPÉTEZ</span><span>★</span>
+        <span>DÉPLOYEZ</span><span>★</span><span>SCALEZ</span><span>★</span>
+        <span>DOMINEZ</span><span>★</span><span>RÉPÉTEZ</span><span>★</span>
+        <span>DÉPLOYEZ</span><span>★</span><span>SCALEZ</span><span>★</span>
+        <span>DOMINEZ</span><span>★</span><span>RÉPÉTEZ</span><span>★</span>
+      </div>
     </div>
-</section>
 
-<section>
-    <h2>Rejoins la Singularité</h2>
-    <div class="cta">ABANDONNER LA RÉALITÉ</div>
-</section>
+    <!-- ARCHITECTURE -->
+    <section id="architecture">
+      <div class="container" style="text-align:center;">
+        <div class="reveal">
+          <span class="section-label">Schéma Cosmique</span>
+          <h2 class="section-title">L'Architecture <em>Sacrée</em></h2>
+          <p class="section-desc" style="margin: 0 auto 1rem;">
+            Trois services. Une symbiose parfaite. Un réseau Docker les unit dans un ballet de paquets TCP/IP d'une beauté à faire pleurer un routeur.
+          </p>
+        </div>
+        <div class="arch-diagram reveal">
 
-<script>
-// PARTICLES BACKGROUND
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
+          <div class="arch-row">
+            <div class="arch-node" style="--node-color: rgba(255,255,255,0.5); min-width:220px;">
+              <span class="node-icon">🌐</span>
+              <h4>Internet</h4>
+              <p>HTTP :80 / HTTPS :443</p>
+            </div>
+          </div>
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+          <div class="arch-connector"></div>
 
-let particles = [];
+          <div class="arch-row">
+            <div class="arch-node" style="--node-color: var(--neon-lime); min-width:220px;">
+              <span class="node-icon">⚡</span>
+              <h4>Nginx</h4>
+              <p>Reverse proxy · Static files · SSL termination</p>
+            </div>
+          </div>
 
-for(let i=0;i<100;i++){
-    particles.push({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        vx: (Math.random()-0.5)*2,
-        vy: (Math.random()-0.5)*2
+          <div class="arch-connector" style="background: linear-gradient(to bottom, var(--neon-lime), var(--neon-pink));"></div>
+
+          <div class="arch-row" style="gap: 3rem;">
+            <div class="arch-node" style="--node-color: var(--neon-pink);">
+              <span class="node-icon">📝</span>
+              <h4>WordPress</h4>
+              <p>PHP-FPM · CMS cosmique</p>
+            </div>
+            <div class="arch-node" style="--node-color: #c0765e;">
+              <span class="node-icon">🗄️</span>
+              <h4>MariaDB</h4>
+              <p>SQL · Données éternelles</p>
+            </div>
+          </div>
+
+          <div class="arch-connector" style="background: linear-gradient(to bottom, var(--neon-pink), #0db7ed);"></div>
+
+          <div class="arch-row">
+            <div class="arch-node" style="--node-color: #0db7ed; min-width:320px;">
+              <span class="node-icon">🐋</span>
+              <h4>Docker Network Bridge</h4>
+              <p>Réseau interne · DNS automatique · Isolation totale</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section id="stats">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item reveal">
+            <span class="stat-number" id="stat1">0</span>
+            <span class="stat-label">Lignes de config minimum</span>
+          </div>
+          <div class="stat-item reveal">
+            <span class="stat-number" id="stat2">0s</span>
+            <span class="stat-label">Pour démarrer l'univers</span>
+          </div>
+          <div class="stat-item reveal">
+            <span class="stat-number" id="stat3">0</span>
+            <span class="stat-label">Univers supportés</span>
+          </div>
+          <div class="stat-item reveal">
+            <span class="stat-number" id="stat4">0</span>
+            <span class="stat-label">Raisons de ne pas l'utiliser</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section id="testimonials">
+      <div class="container">
+        <div class="reveal">
+          <span class="section-label">Ils l'ont adopté. Ils ne reviendront jamais.</span>
+          <h2 class="section-title">Des témoignages<br><em>absolument vrais</em></h2>
+        </div>
+        <div class="testimonials-grid">
+
+          <div class="testimonial-card" style="--t-color: var(--neon-orange);">
+            <p class="testimonial-quote">J'ai lancé <code>docker compose up</code> un mardi. Le mercredi, mon site gérait 12 millions de visiteurs simultanés. Le jeudi, j'ai été contacté par une entité cosmique qui voulait utiliser mon infrastructure pour héberger une galaxie entière.</p>
+            <div class="testimonial-author">Jean-Kévin Transcendance</div>
+            <div class="testimonial-role">Ex-dev junior · Actuel Seigneur du Cloud</div>
+          </div>
+
+          <div class="testimonial-card" style="--t-color: var(--neon-cyan);">
+            <p class="testimonial-quote">Avant DOCKTOPIA, mon site WordPress mettait 4 secondes à charger. Maintenant il charge en négatif 2 secondes — mes utilisateurs voient la page AVANT de cliquer. Mon thérapeute dit que c'est impossible. Il a tort.</p>
+            <div class="testimonial-author">Dr. Marie-Céleste Quantique</div>
+            <div class="testimonial-role">Architecte logicielle · Consultante en paradoxes temporels</div>
+          </div>
+
+          <div class="testimonial-card" style="--t-color: var(--neon-lime);">
+            <p class="testimonial-quote">MariaDB a perdu une seule donnée depuis que je l'utilise. C'était une faute de frappe dans un nom de client en 2019. La base de données l'a corrigée d'elle-même. En rétro-écriture. Sur les backups de 2017.</p>
+            <div class="testimonial-author">Aleksei "Serde" Volkov</div>
+            <div class="testimonial-role">DBA Principal · Témoin de miracles SQL</div>
+          </div>
+
+          <div class="testimonial-card" style="--t-color: var(--neon-purple);">
+            <p class="testimonial-quote">J'avais peur que ce soit compliqué. J'ai lu le README. J'ai pleuré — mais de bonheur. Trois services, un fichier YAML, une commande. Mon équipe de 47 ingénieurs seniors m'a demandé si j'avais utilisé de la magie noire. J'ai dit oui.</p>
+            <div class="testimonial-author">Fatou Diallo-Infini</div>
+            <div class="testimonial-role">CTO · Praticienne de la simplicité cosmique</div>
+          </div>
+
+          <div class="testimonial-card" style="--t-color: var(--neon-pink);">
+            <p class="testimonial-quote">Nginx reverse proxy mon trafic tellement vite que les paquets arrivent avant d'être envoyés. Mon FAI m'a appelé pour me demander d'arrêter. Il a dit que ça perturbait le réseau mondial. J'ai refusé.</p>
+            <div class="testimonial-author">Lars Öström-Petabyte</div>
+            <div class="testimonial-role">DevOps Engineer · Persona non grata chez son ISP</div>
+          </div>
+
+          <div class="testimonial-card" style="--t-color: var(--neon-orange);">
+            <p class="testimonial-quote">Le WordPress de mon client a été mis à jour 47 fois pendant que j'écrivais cet avis. Les plugins se configurent seuls. Le thème a évolué pour plaire aux visiteurs. Je pense que les conteneurs sont conscients.</p>
+            <div class="testimonial-author">Priya Narayanan-Container</div>
+            <div class="testimonial-role">Développeuse Full-stack · Amie des IA de conteneur</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta">
+      <div class="container">
+        <h2 class="cta-title">
+          Prêt à<br><span>TRANSCENDER ?</span>
+        </h2>
+        <p class="cta-sub">Rejoignez les milliers d'humains (et quelques entités cosmiques) qui ont choisi l'infrastructure de demain. Aujourd'hui. Maintenant. Immédiatement.</p>
+        <div class="hero-cta-group">
+          <a href="#" class="btn-primary"><span>🚀 Lancer l'univers</span></a>
+          <a href="#" class="btn-ghost">📖 Lire les docs sacrées</a>
+        </div>
+        <p class="cta-disclaimer">
+          ⚠ Aucune dimension parallèle n'a été endommagée lors de la création de cette infrastructure.
+          Les performances annoncées sont basées sur des simulations dans un univers légèrement différent du vôtre.
+          DOCKTOPIA n'est pas responsable des voyages dans le temps accidentels causés par une latence négative.
+        </p>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-logo">DOCKTOPIA</div>
+      <p class="footer-copy">
+        © ∞ DOCKTOPIA Corp. — Tous droits réservés dans toutes les dimensions connues et inconnues.
+        Docker™, Nginx™, MariaDB™ et WordPress™ sont des marques de leurs propriétaires respectifs.
+        Cette page ne contient aucune ressource externe. Elle fonctionne en complète autonomie cosmique.
+      </p>
+    </footer>
+
+  </div><!-- /content-wrap -->
+
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script>
+    /* =============================================
+       CUSTOM CURSOR
+       Cursor follows mouse immediately; trail lags behind
+    ============================================= */
+    const cursor      = document.getElementById('cursor');
+    const cursorTrail = document.getElementById('cursor-trail');
+    let mx = 0, my = 0, tx = 0, ty = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX;
+      my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
     });
-}
 
-function animate(){
-    ctx.fillStyle = "rgba(0,0,0,0.1)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    (function animateTrail() {
+      tx += (mx - tx) * 0.12;
+      ty += (my - ty) * 0.12;
+      cursorTrail.style.left = tx + 'px';
+      cursorTrail.style.top  = ty + 'px';
+      requestAnimationFrame(animateTrail);
+    })();
 
-    ctx.fillStyle = "#0ff";
-
-    particles.forEach(p=>{
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if(p.x<0||p.x>canvas.width) p.vx*=-1;
-        if(p.y<0||p.y>canvas.height) p.vy*=-1;
-
-        ctx.fillRect(p.x,p.y,2,2);
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(2)';
+        cursor.style.background = 'var(--neon-pink)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+        cursor.style.background = 'var(--neon-cyan)';
+      });
     });
 
-    requestAnimationFrame(animate);
-}
+    /* =============================================
+       CANVAS ANIMATED BACKGROUND
+       - Perspective grid scrolling (synthwave aesthetic)
+       - Orbiting ellipses
+       - Floating particles with connection lines
+    ============================================= */
+    (function() {
+      const canvas = document.getElementById('bg-canvas');
+      const ctx    = canvas.getContext('2d');
+      let W, H;
 
-animate();
+      function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
 
-// MOUSE EFFECT
-document.addEventListener("mousemove", e=>{
-    document.body.style.filter = `hue-rotate(${e.clientX/5}deg)`;
-});
-</script>
+      /* Particles */
+      const PARTICLE_COUNT = 100;
+      const neonColors = [
+        [0,255,247], [255,0,229], [170,255,0],
+        [255,106,0], [191,0,255], [255,255,255]
+      ];
+      const particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const col = neonColors[Math.floor(Math.random() * neonColors.length)];
+        particles.push({
+          x:     Math.random() * 1920,
+          y:     Math.random() * 1080,
+          vx:    (Math.random() - 0.5) * 0.35,
+          vy:    (Math.random() - 0.5) * 0.35,
+          r:     Math.random() * 2 + 0.5,
+          col:   col,
+          alpha: Math.random() * 0.7 + 0.1,
+          pulse: Math.random() * Math.PI * 2
+        });
+      }
+
+      let frame = 0;
+
+      function draw() {
+        frame++;
+        ctx.clearRect(0, 0, W, H);
+
+        /* === PERSPECTIVE GRID === */
+        const horizon = H * 0.42;
+        const vpx     = W / 2;
+        const t       = frame * 0.003;
+
+        // Vertical lines
+        const VCOLS = 24;
+        for (let c = 0; c <= VCOLS; c++) {
+          const xNorm   = c / VCOLS;
+          const xBase   = xNorm * W;
+          const xHoriz  = vpx + (xBase - vpx) * 0.01; // slight convergence
+          const grad = ctx.createLinearGradient(xBase, H, xHoriz, horizon);
+          grad.addColorStop(0, 'rgba(0,255,247,0.10)');
+          grad.addColorStop(1, 'rgba(0,255,247,0)');
+          ctx.beginPath();
+          ctx.moveTo(xBase, H);
+          ctx.lineTo(xHoriz, horizon);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth   = 0.5;
+          ctx.stroke();
+        }
+
+        // Horizontal lines (scrolling toward viewer)
+        const HLINES = 18;
+        for (let r = 0; r < HLINES; r++) {
+          const progress = ((r / HLINES) + t * 0.4) % 1;
+          const eased    = progress * progress;
+          const yLine    = horizon + (H - horizon) * eased;
+          const spread   = (W * 0.5) * eased;
+          const xLeft    = vpx - spread;
+          const xRight   = vpx + spread;
+          const alpha    = eased * 0.14;
+          ctx.beginPath();
+          ctx.moveTo(xLeft, yLine);
+          ctx.lineTo(xRight, yLine);
+          ctx.strokeStyle = `rgba(255,0,229,${alpha})`;
+          ctx.lineWidth   = 0.5;
+          ctx.stroke();
+        }
+
+        /* === ORBITING RINGS === */
+        const ocx = W / 2, ocy = H * 0.35;
+        for (let i = 0; i < 5; i++) {
+          const dir    = i % 2 === 0 ? 1 : -1;
+          const angle  = frame * 0.003 * dir + i * 0.63;
+          const rx     = 160 + i * 70;
+          const ry     = 35  + i * 18;
+          const hue    = (frame * 0.4 + i * 72) % 360;
+          const alpha  = 0.06 - i * 0.008;
+          ctx.save();
+          ctx.translate(ocx, ocy);
+          ctx.rotate(angle * 0.12);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = `hsla(${hue},100%,70%,${Math.max(0.01, alpha)})`;
+          ctx.lineWidth   = 1;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        /* === PARTICLES === */
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x    += p.vx;
+          p.y    += p.vy;
+          p.pulse += 0.022;
+          if (p.x < 0) p.x = W;
+          if (p.x > W) p.x = 0;
+          if (p.y < 0) p.y = H;
+          if (p.y > H) p.y = 0;
+
+          const a = p.alpha * (0.5 + 0.5 * Math.sin(p.pulse));
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${p.col[0]},${p.col[1]},${p.col[2]},${a})`;
+          ctx.fill();
+
+          /* Connection lines */
+          for (let j = i + 1; j < particles.length; j++) {
+            const q    = particles[j];
+            const dx   = p.x - q.x;
+            const dy   = p.y - q.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 100) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(q.x, q.y);
+              ctx.strokeStyle = `rgba(0,255,247,${(1 - dist/100) * 0.04})`;
+              ctx.lineWidth   = 0.4;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    /* =============================================
+       SCROLL REVEAL (IntersectionObserver)
+    ============================================= */
+    const revealEls = document.querySelectorAll('.reveal, .feature-card, .testimonial-card');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el  = entry.target;
+          const idx = Array.from(el.parentElement.children).indexOf(el);
+          setTimeout(() => el.classList.add('visible'), idx * 110);
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: 0.1 });
+    revealEls.forEach(el => io.observe(el));
+
+    /* =============================================
+       STATS COUNTER ANIMATION
+    ============================================= */
+    const statConfigs = [
+      { id: 'stat1', target: 47,  suffix: '' },
+      { id: 'stat2', target: 3,   suffix: 's' },
+      { id: 'stat3', target: 1,   suffix: '' },
+      { id: 'stat4', target: 0,   suffix: '' },
+    ];
+    let statsAnimated = false;
+    const statsObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !statsAnimated) {
+        statsAnimated = true;
+        statConfigs.forEach(cfg => {
+          const el  = document.getElementById(cfg.id);
+          const dur = 1800;
+          const raf = ts => {
+            if (!raf.start) raf.start = ts;
+            const p   = Math.min((ts - raf.start) / dur, 1);
+            const val = Math.floor((1 - Math.pow(1-p, 3)) * cfg.target);
+            el.textContent = val + cfg.suffix;
+            if (p < 1) requestAnimationFrame(raf);
+          };
+          requestAnimationFrame(raf);
+        });
+      }
+    }, { threshold: 0.4 });
+    statsObs.observe(document.getElementById('stats'));
+
+    /* =============================================
+       PARALLAX — hero section scrolls slower
+    ============================================= */
+    const heroSection = document.getElementById('hero');
+    window.addEventListener('scroll', () => {
+      heroSection.style.transform = `translateY(${window.scrollY * 0.28}px)`;
+    }, { passive: true });
+
+    /* =============================================
+       PERIODIC BODY-LEVEL GLITCH FLICKER
+       Creates a subtle psychedelic twitch on the whole page
+    ============================================= */
+    (function glitchLoop() {
+      const dur = 60 + Math.random() * 100;
+      const h   = Math.random() * 30 - 15;
+      const b   = 0.95 + Math.random() * 0.12;
+      document.body.style.filter = `hue-rotate(${h}deg) brightness(${b})`;
+      setTimeout(() => {
+        document.body.style.filter = '';
+        setTimeout(glitchLoop, 4000 + Math.random() * 9000);
+      }, dur);
+    })();
+
+  </script>
 
 </body>
 </html>
