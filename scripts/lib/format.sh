@@ -22,6 +22,7 @@ FAIL="${RED}${BOLD}✘ KO${NC}"
 # Width reserved for check labels (increase if labels are longer)
 LABEL_WIDTH=50
 
+# format section title and separators
 section() {
     echo
     echo -e "${CYAN}${BOLD}┌─────────────────────────────────────────┐${NC}"
@@ -29,6 +30,7 @@ section() {
     echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
 }
 
+# display ok or ko and details if provided
 check() {
     local label="$1"
     local status="$2"
@@ -67,6 +69,7 @@ header() {
     echo -e "${CYAN}${BOLD}  Inception — ${title}${NC}  ${GRAY}${subtitle}${NC}"
 }
 
+# Waiting for each argument execution to returns 0
 wait_for() {
     local timeout="$1"; shift
     local elapsed=0
@@ -116,6 +119,7 @@ wait_for_containers() {
                 status="${GREEN}ready${NC}"; icon="${GREEN}✓${NC}"
             fi
 
+            # The \033[K allows to refresh line and display antoher one overriding the former one
             output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\033[K\n"
         done
 
