@@ -7,109 +7,15 @@
 #  ██║██║╚██╗██║██║     ██╔══╝  ██╔═══╝    ██║   ██║██║   ██║██║╚██╗██║
 #  ██║██║ ╚████║╚██████╗███████╗██║        ██║   ██║╚██████╔╝██║ ╚████║
 #  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚══════╝╚═╝        ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-#                          42 Project Check Script
+#                          42 Project Check Scripeval "$@"t
 # =============================================================================
 
+# edit scripts/lib/config.sh to customize your inception setup
+# format.sh should not be edited
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
-# --- Helpers ------------------------------------------------------------------
-
-section() {
-    echo
-    echo -e "${CYAN}${BOLD}┌─────────────────────────────────────────┐${NC}"
-    printf "${CYAN}${BOLD}│  %-41s│${NC}\n" "$1"
-    echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
-}
-
-LABEL_WIDTH=40
-
-check() {
-    local label="$1"
-    local status="$2"   # "ok" | "ko"
-    local detail="$3"   # optional extra info
-
-    local pad=$(( LABEL_WIDTH - ${#label} ))
-    [ $pad -lt 1 ] && pad=1
-    local spaces
-    spaces=$(printf '%*s' "$pad" '')
-
-    if [ "$status" = "ok" ]; then
-        printf "  ${WHITE}%s${NC}%s ${PASS}" "$label" "$spaces"
-    else
-        printf "  ${WHITE}%s${NC}%s ${FAIL}" "$label" "$spaces"
-    fi
-
-    if [ -n "$detail" ]; then
-        echo -e "  ${DIM}→ ${detail}${NC}"
-    else
-        echo
-    fi
-}
-
-wait_for() {
-    local timeout="$1"; shift
-    local elapsed=0
-    while [ $elapsed -lt $timeout ]; do
-        eval "$@" && return 0
-        sleep 1
-        ((elapsed++))
-    done
-    return 1
-}
-
-# --- Wait for all containers to be up and healthy -------------------------
-
-wait_for_containers() {
-    local timeout=30
-    local elapsed=0
-    local containers=("$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS")
-
-    echo
-
-    while [ $elapsed -lt $timeout ]; do
-        CONTAINERS=$($COMPOSE ps 2>/dev/null)
-
-        local all_ready=true
-        local output=""
-
-        for container in "${containers[@]}"; do
-            local line
-            line=$(echo "$CONTAINERS" | grep "$container")
-
-            local status icon
-            if ! echo "$line" | grep -q "Up"; then
-                status="${RED}starting${NC}"; icon="${YELLOW}◌${NC}"; all_ready=false
-            elif echo "$line" | grep -q "Restarting"; then
-                status="${RED}restarting${NC}"; icon="${RED}✗${NC}"; all_ready=false
-            elif echo "$line" | grep -q "unhealthy"; then
-                status="${RED}unhealthy${NC}"; icon="${RED}✗${NC}"; all_ready=false
-            elif echo "$line" | grep -q "health: starting"; then
-                status="${YELLOW}health check...${NC}"; icon="${YELLOW}◌${NC}"; all_ready=false
-            else
-                status="${GREEN}ready${NC}"; icon="${GREEN}✓${NC}"
-            fi
-
-            output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\033[K\n"
-        done
-
-        printf "\033[${#containers[@]}A" 2>/dev/null
-        printf "%b" "$output"
-
-        $all_ready && {
-            echo
-            printf "  ${GREEN}All containers ready${NC}  ${DIM}(${elapsed}s)${NC}\n"
-            return 0
-        }
-
-        sleep 1
-        ((elapsed++))
-    done
-
-    echo
-    printf "  ${RED}${BOLD}Timeout: containers not ready after ${timeout}s${NC}\n"
-    return 1
-}
+# LABEL_WIDTH=40
 
 # --- Init ---------------------------------------------------------------------
 
@@ -123,19 +29,6 @@ CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
 echo
 echo -e "${CYAN}${BOLD}  Inception — Project Check${NC}  ${DIM}login: ${LOGIN}  domain: ${DOMAIN}${NC}"
-
-CONTAINER_MARIADB="mariadb"
-CONTAINER_NGINX="nginx"
-CONTAINER_WORDPRESS="wordpress"
-
-PORT_MARIADB_EXPECTED="3306/tcp"
-PORT_NGINX_EXPECTED="0.0.0.0:443->443/tcp,"
-PORT_WORDPRESS_EXPECTED="9000/tcp"
-
-ADMIN_FORBIDDEN_PATTERN="^admin$|admin-|^administrator$"
-
-TLS_ACCEPT=("1.2" "1.3")
-TLS_REJECT=("1.1")
 
 if ! wait_for_containers; then
     echo
@@ -188,7 +81,7 @@ if echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep "Up" > /dev/null \
         MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' "$VOLUME_MARIADB")
         check "volume" "ok" "${HOST_PATH} → ${MOUNTPOINT}"
     else
-        check "volume" "ko" "volume $VOLUME_MARIADB not found"
+        check "volume" "ko" "volume ${VOLUME_MARIADB} not found"
     fi
 else
     for label in "running" "healthy" "logs" "probe" "port" "volume"; do
@@ -226,6 +119,8 @@ if echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep "Up" > /dev/null \
         check "probe (HTTPS)" "ko"
     fi
 
+    #-k ignores SSL certificate check, needed since we autosign our certs
+    #-v verbose mode:
     TLS_VERSION=$(curl -k -v "https://localhost:443" 2>&1 | grep -o "TLSv1\.[0-9]" | sort -u)
     if [ -n "$TLS_VERSION" ]; then
         check "TLS version detected" "ok" "$TLS_VERSION"

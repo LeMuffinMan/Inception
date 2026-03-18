@@ -77,3 +77,62 @@ wait_for() {
     done
     return 1
 }
+
+section() {
+    echo
+    echo -e "${CYAN}${BOLD}┌─────────────────────────────────────────┐${NC}"
+    printf "${CYAN}${BOLD}│  %-41s│${NC}\n" "$1"
+    echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
+}
+
+# --- Wait for all containers to be up and healthy -------------------------
+wait_for_containers() {
+    local timeout=30
+    local elapsed=0
+    local containers=("$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS")
+
+    echo
+
+    while [ $elapsed -lt $timeout ]; do
+        CONTAINERS=$($COMPOSE ps 2>/dev/null)
+
+        local all_ready=true
+        local output=""
+
+        for container in "${containers[@]}"; do
+            local line
+            line=$(echo "$CONTAINERS" | grep "$container")
+
+            local status icon
+            if ! echo "$line" | grep -q "Up"; then
+                status="${RED}starting${NC}"; icon="${YELLOW}◌${NC}"; all_ready=false
+            elif echo "$line" | grep -q "Restarting"; then
+                status="${RED}restarting${NC}"; icon="${RED}✗${NC}"; all_ready=false
+            elif echo "$line" | grep -q "unhealthy"; then
+                status="${RED}unhealthy${NC}"; icon="${RED}✗${NC}"; all_ready=false
+            elif echo "$line" | grep -q "health: starting"; then
+                status="${YELLOW}health check...${NC}"; icon="${YELLOW}◌${NC}"; all_ready=false
+            else
+                status="${GREEN}ready${NC}"; icon="${GREEN}✓${NC}"
+            fi
+
+            output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\033[K\n"
+        done
+
+        printf "\033[${#containers[@]}A" 2>/dev/null
+        printf "%b" "$output"
+
+        $all_ready && {
+            echo
+            printf "  ${GREEN}All containers ready${NC}  ${DIM}(${elapsed}s)${NC}\n"
+            return 0
+        }
+
+        sleep 1
+        ((elapsed++))
+    done
+
+    echo
+    printf "  ${RED}${BOLD}Timeout: containers not ready after ${timeout}s${NC}\n"
+    return 1
+}
