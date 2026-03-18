@@ -39,61 +39,78 @@ Bind mounts link a specific path on the host filesystem directly to the containe
 
 ### Configuration
 
+#### Fast configuration
+After cloning the repository inside your VM: 
+```
+git clone https://github.com/LeMuffinMan/Inception 
+```
+Using the scripts provided, you are ready to build and run, by simply using `make`. 
+```
+cd Inception && make
+```
+Once you execute the `make` command in the repo, the `secrets/` folder and all credential files are generated automatically:
+Missing files are created using `openssl rand` (or `/dev/urandom` as fallback if openssl is not available). 
+You can also create the folder yourself and provide your own values — any file already present will not be overwritten.
 
-Parler de la generation basee sur le user : d'ou la VM 
+#### Run check scripts
+Using `make checks` will build, run and test that the setup match subject requirements such as:
+- parsing files to check configuration and seek exposed secrets ...
+- testing volumes peristency
+- crash testing the containers
 
-on peut creer un nouveau user, et redeployer automqtiquement avec son login :
+#### Custom deployment
+For a custom setup, you can edit scripts/lib/config.sh. By default, the scripts use $(whoami) to get a login value. 
+This allows easy and automated process to deploy and maintain this docker network: a new deployement can be done immediately after creating a new local user on your host:
 
-nettoyer le setup : makefclean
-
+Create first a new user on your host. This user needs sudo right, and being in the docker group.
+```
 sudo useradd -m -s /bin/bash <new_user>
 sudo usermod -aG sudo <new_user>
 sudo usermod -aG docker <new_user>
 passwd <new_user>
-
 su - <new_user>
+```
+You are ready to cd into the repo folder and make for a fresh and automated deployment.
+```
 git clone https://github.com/LeMuffinMan/Inception 
 cd Inception && make
+```
+All credentials and login dependant variables will be used based on this new local user name.
 
-le deploiement se fera avec <new_user> comme login de reference pour les credentials et domain name ...
+Not using these scripts, you will have to 
+- provide yourself all files required in secrets folder:
+  
+**MariaDB**
+| File | Contents |
+|---|---|
+| `secrets/db_password.txt` | MariaDB application user password |
+| `secrets/db_root_password.txt` | MariaDB root user password |
+| `secrets/mysql_user.txt` | MariaDB application username |
 
-1. Clone the repository inside your VM.
+**WordPress**
+| File | Contents |
+|---|---|
+| `secrets/wp_admin_user.txt` | Admin username (must not contain "admin" or "administrator") |
+| `secrets/wp_admin_password.txt` | Admin password |
+| `secrets/wp_user.txt` | Regular user username |
+| `secrets/wp_user_password.txt` | Regular user password |
+| `secrets/mysql_admin_email.txt` | Admin account email address |
+| `secrets/mysql_user_email.txt` | Regular user email address |
 
-Reecrire cette partie aussi
-2. Create a `.env` from the `.env_example` provided and fill in your values:
-
+- A .env file with required variables
 ```env
 DOMAIN_NAME=<login>.42.fr
 MYSQL_DATABASE=wordpress
 MYSQL_USER=<db_user>
+WP_TITLE=<login>_wordpress
 ```
-
-MYSQL_DATABASE=oelleaume_db
-MYSQL_USER=oelleaume
-DOMAIN_NAME=oelleaume.42.fr
-WP_TITLE=oelleaume_wordpress
-
-3. The `secrets/` folder and all credential files are generated automatically when you run `make`. Missing files are created using `openssl rand` (or `/dev/urandom` as fallback if openssl is not available). You can also create the folder yourself and provide your own values — any file already present will not be overwritten.
-
-The secrets used by the project are:
-
-| File | Contents |
-|---|---|
-| `secrets/db_password.txt` | Password for the MariaDB application user |
-| `secrets/db_root_password.txt` | Password for the MariaDB root user |
-| `secrets/wp_admin_user.txt` | WordPress administrator username (must not contain "admin" or "administrator") |
-| `secrets/wp_admin_password.txt` | WordPress administrator password |
-| `secrets/wp_user.txt` | WordPress regular user username |
-| `secrets/wp_user_password.txt` | WordPress regular user password |
-| `secrets/mysql_user.txt` | MariaDB application username |
-| `secrets/mysql_admin_email.txt` | Email address for the WordPress administrator account |
-| `secrets/mysql_user_email.txt` | Email address for the WordPress regular user account |
-
-4. Add your domain to `/etc/hosts` on the VM:
+- Edit yourself /etc/hosts to redirect localhost to your own domain name:
 
 ```
 127.0.0.1   <login>.42.fr
 ```
+
+
 
 ### Available commands
 
