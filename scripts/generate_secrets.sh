@@ -55,7 +55,7 @@ generate_env() {
     fi
 }
 # --- Force flag ---------------------------------------------------------------
-
+# This flag will overwrite all crendentials and secrets
 header "Secret Generator" "login: ${LOGIN}"
 
 if [ "$1" = "-f" ]; then
@@ -99,6 +99,19 @@ done
 
 section "Writing Credentials"
 
+# declare -A STATIC_SECRETS : declaring a dict, pairing variable name and their content
+# it allows such access:
+# echo "${STATIC_SECRETS["mysql_user.txt"]}"
+#
+# or using ot not using the ! :
+#
+# for key in "${!STATIC_SECRETS[@]}"; do
+#     echo "$key"
+# done
+#
+# for val in "${STATIC_SECRETS[@]}"; do
+#     echo "$val"
+# done
 declare -A STATIC_SECRETS=(
     ["mysql_user.txt"]="$DEFAULT_MYSQL_USER"
     ["wp_admin_user.txt"]="$DEFAULT_WP_ADMIN_USER"
@@ -113,9 +126,11 @@ for FILE in "${!STATIC_SECRETS[@]}"; do
     else
         skip "$FILE"
     fi
+    if ! chmod 600 "${SECRETS_DIR}/${FILE}"; then
+        echo "Failed to chmod 600 ${FILE}"
+    fi
 done
 
-# --- Summary ------------------------------------------------------------------
 
 echo
 TOTAL=$(ls "$SECRETS_DIR" | wc -l)
@@ -157,6 +172,9 @@ else
         check "$ENV_FILE" "ok"
     else
         check "$ENV_FILE" "ok" "patched: ${patched[*]}"
+    fi
+    if ! chmod 600 "${SECRETS_DIR}/${ENV_FILE}"; then
+        echo "Failed to chmod 600 ${ENV_FILE}"
     fi
 fi
 
