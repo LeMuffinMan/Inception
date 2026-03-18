@@ -37,7 +37,7 @@ Bind mounts link a specific path on the host filesystem directly to the containe
 - Docker and Docker Compose installed on the VM
 - `make` installed on the VM
 
-### Configuration
+### Configuration and build
 
 #### Fast configuration
 After cloning the repository inside your VM: 
@@ -48,12 +48,19 @@ Using the scripts provided, you are ready to build and run, by simply using `mak
 ```
 cd Inception && make
 ```
-Once you execute the `make` command in the repo, the `secrets/` folder and all credential files are generated automatically:
-Missing files are created using `openssl rand` (or `/dev/urandom` as fallback if openssl is not available). 
-You can also create the folder yourself and provide your own values — any file already present will not be overwritten.
+The `make` command will 
+- Create the `secrets/` folder and generate any missing secrets using `openssl rand` (or `/dev/urandom` as fallback)
+    note: You can also create the `secrets/` folder yourself and provide your own values. Any file already present will not be overwritten.
+- Create a .env in `srcs/` with required environment variables. You can also fill it yourself, see below the required variables.
+- Create `~/data/mysql` and `~/data/wordpress` on the host
+- Build all Docker images
+- Start all containers in detached mode
+- Run a basic network check script to overview the setup
+
+The WordPress site will be reachable at `https://<login>.42.fr` or at `https://localhost`.
 
 #### Run check scripts
-Using `make checks` will build, run and test that the setup match subject requirements such as:
+Using `make checks` will build, run as the basic `make` command, and in addition test that the setup match the subject requirements such as:
 - parsing files to check configuration and seek exposed secrets ...
 - testing volumes peristency
 - crash testing the containers
@@ -110,8 +117,6 @@ WP_TITLE=<login>_wordpress
 127.0.0.1   <login>.42.fr
 ```
 
-
-
 ### Available commands
 
 | Command | Description |
@@ -130,20 +135,7 @@ WP_TITLE=<login>_wordpress
 | `make checks` | Runs all check scripts: volume check, crash test, and network check |
 | `make secrets` | Force-regenerates **all** secret files, overwriting any existing ones |
 
-### Build and run
 
-```bash
-make
-```
-
-This will:
-- Generate any missing secrets using `openssl rand` (or `/dev/urandom` as fallback)
-- Create `~/data/mysql` and `~/data/wordpress` on the host
-- Build all Docker images
-- Start all containers in detached mode
-- Run a basic network check script to overview the setup
-
-The WordPress site will be reachable at `https://<login>.42.fr`.
 
 ### Stop the stack
 
