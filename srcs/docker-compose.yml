@@ -100,8 +100,8 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ~/data/wordpress
       o: bind
+      device: ~/data/wordpress
   mariadb_data:
     driver: local
     driver_opts:
