@@ -1,23 +1,3 @@
-secrets:
-  db_password:
-    file: ../secrets/db_password.txt
-  db_root_password:
-    file: ../secrets/db_root_password.txt
-  wp_admin_user:
-    file: ../secrets/wp_admin_user.txt
-  wp_admin_password:
-    file: ../secrets/wp_admin_password.txt
-  wp_user:
-    file: ../secrets/wp_user.txt
-  wp_user_password:
-    file: ../secrets/wp_user_password.txt
-  mysql_user:
-    file: ../secrets/mysql_user.txt
-  mysql_admin_email:
-    file: ../secrets/mysql_admin_email.txt
-  mysql_user_email:
-    file: ../secrets/mysql_user_email.txt
-
 services:
   wordpress:
     build: ./requirements/wordpress
@@ -108,3 +88,23 @@ volumes:
       type: none
       o: bind
       device: ~/data/mysql
+
+secrets:
+  db_password:
+    file: ../secrets/db_password.txt
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  wp_admin_user:
+    file: ../secrets/wp_admin_user.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt
+  wp_user:
+    file: ../secrets/wp_user.txt
+  wp_user_password:
+    file: ../secrets/wp_user_password.txt
+  mysql_user:
+    file: ../secrets/mysql_user.txt
+  mysql_admin_email:
+    file: ../secrets/mysql_admin_email.txt
+  mysql_user_email:
+    file: ../secrets/mysql_user_email.txt
