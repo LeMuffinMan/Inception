@@ -6,71 +6,157 @@
 
 The following must be installed on your virtual machine:
 
-- **Docker** (recent stable version)
-- **Docker Compose** (v2 recommended, used via `docker compose`)
+- **Docker** 
+- **Docker Compose** 
 - **make**
 - **git**
-- **openssl** (for generating the self-signed TLS certificate)
+- **openssl** (used by the setup scripts to generate secrets, or it will use /dev/urandom as fallback)
+
+> The project must be run inside a virtual machine. At least, with a sudo priviledged user: Some commands (notably `make fclean`) require `sudo` to remove volume data from the host filesystem.
+
+---
 
 ### Repository structure
 
 ```
 .
 ├── Makefile
-├── secrets/
-│   ├── credentials.txt        # WordPress admin user + password
-│   ├── db_password.txt        # MariaDB app user password
-│   └── db_root_password.txt   # MariaDB root password
-└── srcs/
-    ├── .env                   # Non-sensitive environment variables
-    ├── docker-compose.yml
-    └── requirements/
-        ├── nginx/
-        │   ├── Dockerfile
-        │   ├── conf/          # nginx.conf / site config
-        │   └── tools/         # entrypoint scripts
-        ├── wordpress/
-        │   ├── Dockerfile
-        │   ├── conf/          # php-fpm pool config
-        │   └── tools/         # wp-config / wp-cli setup scripts
-        └── mariadb/
-            ├── Dockerfile
-            ├── conf/          # my.cnf or custom config
-            └── tools/         # DB init scripts
+├── srcs/
+│    ├── .env                        # Generated automatically by make (gitignored)
+│    ├── docker-compose.yml
+│    └── requirements/
+│        ├── nginx/
+│        │   ├── Dockerfile
+│        │   ├── conf/
+│        │   └── tools/
+│        ├── wordpress/
+│        │   ├── Dockerfile
+│        │   └── tools/
+│        └── mariadb/
+│            ├── Dockerfile
+│            └── tools/
+├── scripts/
+│   ├── lib
+│   │    ├── format.sh
+│   │    └── config.sh
+│   ├── check_inception.sh
+│   ├── crash_test.sh
+│   ├── volume_check.sh
+│   └── generate_secrets.sh
+│
+└── secrets/                        # Generated automatically by make (gitignored)
+   ├── db_password.txt
+   ├── db_root_password.txt
+   ├── mysql_user.txt
+   ├── wp_admin_user.txt
+   ├── wp_admin_password.txt
+   ├── wp_user.txt
+   ├── wp_user_password.txt
+   ├── mysql_admin_email.txt
+   └── mysql_user_email.txt
 ```
 
-### Configuration files to create
+---
 
-**`srcs/.env`** — environment variables (non-sensitive):
+### Automated setup (recommended)
+
+After cloning the repository inside your VM:
+
+```bash
+git clone https://github.com/LeMuffinMan/Inception
+cd Inception && make
+```
+
+`make` handles the entire setup automatically:
+
+1. Creates the `secrets/` folder and generates any missing secrets using `openssl rand` (or `/dev/urandom` as fallback). Any file already present in `secrets/` will **not** be overwritten, so you can provide your own values beforehand.
+2. Creates `srcs/.env` with the required environment variables, derived from the current local username (`$(whoami)`).
+3. Creates `~/data/mysql` and `~/data/wordpress` on the host.
+4. Builds all Docker images.
+5. Starts all containers in detached mode.
+6. Runs a basic network check script to verify the setup.
+
+The WordPress site will be reachable at `https://<login>.42.fr` or `https://localhost`.
+
+---
+
+### Manual setup (custom deployment)
+
+If you prefer not to use the automated scripts, you must provide the following yourself.
+
+#### 1. Secret files
+
+Create the `secrets/` folder at the root of the repository and populate it with the following files (one value per file, no trailing newline):
+
+**MariaDB**
+
+| File | Contents |
+|---|---|
+| `secrets/db_password.txt` | MariaDB application user password |
+| `secrets/db_root_password.txt` | MariaDB root user password |
+| `secrets/mysql_user.txt` | MariaDB application username |
+
+**WordPress**
+
+| File | Contents |
+|---|---|
+| `secrets/wp_admin_user.txt` | Admin username — must **not** contain `admin` or `administrator` |
+| `secrets/wp_admin_password.txt` | Admin password |
+| `secrets/wp_user.txt` | Regular user username |
+| `secrets/wp_user_password.txt` | Regular user password |
+| `secrets/mysql_admin_email.txt` | Admin account email address |
+| `secrets/mysql_user_email.txt` | Regular user email address |
+
+#### 2. Environment file
+
+Create `srcs/.env`:
 
 ```env
 DOMAIN_NAME=<login>.42.fr
-
 MYSQL_DATABASE=wordpress
-MYSQL_USER=wpuser
+MYSQL_USER=<db_user>
+WP_TITLE=<login>_wordpress
 ```
 
-**`secrets/db_password.txt`** — one line, the MariaDB app user password.
+#### 3. Data directories
 
-**`secrets/db_root_password.txt`** — one line, the MariaDB root password.
-
-**`secrets/credentials.txt`** — WordPress admin credentials, format:
-```
-WP_ADMIN_USER=<username>        # must NOT contain "admin" or "administrator"
-WP_ADMIN_PASSWORD=<password>
-WP_ADMIN_EMAIL=<email>
+```bash
+mkdir -p ~/data/mysql
+mkdir -p ~/data/wordpress
 ```
 
-**`/etc/hosts`** on the VM — add this line:
+#### 4. `/etc/hosts`
+
+Edit the `127.0.0.1 localhost` line in `/etc/hosts` on the VM so the domain resolves to localhost:
+
 ```
 127.0.0.1   <login>.42.fr
 ```
 
-**Data directories** on the host — create them before the first run:
+---
+
+### Custom deployment for a new user
+
+The scripts are designed to be fully portable across local users. To deploy as a new user:
+
 ```bash
-mkdir -p /home/<login>/data/db
-mkdir -p /home/<login>/data/wordpress
+sudo useradd -m -s /bin/bash <new_user>
+sudo usermod -aG sudo <new_user>
+sudo usermod -aG docker <new_user>
+passwd <new_user>
+su - <new_user>
 ```
+
+Then clone and run:
+
+```bash
+git clone https://github.com/LeMuffinMan/Inception
+cd Inception && make
+```
+
+All credentials and login-dependent variables are derived from the current username automatically.
+
+To adjust defaults, edit `scripts/lib/config.sh`.
 
 ---
 
@@ -80,15 +166,27 @@ mkdir -p /home/<login>/data/wordpress
 
 ```bash
 make
+# or
+make all
 ```
 
-This runs `docker compose -f srcs/docker-compose.yml up --build -d`.
+Generates missing secrets, creates data directories, builds all images, starts containers in detached mode, then runs the network check.
 
-### Stop containers without removing volumes
+### Start without running checks
+
+```bash
+make up
+```
+
+Same as `make all` but skips the network check at the end.
+
+### Stop containers (preserve volumes and data)
 
 ```bash
 make down
 ```
+
+Stops and removes containers and networks. Volume data on the host is preserved.
 
 ### Rebuild a specific service
 
@@ -98,6 +196,8 @@ docker compose -f srcs/docker-compose.yml up -d <service>
 ```
 
 Replace `<service>` with `nginx`, `wordpress`, or `mariadb`.
+
+> Note: if volumes are not yet initialized, starting a dependent service in isolation (e.g. `wordpress` without `mariadb`) will cause it to fail. Always do a full `make` on first run.
 
 ---
 
@@ -112,8 +212,14 @@ docker ps
 # Access a container's shell
 docker exec -it <container_name> sh
 
-# View real-time logs
+# View real-time logs for all containers
+make logs
+
+# Stream logs for a specific container
 docker logs -f <container_name>
+
+# Show current status of all containers
+make status
 
 # Restart a single container
 docker restart <container_name>
@@ -125,43 +231,62 @@ docker restart <container_name>
 # List volumes
 docker volume ls
 
-# Inspect a volume (see mount path)
+# Inspect a volume (see mount path and configuration)
 docker volume inspect <volume_name>
 ```
 
 ### Network
 
 ```bash
-# Inspect the Docker network
+# List Docker networks
 docker network ls
+
+# Inspect the project network
 docker network inspect <network_name>
 ```
 
-### Full cleanup
+### Check and test scripts
 
 ```bash
-# Stop and remove containers, networks, and volumes
-make fclean
+# Run the network check (verify containers are up and reachable)
+make check
 
-# Or manually:
-docker compose -f srcs/docker-compose.yml down -v
-docker system prune -af
+# Run volume persistence test, then network check
+make volume
+
+# Run crash test (simulates container failure), then network check
+make crash
+
+# Run all checks: volume, crash, and network
+make checks
 ```
+
+---
+
+## Cleanup commands
+
+| Command | Effect |
+|---|---|
+| `make down` | Stop and remove containers and networks; preserve volumes and data |
+| `make clean` | Stop and remove containers, networks, and volumes; keep host data directories |
+| `make fclean` | Full cleanup: removes containers, volumes, images, build cache, and deletes `~/data` and `secrets/` from the host. **Requires `sudo`** |
+| `make re` | Runs `fclean` then `up` and `checks` — full rebuild from scratch |
+| `make secrets` | Force-regenerates **all** secret files, overwriting existing ones |
 
 ---
 
 ## Data persistence
 
-Both named volumes store data on the host machine under `/home/<login>/data`:
+Both named volumes store data on the host machine under `~/data`:
 
 | Volume | Host path | Contents |
 |---|---|---|
-| `db_volume` | `/home/<login>/data/db` | MariaDB database files |
-| `wp_volume` | `/home/<login>/data/wordpress` | WordPress core files and uploads |
+| `db_volume` | `~/data/mysql` | MariaDB database files |
+| `wp_volume` | `~/data/wordpress` | WordPress core files and uploads |
 
-These directories persist across container stops and restarts. Deleting them or running `make fclean` will permanently remove all stored data.
+These directories survive container stops, restarts, and rebuilds. They are only removed by `make fclean` (which deletes them from the host entirely) or `make clean` (which removes the Docker volumes but leaves the host directories intact).
 
-The volume configuration in `docker-compose.yml` looks like this:
+The named volume configuration in `docker-compose.yml` uses `driver_opts` to bind to the host paths while remaining proper named volumes (not raw bind mounts, which are forbidden by the subject):
 
 ```yaml
 volumes:
@@ -170,7 +295,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/<login>/data/db
+      device: /home/<login>/data/mysql
   wp_volume:
     driver: local
     driver_opts:
@@ -179,15 +304,15 @@ volumes:
       device: /home/<login>/data/wordpress
 ```
 
-> Note: while `driver_opts` with `type: none` resembles a bind mount, this is a named volume configuration as required by the subject. Pure bind mounts (using `volumes:` with a host path directly in the service definition) are not used.
-
 ---
 
-## Key architectural rules (reminder for developers)
+## Key architectural constraints (reminder)
 
 - No container uses `network: host`, `--link`, or `links:`.
-- No container is started with infinite loop commands (`tail -f`, `sleep infinity`, `while true`, etc.).
-- Containers run foreground processes as PID 1 — daemons are started directly, not via wrapper scripts that loop.
-- No passwords are hardcoded in Dockerfiles — all sensitive values come from Docker secrets.
+- No container is started with infinite-loop commands (`tail -f`, `sleep infinity`, `while true`, `bash`, etc.).
+- Containers run foreground processes as PID 1 — daemons are invoked directly, not wrapped in looping scripts.
+- No passwords are hardcoded in Dockerfiles — all sensitive values are injected via Docker secrets.
 - The `latest` tag is forbidden for all images.
+- Images are built from the penultimate stable version of Alpine or Debian.
 - NGINX is the **only** container exposed to the outside, on port **443** only, using **TLSv1.2 or TLSv1.3**.
+- The WordPress database contains two users: one administrator (username must not contain `admin` or `administrator`) and one regular user.
