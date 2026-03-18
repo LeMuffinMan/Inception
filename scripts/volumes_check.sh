@@ -7,9 +7,6 @@ COMPOSE="docker compose -f ${COMPOSE_FILE}"
 
 header "Volume Check" "login: ${LOGIN}"
 
-# =============================================================================
-# VOLUME INTEGRITY
-# =============================================================================
 section "Volume Integrity"
 
 for VOL in "${VOLUMES_TO_CHECK[@]}"; do
@@ -44,9 +41,6 @@ for VOL in "${VOLUMES_TO_CHECK[@]}"; do
 done
 
 
-# =============================================================================
-# PERSISTENCE TEST
-# =============================================================================
 section "Persistence Test"
 
 echo -e "  ${GRAY}→ Running: docker compose down ...${NC}"
@@ -71,9 +65,6 @@ for VOL in "${VOLUMES_TO_CHECK[@]}"; do
 done
 
 
-# =============================================================================
-# RESTART & HEALTHCHECK
-# =============================================================================
 section "Restart & Healthcheck"
 
 echo -e "  ${GRAY}→ Running: docker compose up -d --build --no-recreate ...${NC}"

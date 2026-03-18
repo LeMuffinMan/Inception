@@ -3,8 +3,6 @@
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
-# --- Helpers ------------------------------------------------------------------
-
 # write_secret <filename> <content>
 #   Writes content to secrets/<filename>, avoids subshell exposure
 write_secret() {
@@ -42,6 +40,8 @@ skip() {
     printf "  ${WHITE}%s${NC}%s ${GRAY}⊘ skipped (already exists)${NC}\n" "$1" "$spaces"
 }
 
+# creates .env file in srcs/
+# generates all variables and fill them with default value
 generate_env() {
     mkdir -p "$(dirname "$ENV_FILE")"
     for VAR in "${ORDERED_VARS[@]}"; do
@@ -55,9 +55,9 @@ generate_env() {
     fi
 }
 # --- Force flag ---------------------------------------------------------------
-# This flag will overwrite all crendentials and secrets
 header "Secret Generator" "login: ${LOGIN}"
 
+# This flag will overwrite all crendentials and secrets
 if [ "$1" = "-f" ]; then
     if [ -d "$SECRETS_DIR" ]; then
         printf "\n  ${YELLOW}${BOLD}secrets/ already exists. Override? [y/n]${NC} "
@@ -92,6 +92,9 @@ for FILE in db_password.txt db_root_password.txt wp_admin_password.txt wp_user_p
         write_secret "$FILE" "$(generate_secret $SECRET_LENGTH)"
     else
         skip "$FILE"
+    fi
+    if ! chmod 600 "${SECRETS_DIR}/${FILE}"; then
+        echo "Failed to chmod 600 ${FILE}"
     fi
 done
 
@@ -153,15 +156,15 @@ declare -A EXPECTED_VALUES=(
 # Keys in insertion order
 ORDERED_VARS=(MYSQL_DATABASE MYSQL_USER DOMAIN_NAME WP_TITLE)
 
+# Either the file does'nt exist, or exist but is empty, or exist but and not empty
+#   - if not exiting or empty, we generate and fill it by default
+#   - if not, for each var, we check if we need to generate it to not overwrite existing ones
 if [ ! -s "$ENV_FILE" ]; then
-    # Missing or empty → full generation
     generate_env
 else
-    # Exists and non-empty → patch missing/unassigned variables only
     patched=()
     for VAR in "${ORDERED_VARS[@]}"; do
         if ! grep -qE "^${VAR}=.+" "$ENV_FILE"; then
-            # Remove any existing empty/unassigned line first, then append
             sed -i "/^${VAR}=/d" "$ENV_FILE"
             printf '%s=%s\n' "$VAR" "${EXPECTED_VALUES[$VAR]}" >> "$ENV_FILE"
             patched+=("$VAR")
@@ -180,7 +183,7 @@ fi
 
 # --- /etc/hosts ---------------------------------------------------------------
 section "Hosts"
-
+# If /etc/hosts is not setup to redirect localhost to <login>.42.fr, we update it automaticaly
 HOSTS_FILE="/etc/hosts"
 HOSTS_ENTRY="127.0.0.1	${USER}.42.fr"
 
