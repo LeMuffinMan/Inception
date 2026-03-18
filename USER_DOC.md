@@ -12,11 +12,18 @@ The Inception stack runs three services, all communicating over an isolated Dock
 
 The only port exposed to the outside world is **443** (HTTPS). All other communication happens internally between containers and is not reachable from outside the VM.
 
+**NGINX** acts as the front door of the stack. It is the only service that directly receives requests from your browser, over an encrypted HTTPS connection. It then forwards those requests to WordPress and sends back the response. No other service is directly accessible from outside.
+ 
+**WordPress + php-fpm** is the application itself — it generates the web pages, handles user logins, manages content, and serves the administration panel. It never communicates directly with the outside world; it only receives requests forwarded by NGINX, and reads or writes data through MariaDB.
+ 
+**MariaDB** is the database. It stores everything WordPress needs to function: pages, posts, users, settings, and more. It has no contact with the outside world whatsoever — it only responds to requests from WordPress.
+
 ---
 
 ## Prerequisites
 
 This project runs inside a **Linux virtual machine** with Docker, Docker Compose, and `make` installed. Make sure you are running all commands from within the VM.
+Also, some commands require sudo priviledges.
 
 ---
 
@@ -135,6 +142,12 @@ make check
 
 This script verifies that all containers are up and reachable on the expected ports.
 
+```bash
+make checks
+```
+
+This will do extra checks, seeking configuration mistakes, secrets, and it will test volumes persitency and crash testing containers.
+
 ### Stream live logs
 
 ```bash
@@ -153,7 +166,7 @@ You should receive the HTML content of the WordPress homepage.
 
 ### Automatic restart on crash
 
-If a container crashes, it will restart automatically thanks to the restart policy defined in `docker-compose.yml`. You can simulate a crash and verify recovery with:
+If a container crashes, it will restart automatically thanks to the restart policy defined in `docker-compose.yml`. You can simulate crash and verify recovery with:
 
 ```bash
 make crash
