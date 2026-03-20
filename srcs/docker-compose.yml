@@ -41,7 +41,7 @@ services:
     networks:
       - inception
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot"]
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 10s
       timeout: 5s
       retries: 5
