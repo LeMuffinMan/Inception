@@ -235,6 +235,10 @@ if echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep "Up" > /dev/null \
         check "probe (PING)" "ko" "got: $REDIS_PING"
     fi
 
+    #We curl our site to create at least 1 key to check for redis
+    curl -k "https://${DOMAIN}" > /dev/null 2>&1
+    sleep 1
+    
     REDIS_KEYS=$(docker exec "$CONTAINER_REDIS" redis-cli dbsize 2>/dev/null)
     if [ "$REDIS_KEYS" -gt 0 ] 2>/dev/null; then
         check "cache populated (keys > 0)" "ok" "${REDIS_KEYS} keys"
