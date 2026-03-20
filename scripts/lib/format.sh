@@ -92,7 +92,7 @@ section() {
 wait_for_containers() {
     local timeout=30
     local elapsed=0
-    local containers=("$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS")
+    local containers=("$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS" "$CONTAINER_REDIS")
 
     echo
 

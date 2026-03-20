@@ -53,9 +53,15 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --user_pass="${WORDPRESS_USER_PASSWORD}" \
         --allow-root
 
+
     echo "Activate Redis cache plugin ..."
     wp plugin install redis-cache --activate --allow-root
+    wp config set WP_REDIS_HOST redis --allow-root || echo "Failed to set WP_REDIS_HOST"
+    wp config set WP_REDIS_PORT 6379 --raw --allow-root || echo "Failed to set WP_REDIS_PORT"
     wp redis-cache enable --allow-root
+
+    echo "Overriding wp-config.php ..."
+    cp /tmp/wp-config.php /var/www/html/wp-config.php || echo "Failed to copy wp-config.php"
 
     echo "Wordpress successfully installed"
 else

@@ -11,7 +11,7 @@ RUN apk add --no-cache mariadb mariadb-client && rm -rf /var/lib/mysql \
 
 EXPOSE 3306
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-    CMD healthcheck.sh --connect --innodb_initialized || exit 1
+# HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+#     CMD healthcheck.sh --connect --innodb_initialized || exit 1
 
 ENTRYPOINT ["/usr/local/bin/init.sh"]

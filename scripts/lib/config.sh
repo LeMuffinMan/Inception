@@ -26,8 +26,8 @@ DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
 
 # wordpress taking usually arround 20 secs to start, choosing a lower timeout length
 # could invalid some tests
-WAIT_TIMEOUT=30
-RESTART_TIMEOUT=30
+WAIT_TIMEOUT=45
+RESTART_TIMEOUT=45
 
 # Name your volumes as you wish
 VOLUME_MARIADB="srcs_mariadb_data"
@@ -45,6 +45,7 @@ DB_SECRET_FILE="${SECRETS_DIR}/db_root_password.txt"
 CONTAINER_MARIADB="mariadb"
 CONTAINER_NGINX="nginx"
 CONTAINER_WORDPRESS="wordpress"
+CONTAINER_REDIS="redis"
 CONTAINERS_TO_TEST=("$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_WORDPRESS")
 
 # we need at least two volumes and their persistancy

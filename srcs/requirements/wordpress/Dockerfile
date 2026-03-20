@@ -35,6 +35,8 @@ RUN mkdir -p /var/www/html
 COPY tools/init.sh /usr/local/bin/init.sh
 RUN chmod +x /usr/local/bin/init.sh
 
+COPY conf/wp-config.php /tmp/wp-config.php
+
 EXPOSE 9000
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --start-interval=20s --retries=3 \

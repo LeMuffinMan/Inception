@@ -72,7 +72,9 @@ services:
     networks:
       - inception
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_healthy
+        restart: true
     restart: on-failure
   redis:
     container_name: redis
