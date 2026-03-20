@@ -22,6 +22,10 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
+        restart: true
+      redis:
+        condition: service_healthy
+        restart: true
     restart: on-failure
   mariadb:
     secrets:
@@ -70,6 +74,12 @@ services:
     depends_on:
       - wordpress
     restart: on-failure
+  redis:
+    container_name: redis
+    build: ./requirements/bonus/redis
+    restart: on-failure
+    networks:
+      - inception
 
 networks:
   inception:

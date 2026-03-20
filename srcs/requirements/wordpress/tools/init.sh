@@ -53,6 +53,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --user_pass="${WORDPRESS_USER_PASSWORD}" \
         --allow-root
 
+    echo "Activate Redis cache plugin ..."
+    wp-plugin install redis-cache --activate --allow-root
+    redis-cache enable --allow-root
+
     echo "Wordpress successfully installed"
 else
     echo "Wordpress already installed and configured"
