@@ -7,7 +7,6 @@
 #  ██║██║╚██╗██║██║     ██╔══╝  ██╔═══╝    ██║   ██║██║   ██║██║╚██╗██║
 #  ██║██║ ╚████║╚██████╗███████╗██║        ██║   ██║╚██████╔╝██║ ╚████║
 #  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚══════╝╚═╝        ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-#                          42 Project Check Scripeval "$@"t
 # =============================================================================
 
 # edit scripts/lib/config.sh to customize your inception setup
@@ -212,6 +211,49 @@ else
     done
 fi
 
+# =============================================================================
+# REDIS
+# =============================================================================
+section "Redis"
+
+if echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep "Up" > /dev/null \
+&& ! echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep "Restarting" > /dev/null; then
+    check "running" "ok"
+
+    if echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep -q "unhealthy"; then
+        check "healthy" "ko"
+    elif echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep -q "health: starting"; then
+        printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+    else
+        check "healthy" "ok"
+    fi
+
+    REDIS_PING=$(docker exec "$CONTAINER_REDIS" redis-cli ping 2>/dev/null)
+    if [ "$REDIS_PING" = "PONG" ]; then
+        check "probe (PING)" "ok"
+    else
+        check "probe (PING)" "ko" "got: $REDIS_PING"
+    fi
+
+    REDIS_KEYS=$(docker exec "$CONTAINER_REDIS" redis-cli dbsize 2>/dev/null)
+    if [ "$REDIS_KEYS" -gt 0 ] 2>/dev/null; then
+        check "cache populated (keys > 0)" "ok" "${REDIS_KEYS} keys"
+    else
+        check "cache populated (keys > 0)" "ko" "0 keys — WordPress may not be using Redis"
+    fi
+
+    REDIS_STATUS=$(docker exec "$CONTAINER_WORDPRESS" wp redis status --allow-root 2>/dev/null)
+    if echo "$REDIS_STATUS" | grep -q "connected"; then
+        check "wp redis status" "ok"
+    else
+        check "wp redis status" "ko" "$REDIS_STATUS"
+    fi
+
+else
+    for label in "running" "healthy" "probe" "cache populated" "wp redis status"; do
+        check "$label" "ko"
+    done
+fi
 
 # =============================================================================
 # PROJECT INTEGRITY
