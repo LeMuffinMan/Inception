@@ -236,9 +236,9 @@ if echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep "Up" > /dev/null \
     fi
 
     #We curl our site to create at least 1 key to check for redis
-    curl -k "https://${DOMAIN}" > /dev/null 2>&1
-    sleep 1
-    
+    # curl -k "https://${DOMAIN}" > /dev/null 2>&1
+    # sleep 1
+
     REDIS_KEYS=$(docker exec "$CONTAINER_REDIS" redis-cli dbsize 2>/dev/null)
     if [ "$REDIS_KEYS" -gt 0 ] 2>/dev/null; then
         check "cache populated (keys > 0)" "ok" "${REDIS_KEYS} keys"
@@ -246,11 +246,11 @@ if echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep "Up" > /dev/null \
         check "cache populated (keys > 0)" "ko" "0 keys — WordPress may not be using Redis"
     fi
 
-    REDIS_STATUS=$(docker exec "$CONTAINER_WORDPRESS" wp redis status --allow-root 2>/dev/null)
-    if echo "$REDIS_STATUS" | grep -q "connected"; then
-        check "wp redis status" "ok"
+    REDIS_STATUS=$(docker exec "$CONTAINER_WORDPRESS" wp redis status --path=/var/www/html --allow-root 2>/dev/null)
+    if echo "$REDIS_STATUS" | grep -q "Drop-in: Valid" && echo "$REDIS_STATUS" | grep -q "Disabled: No"; then
+        check "wp redis status" "ok" "port: $(echo "$REDIS_STATUS" | grep WP_REDIS_PORT | awk -F':' '{{print $2}}')"
     else
-        check "wp redis status" "ko" "$REDIS_STATUS"
+        check "wp redis status" "ko"
     fi
 
 else

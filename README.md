@@ -165,6 +165,8 @@ make fclean
 - [php-fpm configuration guide](https://www.php.net/manual/en/install.fpm.configuration.php)
 - [Understanding PID 1 in Docker containers](https://blog.phusion.nl/2015/01/20/docker-and-the-pid-1-zombie-reaping-problem/)
 - [TLS 1.2 vs TLS 1.3 overview](https://www.cloudflare.com/learning/ssl/why-use-tls-1.3/)
+REDIS
+https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md
 
 ### AI Usage
  
