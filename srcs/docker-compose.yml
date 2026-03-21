@@ -76,12 +76,34 @@ services:
         condition: service_healthy
         restart: true
     restart: on-failure
+
   redis:
     container_name: redis
     build: ./requirements/bonus/redis
     restart: on-failure
     networks:
       - inception
+
+  adminer:
+    container_name: adminer
+    build: ./requirements/bonus/adminer
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      mariadb:
+        condition: service_healthy
+        restart: true
+    restart: on-failure
+    networks:
+      - inception
+    volumes:
+      - type: volume
+        source: adminer-data
+        target: /var/www/adminer
 
 networks:
   inception:
@@ -100,6 +122,12 @@ volumes:
       type: none
       o: bind
       device: ~/data/mysql
+  adminer-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/adminer
 
 secrets:
   db_password:

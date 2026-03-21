@@ -5,6 +5,8 @@
 #   source "$(dirname "$0")/lib/format.sh"
 # =============================================================================
 
+source "$(dirname "$0")/lib/config.sh"
+
 # --- Colors -------------------------------------------------------------------
 
 BOLD='\033[1m'
@@ -92,7 +94,7 @@ section() {
 wait_for_containers() {
     local timeout=30
     local elapsed=0
-    local containers=("$CONTAINER_MARIADB" "$CONTAINER_NGINX" "$CONTAINER_WORDPRESS" "$CONTAINER_REDIS")
+    local containers=("${CONTAINERS_TO_TEST[@]}")
 
     echo
 

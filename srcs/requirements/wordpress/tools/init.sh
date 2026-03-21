@@ -63,7 +63,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
     wp plugin install redis-cache --activate --allow-root && echo "install and activate redis successfully" || echo "Failed to install and activate redis-cache"
     wp config set WP_REDIS_HOST redis --allow-root && echo "set WP_REDIS_HOST successfully" || echo "Failed to set WP_REDIS_HOST"
     wp config set WP_REDIS_PORT 6379 --raw --allow-root && echo "set WP_REDIS_PORT to 6379 successfully" || echo "Failed to set WP_REDIS_PORT"
-    wp config set WP_CACHE true --raw --allow-root && "set WP_CACHE true successfully" || echo "Failed to set WP_CACHE true"
+    # wp config set WP_CACHE true --raw --allow-root && "set WP_CACHE true successfully" || echo "Failed to set WP_CACHE true"
     wp redis enable --allow-root && echo "redis-cache enabled and configured successfully" || echo "Failed to enable configured redis-cache"
 
     echo "Wordpress successfully installed"

@@ -29,6 +29,17 @@ DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
 WAIT_TIMEOUT=45
 RESTART_TIMEOUT=45
 
+#Each service must have his container, named as the service
+# Feel free to add a new service, adding a new CONTAINER variablem and add it in the variable
+# CONTAINERS_TO_TEST if you want it to be waited and checked
+CONTAINER_MARIADB="mariadb"
+CONTAINER_NGINX="nginx"
+CONTAINER_WORDPRESS="wordpress"
+CONTAINER_REDIS="redis"
+CONTAINER_ADMINER="adminer"
+# CONTAINER_YOUR_SERVICE="your_service"
+CONTAINERS_TO_TEST=("$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_WORDPRESS" "$CONTAINER_ADMINER")
+
 # Name your volumes as you wish
 VOLUME_MARIADB="srcs_mariadb_data"
 VOLUME_WORDPRESS="srcs_wordpress_data"
@@ -39,14 +50,6 @@ COMPOSE_FILE="${ROOT_DIR}/srcs/docker-compose.yml"
 ENV_FILE="${ROOT_DIR}/srcs/.env"
 SECRETS_DIR="${ROOT_DIR}/secrets"
 DB_SECRET_FILE="${SECRETS_DIR}/db_root_password.txt"
-
-# the subject ask us to build a docker network with separates services for a minimal but DEFAULT_MYSQL_USER
-# web stack
-CONTAINER_MARIADB="mariadb"
-CONTAINER_NGINX="nginx"
-CONTAINER_WORDPRESS="wordpress"
-CONTAINER_REDIS="redis"
-CONTAINERS_TO_TEST=("$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_WORDPRESS")
 
 # we need at least two volumes and their persistancy
 VOLUMES_TO_CHECK=("mariadb" "wordpress")

@@ -5,7 +5,6 @@ RUN addgroup -g 82 -S www-data || true && \
 
 RUN apk add --no-cache \
     wget \
-    curl \
     mariadb-client \
     redis \
     php83-fpm \
@@ -13,7 +12,6 @@ RUN apk add --no-cache \
     php83-mysqli \
     php83-xml \
     php83-mbstring \
-    php83-curl \
     php83-zip \
     php83-gd \
     php83-intl \
@@ -24,7 +22,7 @@ RUN apk add --no-cache \
     php83-json \
     php83-iconv \
     php83-session && \
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+wget -O wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 chmod +x wp-cli.phar && \
 mv wp-cli.phar /usr/local/bin/wp
 

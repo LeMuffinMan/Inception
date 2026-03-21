@@ -11,6 +11,7 @@ up:
 	$(SECRET_GEN_SCRIPT)
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
+	mkdir -p ~/data/adminer
 	@echo "Starting containers ..."
 	$(COMPOSE) up -d --build --no-recreate
 
@@ -31,6 +32,7 @@ fclean: clean
 	@echo "Cleaning volumes ..."
 	sudo rm -rf ~/data/mysql
 	sudo rm -rf ~/data/wordpress
+	sudo rm -rf ~/data/adminer
 	@echo "Cleaning dangling images ..."
 	docker image prune -f > /dev/null
 	@echo "Cleaning building cache ..."
