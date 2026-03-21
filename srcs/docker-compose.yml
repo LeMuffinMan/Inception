@@ -104,6 +104,9 @@ services:
   ftp:
     container_name: vsftpd
     build: ./requirements/bonus/vsftpd
+    secrets:
+      - ftp_user
+      - ftp_pass
     ports:
       - "21:21"
       - "21100-21100:21110-21110"
@@ -154,3 +157,7 @@ secrets:
     file: ../secrets/mysql_admin_email.txt
   mysql_user_email:
     file: ../secrets/mysql_user_email.txt
+  ftp_user:
+    file: ../secrets/ftp_user.txt
+  ftp_pass:
+    file: ../secrets/ftp_pass.txt
