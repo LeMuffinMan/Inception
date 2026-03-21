@@ -1,14 +1,106 @@
+wordpress  | Activate Redis cache plugin ...
+wordpress  | Installing Redis Object Cache (2.7.0)
+wordpress  | Downloading installation package from https://downloads.wordpress.org/plugin/redis-cache.2.7.0.zip...
+wordpress  | Unpacking the package...
+wordpress  | Installing the plugin...
+wordpress  | Plugin installed successfully.
+wordpress  | Activating 'redis-cache'...
 wordpress  | Plugin 'redis-cache' activated.
 wordpress  | Success: Installed 1 of 1 plugins.
 wordpress  | install and activate redis successfully
-wordpress  | Overriding wp-config.php ...
-mariadb    | 2026-03-21 13:17:27 9 [Warning] Access denied for user 'mysql_user'@'wordpress.srcs_inception' (using password: YES)
-wordpress  | Error: Error establishing a database connection.
+wordpress  | PHP Fatal error:  Uncaught Error: Call to undefined function token_get_all() in phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php:300
+wordpress  | Stack trace:
+wordpress  | #0 phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php(74): WPConfigTransformer->parse_wp_config()
+wordpress  | #1 phar:///usr/local/bin/wp/vendor/wp-cli/config-command/src/Config_Command.php(679): WPConfigTransformer->exists()
+wordpress  | #2 [internal function]: Config_Command->set()
+wordpress  | #3 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/CommandFactory.php(100): call_user_func()
+wordpress  | #4 [internal function]: WP_CLI\Dispatcher\CommandFactory::WP_CLI\Dispatcher\{closure}()
+wordpress  | #5 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/Subcommand.php(497): call_user_func()
+wordpress  | #6 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(470): WP_CLI\Dispatcher\Subcommand->invoke()
+wordpress  | #7 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(493): WP_CLI\Runner->run_command()
+wordpress  | #8 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(136): WP_CLI\Runner->run_command_and_exit()
+wordpress  | #9 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(1228): WP_CLI\Runner->do_early_invoke()
+wordpress  | #10 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Bootstrap/LaunchRunner.php(28): WP_CLI\Runner->start()
+wordpress  | #11 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/bootstrap.php(84): WP_CLI\Bootstrap\LaunchRunner->process()
+wordpress  | #12 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/wp-cli.php(35): WP_CLI\bootstrap()
+wordpress  | #13 phar:///usr/local/bin/wp/php/boot-phar.php(20): include('...')
+wordpress  | #14 /usr/local/bin/wp(4): include('...')
+wordpress  | #15 {main}
+wordpress  |   thrown in phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php on line 300
+wordpress  | Failed to set WP_REDIS_HOST
+wordpress  | PHP Fatal error:  Uncaught Error: Call to undefined function token_get_all() in phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php:300
+wordpress  | Stack trace:
+wordpress  | #0 phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php(74): WPConfigTransformer->parse_wp_config()
+wordpress  | #1 phar:///usr/local/bin/wp/vendor/wp-cli/config-command/src/Config_Command.php(679): WPConfigTransformer->exists()
+wordpress  | #2 [internal function]: Config_Command->set()
+wordpress  | #3 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/CommandFactory.php(100): call_user_func()
+wordpress  | #4 [internal function]: WP_CLI\Dispatcher\CommandFactory::WP_CLI\Dispatcher\{closure}()
+wordpress  | #5 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/Subcommand.php(497): call_user_func()
+wordpress  | #6 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(470): WP_CLI\Dispatcher\Subcommand->invoke()
+wordpress  | #7 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(493): WP_CLI\Runner->run_command()
+wordpress  | #8 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(136): WP_CLI\Runner->run_command_and_exit()
+wordpress  | #9 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(1228): WP_CLI\Runner->do_early_invoke()
+wordpress  | #10 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Bootstrap/LaunchRunner.php(28): WP_CLI\Runner->start()
+wordpress  | #11 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/bootstrap.php(84): WP_CLI\Bootstrap\LaunchRunner->process()
+wordpress  | #12 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/wp-cli.php(35): WP_CLI\bootstrap()
+wordpress  | #13 phar:///usr/local/bin/wp/php/boot-phar.php(20): include('...')
+wordpress  | #14 /usr/local/bin/wp(4): include('...')
+wordpress  | #15 {main}
+wordpress  |   thrown in phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php on line 300
+wordpress  | Failed to set WP_REDIS_PORT
+wordpress  | PHP Fatal error:  Uncaught Error: Call to undefined function token_get_all() in phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php:300
+wordpress  | Stack trace:
+wordpress  | #0 phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php(74): WPConfigTransformer->parse_wp_config()
+wordpress  | #1 phar:///usr/local/bin/wp/vendor/wp-cli/config-command/src/Config_Command.php(679): WPConfigTransformer->exists()
+wordpress  | #2 [internal function]: Config_Command->set()
+wordpress  | #3 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/CommandFactory.php(100): call_user_func()
+wordpress  | #4 [internal function]: WP_CLI\Dispatcher\CommandFactory::WP_CLI\Dispatcher\{closure}()
+wordpress  | #5 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/Subcommand.php(497): call_user_func()
+wordpress  | #6 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(470): WP_CLI\Dispatcher\Subcommand->invoke()
+wordpress  | #7 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(493): WP_CLI\Runner->run_command()
+wordpress  | #8 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(136): WP_CLI\Runner->run_command_and_exit()
+wordpress  | #9 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(1228): WP_CLI\Runner->do_early_invoke()
+wordpress  | #10 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Bootstrap/LaunchRunner.php(28): WP_CLI\Runner->start()
+wordpress  | #11 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/bootstrap.php(84): WP_CLI\Bootstrap\LaunchRunner->process()
+wordpress  | #12 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/wp-cli.php(35): WP_CLI\bootstrap()
+wordpress  | #13 phar:///usr/local/bin/wp/php/boot-phar.php(20): include('...')
+wordpress  | #14 /usr/local/bin/wp(4): include('...')
+wordpress  | #15 {main}
+wordpress  |   thrown in phar:///usr/local/bin/wp/vendor/wp-cli/wp-config-transformer/src/WPConfigTransformer.php on line 300
+wordpress  | Failed to set WP_CACHE true
+wordpress  | Predis\Connection\ConnectionException: Connection refused [tcp://127.0.0.1:6379] in /var/www/html/wp-content/plugins/redis-cache/dependencies/predis/predis/src/Connection/AbstractConnection.php:144
+wordpress  | Stack trace:
+wordpress  | #0 /var/www/html/wp-content/plugins/redis-cache/dependencies/predis/predis/src/Connection/StreamConnection.php(130): Predis\Connection\AbstractConnection->onConnectionError()
+wordpress  | #1 /var/www/html/wp-content/plugins/redis-cache/dependencies/predis/predis/src/Connection/StreamConnection.php(175): Predis\Connection\StreamConnection->createStreamSocket()
+wordpress  | #2 /var/www/html/wp-content/plugins/redis-cache/dependencies/predis/predis/src/Connection/StreamConnection.php(89): Predis\Connection\StreamConnection->tcpStreamInitializer()
+wordpress  | #3 /var/www/html/wp-content/plugins/redis-cache/dependencies/predis/predis/src/Connection/AbstractConnection.php(85): Predis\Connection\StreamConnection->createResource()
+wordpress  | #4 /var/www/html/wp-content/plugins/redis-cache/dependencies/predis/predis/src/Connection/StreamConnection.php(255): Predis\Connection\AbstractConnection->connect()
+wordpress  | #5 /var/www/html/wp-content/plugins/redis-cache/dependencies/predis/predis/src/Client.php(231): Predis\Connection\StreamConnection->connect()
+wordpress  | #6 /var/www/html/wp-content/plugins/redis-cache/includes/class-predis.php(132): Predis\Client->connect()
+wordpress  | #7 /var/www/html/wp-content/plugins/redis-cache/includes/class-predis.php(147): Rhubarb\RedisCache\Predis->connect()
+wordpress  | #8 /var/www/html/wp-content/plugins/redis-cache/includes/class-predis.php(197): Rhubarb\RedisCache\Predis->flush()
+wordpress  | #9 /var/www/html/wp-content/plugins/redis-cache/includes/cli/class-commands.php(177): Rhubarb\RedisCache\Predis->flushOrFail()
+wordpress  | #10 /var/www/html/wp-content/plugins/redis-cache/includes/cli/class-commands.php(64): Rhubarb\RedisCache\CLI\Commands->flush_redis()
+wordpress  | #11 [internal function]: Rhubarb\RedisCache\CLI\Commands->enable()
+wordpress  | #12 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/CommandFactory.php(100): call_user_func()
+wordpress  | #13 [internal function]: WP_CLI\Dispatcher\CommandFactory::WP_CLI\Dispatcher\{closure}()
+wordpress  | #14 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Dispatcher/Subcommand.php(497): call_user_func()
+wordpress  | #15 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(470): WP_CLI\Dispatcher\Subcommand->invoke()
+wordpress  | #16 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(493): WP_CLI\Runner->run_command()
+wordpress  | #17 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Runner.php(1295): WP_CLI\Runner->run_command_and_exit()
+wordpress  | #18 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/WP_CLI/Bootstrap/LaunchRunner.php(28): WP_CLI\Runner->start()
+wordpress  | #19 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/bootstrap.php(84): WP_CLI\Bootstrap\LaunchRunner->process()
+wordpress  | #20 phar:///usr/local/bin/wp/vendor/wp-cli/wp-cli/php/wp-cli.php(35): WP_CLI\bootstrap()
+wordpress  | #21 phar:///usr/local/bin/wp/php/boot-phar.php(20): include('...')
+wordpress  | #22 /usr/local/bin/wp(4): include('...')
+wordpress  | #23 {main}
+wordpress  | Error: Object cache could not be enabled. Redis server is unreachable: Connection refused [tcp://127.0.0.1:6379]
 wordpress  | Failed to enable configured redis-cache
 wordpress  | Wordpress successfully installed
 wordpress  | socket set OK
 
 Voila mon init.sh pour wordpress :
+
 
 #!/bin/sh
 
@@ -65,16 +157,17 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --user_pass="${WORDPRESS_USER_PASSWORD}" \
         --allow-root
 
+    # wp config set DB_NAME ${MYSQL_DATABASE}
+    # wp config set DB_USER ${MYSQL_USER}
+    # wp config set DB_PASSWORD ${MYSQL_PASSWORD}
+
+    # cp /tmp/wp-config.php /var/www/html/wp-config.php || echo "Failed to copy wp-config.php"
 
     echo "Activate Redis cache plugin ..."
     wp plugin install redis-cache --activate --allow-root && echo "install and activate redis successfully" || echo "Failed to install and activate redis-cache"
-    # wp config set WP_REDIS_HOST redis --allow-root && echo "set WP_REDIS_HOST successfully" || echo "Failed to set WP_REDIS_HOST"
-    # wp config set WP_REDIS_PORT 6379 --raw --allow-root && echo "set WP_REDIS_PORT to 6379 successfully" || echo "Failed to set WP_REDIS_PORT"
-    # wp config set WP_CACHE true && "set WP_CACHE true successfully" || echo "Failed to set WP_CACHE true"
-
-    echo "Overriding wp-config.php ..."
-    cp /tmp/wp-config.php /var/www/html/wp-config.php || echo "Failed to copy wp-config.php"
-
+    wp config set WP_REDIS_HOST redis --allow-root && echo "set WP_REDIS_HOST successfully" || echo "Failed to set WP_REDIS_HOST"
+    wp config set WP_REDIS_PORT 6379 --raw --allow-root && echo "set WP_REDIS_PORT to 6379 successfully" || echo "Failed to set WP_REDIS_PORT"
+    wp config set WP_CACHE true --raw --allow-root && "set WP_CACHE true successfully" || echo "Failed to set WP_CACHE true"
     wp redis enable --allow-root && echo "redis-cache enabled and configured successfully" || echo "Failed to enable configured redis-cache"
 
     echo "Wordpress successfully installed"
@@ -85,5 +178,6 @@ fi
 sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /etc/php83/php-fpm.d/www.conf && echo "socket set OK" || echo "socket set KO"
 
 exec php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf
+
 
 Je ne comprend pas pourquoi j'ai cette erreur ?
