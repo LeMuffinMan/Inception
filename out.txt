@@ -1,8 +1,20 @@
-➜  Inception git:(main) ✗ curl -k -I https://oelleaum.42.fr/adminer/
-HTTP/1.1 200 OK
-Server: nginx
-Date: Sat, 21 Mar 2026 18:02:44 GMT
-Content-Type: text/html; charset=UTF-8
-Connection: keep-alive
-Host: oelleaum.42.fr
-X-Powered-By: PHP/8.3.29
+FROM alpine:3.21 AS builder
+
+RUN apk add --no-cache wget
+
+RUN wget -O adminer.php https://www.adminer.org/latest.php
+
+FROM alpine:3.21
+
+RUN apk add --no-cache \
+	php \
+	php-mysqli \
+	php-session
+
+WORKDIR /var/www
+
+COPY --from=builder /adminer.php .
+
+EXPOSE 8080
+
+ENTRYPOINT ["php", "-S", "0.0.0.0:8080", "adminer.php"]
