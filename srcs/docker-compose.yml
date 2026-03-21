@@ -88,7 +88,8 @@ services:
     container_name: adminer
     build: ./requirements/bonus/adminer
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080"]
+      test:
+        ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080/adminer.php"]
       interval: 10s
       timeout: 10s
       retries: 3
