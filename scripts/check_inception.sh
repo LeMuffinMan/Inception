@@ -306,6 +306,67 @@ if [ -z $1 ] || [ "$1" == "redis" ]; then
 fi
 
 # =============================================================================
+# ADMINER
+# =============================================================================
+if [ -z $1 ] || [ "$1" == "adminer" ]; then
+    section "Adminer"
+
+    if echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep "Up" > /dev/null \
+    && ! echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep "Restarting" > /dev/null; then
+        check "running" "ok"
+
+        if echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep -q "unhealthy"; then
+            check "healthy" "ko"
+        elif echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep -q "health: starting"; then
+            printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+        else
+            check "healthy" "ok"
+        fi
+
+        # Probe HTTP — Adminer should answer on its internal port
+        ADMINER_PROBE=$(docker exec "$CONTAINER_ADMINER" \
+            wget -qO- http://localhost:8080 2>/dev/null | grep -c "adminer" || echo 0)
+        if [ "$ADMINER_PROBE" -gt 0 ]; then
+            check "probe (HTTP 8080)" "ok"
+        else
+            check "probe (HTTP 8080)" "ko"
+        fi
+
+        # nginx proxy
+        HTTP_CODE=$(curl -k -o /dev/null -s -w "%{http_code}" "https://${DOMAIN}/adminer")
+        if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
+            check "reachable via nginx (/adminer)" "ok" "HTTP $HTTP_CODE"
+        else
+            check "reachable via nginx (/adminer)" "ko" "HTTP $HTTP_CODE"
+        fi
+
+        # Port not exposed on host, only nginx as entrypoint
+        PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" \
+            | grep "$CONTAINER_ADMINER" | awk '{print $2}')
+        if echo "$PORT" | grep -q "0.0.0.0"; then
+            check "port not exposed on host" "ko" "got: $PORT"
+        else
+            check "port not exposed on host" "ok"
+        fi
+
+        # Adminer connection to Mariadb
+        DB_PROBE=$(docker exec "$CONTAINER_ADMINER" \
+            wget -qO- --post-data="auth[driver]=server&auth[server]=${CONTAINER_MARIADB}&auth[username]=root&auth[password]=${MYSQL_ROOT_PASSWORD}&auth[db]=${MYSQL_DATABASE}" \
+            http://localhost:8080 2>/dev/null | grep -c "logout" || echo 0)
+        if [ "$DB_PROBE" -gt 0 ]; then
+            check "connects to MariaDB" "ok"
+        else
+            check "connects to MariaDB" "ko" "check credentials or network"
+        fi
+
+    else
+        for label in "running" "healthy" "probe" "reachable via nginx" "port not exposed" "connects to MariaDB"; do
+            check "$label" "ko"
+        done
+    fi
+fi
+
+# =============================================================================
 # PROJECT INTEGRITY
 # =============================================================================
 if [ -z $1 ] || [ "$1" == "integrity" ]; then
