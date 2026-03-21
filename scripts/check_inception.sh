@@ -325,7 +325,8 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
 
         # Probe HTTP — Adminer should answer on its internal port
         ADMINER_PROBE=$(docker exec "$CONTAINER_ADMINER" \
-            wget -qO- http://localhost:8080 2>/dev/null | grep -c "adminer" || echo 0)
+            wget --spider http://127.0.0.1:8080/adminer.php 2>&1 | grep -c "remote file exists" || echo 0)
+        echo "ADMINER_PROBE = $ADMINER_PROBE"
         if [ "$ADMINER_PROBE" -gt 0 ]; then
             check "probe (HTTP 8080)" "ok"
         else
@@ -333,7 +334,7 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
         fi
 
         # nginx proxy
-        HTTP_CODE=$(curl -k -o /dev/null -s -w "%{http_code}" "https://${DOMAIN}/adminer")
+        HTTP_CODE=$(curl -k -L -o /dev/null -s -w "%{http_code}" "https://${DOMAIN}/adminer/")
         if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
             check "reachable via nginx (/adminer)" "ok" "HTTP $HTTP_CODE"
         else
@@ -352,7 +353,7 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
         # Adminer connection to Mariadb
         DB_PROBE=$(docker exec "$CONTAINER_ADMINER" \
             wget -qO- --post-data="auth[driver]=server&auth[server]=${CONTAINER_MARIADB}&auth[username]=root&auth[password]=${MYSQL_ROOT_PASSWORD}&auth[db]=${MYSQL_DATABASE}" \
-            http://localhost:8080 2>/dev/null | grep -c "logout" || echo 0)
+            http://127.0.0.1:8080 2>/dev/null | grep -c "logout" || echo 0)
         if [ "$DB_PROBE" -gt 0 ]; then
             check "connects to MariaDB" "ok"
         else
