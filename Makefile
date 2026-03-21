@@ -5,7 +5,7 @@ CRASH_SCRIPT=scripts/crash_test.sh
 VOLUME_SCRIPT=scripts/volumes_check.sh
 SECRET_GEN_SCRIPT=scripts/generate_secrets.sh
 
-all: up #check
+all: up check
 
 up:
 	$(SECRET_GEN_SCRIPT)
@@ -43,7 +43,7 @@ fclean: clean
 re:  fclean up check
 
 check:
-	$(CHECK_SCRIPT)
+	$(CHECK_SCRIPT) $(or $(ARGS),)
 
 logs:
 	$(COMPOSE) logs -f
