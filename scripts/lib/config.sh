@@ -45,11 +45,10 @@ CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX"
 # its in the folder srcs ... these lines are used to grep your volumes, so change it following your setup
 VOLUME_MARIADB="srcs_mariadb_data"
 VOLUME_WORDPRESS="srcs_wordpress_data"
-VOLUME_ADMINER="srcs_adminer_data"
 
 # we need at least two volumes and their persistancy for the mandatory PORT_MARIADB_EXPECTED
 # for the bonus part, we add the adminer volume too
-VOLUMES_TO_CHECK=("mariadb" "wordpress" "adminer")
+VOLUMES_TO_CHECK=("mariadb" "wordpress")
 VOLUME_HOST_PATH_PATTERN="/home/.*/data"
 
 # Theses variables are set to respect the tree example provided in the subject.

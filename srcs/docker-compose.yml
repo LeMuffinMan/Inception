@@ -88,7 +88,7 @@ services:
     container_name: adminer
     build: ./requirements/bonus/adminer
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080"]
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080/"]
       interval: 10s
       timeout: 10s
       retries: 3
@@ -100,10 +100,6 @@ services:
     restart: on-failure
     networks:
       - inception
-    volumes:
-      - type: volume
-        source: adminer_data
-        target: /var/www/adminer
 
 networks:
   inception:
@@ -122,12 +118,6 @@ volumes:
       type: none
       o: bind
       device: ~/data/mysql
-  adminer_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ~/data/adminer
 
 secrets:
   db_password:
