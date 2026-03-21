@@ -326,7 +326,6 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
         # Probe HTTP — Adminer should answer on its internal port
         ADMINER_PROBE=$(docker exec "$CONTAINER_ADMINER" \
             wget --spider http://127.0.0.1:8080/adminer.php 2>&1 | grep -c "remote file exists" || echo 0)
-        echo "ADMINER_PROBE = $ADMINER_PROBE"
         if [ "$ADMINER_PROBE" -gt 0 ]; then
             check "probe (HTTP 8080)" "ok"
         else
@@ -351,8 +350,8 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
         fi
 
         # Adminer connection to Mariadb
-    DB_PROBE=$(docker exec "$CONTAINER_ADMINER" \
-    wget -qO- --timeout=3 "http://${CONTAINER_MARIADB}:3306" 2>&1 | grep -c ".")
+        DB_PROBE=$(docker exec "$CONTAINER_ADMINER" \
+        wget -qO- --timeout=3 "http://${CONTAINER_MARIADB}:3306" 2>&1 | grep -c ".")
         if [ "$DB_PROBE" -gt 0 ]; then
             check "connects to MariaDB" "ok"
         else
