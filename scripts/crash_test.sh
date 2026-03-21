@@ -59,6 +59,52 @@ crash_test() {
     fi
 }
 
+crash_all() {
+    section "Crash All Containers"
+
+    # Récupère tous les PIDs en une passe
+    local PIDS=()
+    local NAMES=()
+    for CONTAINER in "${CONTAINERS_TO_TEST[@]}"; do
+        local PID
+        PID=$(docker inspect --format '{{.State.Pid}}' "$CONTAINER" 2>/dev/null)
+        if [ -n "$PID" ] && [ "$PID" != "0" ]; then
+            PIDS+=("$PID")
+            NAMES+=("$CONTAINER")
+        else
+            check "$CONTAINER → pid found" "ko"
+        fi
+    done
+
+    # Kill tout en même temps
+    echo -e "  ${GRAY}→ sudo kill -9 ${PIDS[*]}${NC}"
+    sudo kill -9 "${PIDS[@]}" 2>/dev/null
+    check "all containers → crash triggered" "ok" "${#PIDS[@]} processes killed"
+
+    sleep 1
+
+    # Vérifie que tout est revenu
+    for CONTAINER in "${NAMES[@]}"; do
+        local attempts=0
+        while [ $attempts -lt $RESTART_TIMEOUT ]; do
+            CONTAINERS=$($COMPOSE ps)
+            if echo "$CONTAINERS" | grep "$CONTAINER" | grep -q "healthy"; then
+                break
+            fi
+            sleep 1
+            (( attempts++ ))
+        done
+
+        if echo "$CONTAINERS" | grep "$CONTAINER" | grep -q "healthy"; then
+            check "$CONTAINER → restarted & healthy" "ok" "after ${attempts}s"
+        else
+            check "$CONTAINER → restarted & healthy" "ko" "timed out after ${RESTART_TIMEOUT}s"
+        fi
+    done
+}
+
 for CONTAINER in "${CONTAINERS_TO_TEST[@]}"; do
     crash_test "$CONTAINER"
 done
+
+crash_all
