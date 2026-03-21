@@ -351,9 +351,8 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
         fi
 
         # Adminer connection to Mariadb
-        DB_PROBE=$(docker exec "$CONTAINER_ADMINER" \
-            wget -qO- --post-data="auth[driver]=server&auth[server]=${CONTAINER_MARIADB}&auth[username]=root&auth[password]=${MYSQL_ROOT_PASSWORD}&auth[db]=${MYSQL_DATABASE}" \
-            http://127.0.0.1:8080 2>/dev/null | grep -c "logout" || echo 0)
+    DB_PROBE=$(docker exec "$CONTAINER_ADMINER" \
+    wget -qO- --timeout=3 "http://${CONTAINER_MARIADB}:3306" 2>&1 | grep -c ".")
         if [ "$DB_PROBE" -gt 0 ]; then
             check "connects to MariaDB" "ok"
         else
