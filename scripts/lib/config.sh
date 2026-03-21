@@ -17,17 +17,17 @@ DOMAIN="${LOGIN}.42.fr"
 # this variable is used for the automatic secrets generation, using openssl or /dev/urandom as fallback
 SECRET_LENGTH=32
 
+# wordpress taking usually arround 20 secs to start, choosing a lower timeout length
+# could invalid some tests
+WAIT_TIMEOUT=45
+RESTART_TIMEOUT=45
+
 # to customize your own mariadb/wordpress setup, edit theses variables
 DEFAULT_MYSQL_USER="mysql_user"
 DEFAULT_WP_ADMIN_USER="wp_su_${LOGIN}"
 DEFAULT_WP_USER="wp_user_${LOGIN}"
 DEFAULT_ADMIN_EMAIL="su@${LOGIN}.42.fr"
 DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
-
-# wordpress taking usually arround 20 secs to start, choosing a lower timeout length
-# could invalid some tests
-WAIT_TIMEOUT=45
-RESTART_TIMEOUT=45
 
 #Each service must have his container, named as the service
 # Feel free to add a new service, adding a new CONTAINER variablem and add it in the variable
@@ -39,11 +39,18 @@ CONTAINER_REDIS="redis"
 CONTAINER_ADMINER="adminer"
 # CONTAINER_YOUR_SERVICE="your_service"
 # ADD in this array your new container to integrate it as a container to wait or to crash test
-CONTAINERS_TO_TEST=("$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_WORDPRESS" "$CONTAINER_ADMINER" "$CONTAINER_REDIS")
+CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_ADMINER")
 
-# Name your volumes as you wish
+# by default, because of the subject requirements, your volumes named <service>_data will be prefixed with srcs_ because
+# its in the folder srcs ... these lines are used to grep your volumes, so change it following your setup
 VOLUME_MARIADB="srcs_mariadb_data"
 VOLUME_WORDPRESS="srcs_wordpress_data"
+VOLUME_ADMINER="srcs_adminer_data"
+
+# we need at least two volumes and their persistancy for the mandatory PORT_MARIADB_EXPECTED
+# for the bonus part, we add the adminer volume too
+VOLUMES_TO_CHECK=("mariadb" "wordpress" "adminer")
+VOLUME_HOST_PATH_PATTERN="/home/.*/data"
 
 # Theses variables are set to respect the tree example provided in the subject.
 ROOT_DIR="$(dirname "$0")/.."
@@ -52,9 +59,6 @@ ENV_FILE="${ROOT_DIR}/srcs/.env"
 SECRETS_DIR="${ROOT_DIR}/secrets"
 DB_SECRET_FILE="${SECRETS_DIR}/db_root_password.txt"
 
-# we need at least two volumes and their persistancy
-VOLUMES_TO_CHECK=("mariadb" "wordpress")
-VOLUME_HOST_PATH_PATTERN="/home/.*/data"
 
 # These variables fits subject requirements :
 # only one entrypoint to our network: nginx through port 443

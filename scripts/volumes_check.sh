@@ -43,8 +43,9 @@ done
 
 section "Persistence Test"
 
-echo -e "  ${GRAY}→ Running: docker compose down ...${NC}"
-$COMPOSE down > /dev/null 2>&1
+echo -e "  ${GRAY}→ Running: docker compose down ..."
+$COMPOSE down > /dev/null
+echo -e "${NC}"
 
 RUNNING=$($COMPOSE ps -q | wc -l)
 if [ "$RUNNING" -eq 0 ]; then
@@ -67,8 +68,9 @@ done
 
 section "Restart & Healthcheck"
 
-echo -e "  ${GRAY}→ Running: docker compose up -d --build --no-recreate ...${NC}"
-$COMPOSE up -d --build --no-recreate > /dev/null 2>&1
+echo -e "  ${GRAY}→ Running: docker compose up -d --build --no-recreate ..."
+$COMPOSE up -d --build --no-recreate
+echo -e "${NC}"
 
 if [ $? -eq 0 ]; then
     check "containers restarted" "ok"

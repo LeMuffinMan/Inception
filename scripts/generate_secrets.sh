@@ -176,7 +176,7 @@ else
     else
         check "$ENV_FILE" "ok" "patched: ${patched[*]}"
     fi
-    if ! chmod 600 "${SECRETS_DIR}/${ENV_FILE}"; then
+    if ! chmod 600 "srcs/${ENV_FILE}"; then
         echo "Failed to chmod 600 ${ENV_FILE}"
     fi
 fi

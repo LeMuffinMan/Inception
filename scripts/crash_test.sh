@@ -62,7 +62,6 @@ crash_test() {
 crash_all() {
     section "Crash All Containers"
 
-    # Récupère tous les PIDs en une passe
     local PIDS=()
     local NAMES=()
     for CONTAINER in "${CONTAINERS_TO_TEST[@]}"; do
@@ -76,14 +75,12 @@ crash_all() {
         fi
     done
 
-    # Kill tout en même temps
     echo -e "  ${GRAY}→ sudo kill -9 ${PIDS[*]}${NC}"
     sudo kill -9 "${PIDS[@]}" 2>/dev/null
     check "all containers → crash triggered" "ok" "${#PIDS[@]} processes killed"
 
     sleep 1
 
-    # Vérifie que tout est revenu
     for CONTAINER in "${NAMES[@]}"; do
         local attempts=0
         while [ $attempts -lt $RESTART_TIMEOUT ]; do
