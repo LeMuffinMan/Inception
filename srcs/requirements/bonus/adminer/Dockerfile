@@ -1,14 +1,20 @@
-FROM alpine:3.22.3
+FROM alpine:3.21 AS builder
+
+RUN apk add --no-cache wget
+
+RUN wget -O adminer.php https://www.adminer.org/latest.php
+
+FROM alpine:3.21
 
 RUN apk add --no-cache \
-    curl \
-    php83 \
-    php83-mysqli \
-    php83-session
+	php \
+	php-mysqli \
+	php-session
 
-COPY tools/init.sh /usr/local/bin/init.sh
-RUN chmod +x /usr/local/bin/init.sh
+WORKDIR /var/www
+
+COPY --from=builder /adminer.php .
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/usr/local/bin/init.sh" ]
+ENTRYPOINT ["php", "-S", "0.0.0.0:8080", "adminer.php"]
