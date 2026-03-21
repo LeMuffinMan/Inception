@@ -38,7 +38,8 @@ CONTAINER_WORDPRESS="wordpress"
 CONTAINER_REDIS="redis"
 CONTAINER_ADMINER="adminer"
 # CONTAINER_YOUR_SERVICE="your_service"
-CONTAINERS_TO_TEST=("$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_WORDPRESS" "$CONTAINER_ADMINER")
+# ADD in this array your new container to integrate it as a container to wait or to crash test
+CONTAINERS_TO_TEST=("$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_WORDPRESS" "$CONTAINER_ADMINER" "$CONTAINER_REDIS")
 
 # Name your volumes as you wish
 VOLUME_MARIADB="srcs_mariadb_data"
