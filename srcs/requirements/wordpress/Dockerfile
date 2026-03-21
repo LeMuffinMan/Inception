@@ -9,6 +9,7 @@ RUN apk add --no-cache \
     mariadb-client \
     redis \
     php83-fpm \
+    php83-tokenizer \
     php83-mysqli \
     php83-xml \
     php83-mbstring \
@@ -35,7 +36,7 @@ RUN mkdir -p /var/www/html
 COPY tools/init.sh /usr/local/bin/init.sh
 RUN chmod +x /usr/local/bin/init.sh
 
-COPY conf/wp-config.php /tmp/wp-config.php
+# COPY conf/wp-config.php /tmp/wp-config.php
 
 EXPOSE 9000
 
