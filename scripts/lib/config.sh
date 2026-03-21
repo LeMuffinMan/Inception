@@ -28,6 +28,7 @@ DEFAULT_WP_ADMIN_USER="wp_su_${LOGIN}"
 DEFAULT_WP_USER="wp_user_${LOGIN}"
 DEFAULT_ADMIN_EMAIL="su@${LOGIN}.42.fr"
 DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
+DEFAULT_FTP_USER="ftp_user"
 
 #Each service must have his container, named as the service
 # Feel free to add a new service, adding a new CONTAINER variablem and add it in the variable
@@ -37,9 +38,10 @@ CONTAINER_NGINX="nginx"
 CONTAINER_WORDPRESS="wordpress"
 CONTAINER_REDIS="redis"
 CONTAINER_ADMINER="adminer"
+CONTAINER_FTP="vsftp"
 # CONTAINER_YOUR_SERVICE="your_service"
 # ADD in this array your new container to integrate it as a container to wait or to crash test
-CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_ADMINER")
+CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_ADMINER" "$CONTAINER_FTP")
 
 # by default, because of the subject requirements, your volumes named <service>_data will be prefixed with srcs_ because
 # its in the folder srcs ... these lines are used to grep your volumes, so change it following your setup
@@ -57,7 +59,6 @@ COMPOSE_FILE="${ROOT_DIR}/srcs/docker-compose.yml"
 ENV_FILE="${ROOT_DIR}/srcs/.env"
 SECRETS_DIR="${ROOT_DIR}/secrets"
 DB_SECRET_FILE="${SECRETS_DIR}/db_root_password.txt"
-
 
 # These variables fits subject requirements :
 # only one entrypoint to our network: nginx through port 443

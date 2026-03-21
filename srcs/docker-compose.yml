@@ -101,6 +101,22 @@ services:
     networks:
       - inception
 
+  ftp:
+    container_name: vsftpd
+    build: ./requirements/bonus/vsftpd
+    ports:
+      - "21:21"
+      - "21100-21100:21110-21110"
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
+    depends_on:
+      wordpress:
+        condition: service_healthy
+        restart: true
+    restart: on-failure
+
 networks:
   inception:
     driver: bridge

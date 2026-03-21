@@ -87,7 +87,7 @@ section "Generating Secrets"
 
 # --- Random secrets -----------------------------------------------------------
 
-for FILE in db_password.txt db_root_password.txt wp_admin_password.txt wp_user_password.txt; do
+for FILE in db_password.txt db_root_password.txt wp_admin_password.txt wp_user_password.txt ftp_pass.txt; do
     if [ ! -s "${SECRETS_DIR}/${FILE}" ]; then
         write_secret "$FILE" "$(generate_secret $SECRET_LENGTH)"
     else
@@ -121,6 +121,7 @@ declare -A STATIC_SECRETS=(
     ["wp_user.txt"]="$DEFAULT_WP_USER"
     ["mysql_admin_email.txt"]="$DEFAULT_ADMIN_EMAIL"
     ["mysql_user_email.txt"]="$DEFAULT_USER_EMAIL"
+    ["ftp_user.txt"]="$DEFAULT_FTP_USER"
 )
 
 for FILE in "${!STATIC_SECRETS[@]}"; do
