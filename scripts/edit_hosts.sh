@@ -1,36 +1,65 @@
-#!/bin/sh
+#!/usr/bin/env bash
+# Usage: sudo ./edit_hosts.sh <hostname>
+# Example: sudo ./edit_hosts.sh myserver.local
+
+set -euo pipefail
 
 HOSTS_FILE="/etc/hosts"
-BACKUP_FILE="/etc/hosts.bak"
+HOST="${1:-}"
 
-if [ ! -f "$BACKUP_FILE" ]; then
-  sudo cp "$HOSTS_FILE" "$BACKUP_FILE"
+# --- Argument validation ---
+if [[ -z "$HOST" ]]; then
+    echo "Error: no hostname provided." >&2
+    echo "Usage: sudo $0 <hostname>" >&2
+    exit 1
 fi
 
-#Since /etc/hosts is sensitive file, we want to edit it securly, using a tmp:
-# - if our script crash, /etc/hosts is not edited
-# - in any case, we created a backup to undo manualy
-tmp=$(mktemp)
+# Allow only valid hostname characters (RFC 1123 + dots)
+if [[ ! "$HOST" =~ ^[a-zA-Z0-9]([a-zA-Z0-9._-]{0,252}[a-zA-Z0-9])?$ ]]; then
+    echo "Error: invalid hostname '${HOST}'." >&2
+    exit 1
+fi
 
-awk '
-# Décommente exactement la ligne voulue
-$0 == "127.0.0.1\tlocalhost" {
-    print "#127.0.0.1\tlocalhost"
-    next
-}
+# --- Hosts file checks ---
+if [[ ! -e "$HOSTS_FILE" ]]; then
+    echo "Error: '${HOSTS_FILE}' does not exist." >&2
+    exit 1
+fi
 
-# Supprime toutes les autres lignes en 127.0.0.1
-$0 ~ /^127\.0\.0\.1/ {
-    print "127.0.0.1\t$DOMAIN"
-    next
-}
+if [[ ! -f "$HOSTS_FILE" ]]; then
+    echo "Error: '${HOSTS_FILE}' is not a regular file." >&2
+    exit 1
+fi
 
-# Garde le reste
-{
-    print
-}
-' "$HOSTS_FILE" > "$tmp"
+if [[ ! -r "$HOSTS_FILE" || ! -w "$HOSTS_FILE" ]]; then
+    echo "Error: insufficient permissions on '${HOSTS_FILE}'. Try running with sudo." >&2
+    exit 1
+fi
 
-# doing so, we do an atomic replacement : the file is replaced in one operation, not open and edit char by char
-# it prevent corruption risk for such sensitive file
-sudo mv "$tmp" "$HOSTS_FILE"
+# --- Backup ---
+BACKUP="${HOSTS_FILE}.bak.$(date +%Y%m%d%H%M%S)"
+cp --preserve=mode,ownership "$HOSTS_FILE" "$BACKUP"
+echo "Backup created: ${BACKUP}"
+
+# --- Atomic edit via temp file ---
+TMPFILE=$(mktemp)
+trap 'rm -f "$TMPFILE"' EXIT
+
+# Comment out all active 127.0.0.1 lines (tab or space as separator)
+sed -E 's|^(127\.0\.0\.1[[:blank:]]+.*)$|#\1|' "$HOSTS_FILE" > "$TMPFILE"
+
+# Check if any active 127.0.0.1 entry remains
+if ! grep -qE '^127\.0\.0\.1[[:blank:]]' "$TMPFILE"; then
+    # Prepend the new entry at the top of the file
+    { echo -e "127.0.0.1\t${HOST}"; cat "$TMPFILE"; } > "${TMPFILE}.new"
+    mv "${TMPFILE}.new" "$TMPFILE"
+    echo "No active 127.0.0.1 entry found — added '127.0.0.1 ${HOST}' at the top."
+else
+    echo "Active 127.0.0.1 entries still present, nothing was added."
+fi
+
+# Atomically replace the hosts file
+cp --preserve=mode,ownership "$TMPFILE" "$HOSTS_FILE"
+
+echo "Done. Current state of ${HOSTS_FILE}:"
+cat -n "$HOSTS_FILE"
