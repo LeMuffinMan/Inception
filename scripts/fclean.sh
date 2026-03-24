@@ -29,5 +29,5 @@ docker compose -f "$COMPOSE_FILE"  down --rmi all
 # rm -rf srcs/.env
 
 echo -e "${YELLOW}Editing /etc/hosts ..."
-sed -i 's/^127.0.0.1//g' /etc/hosts
-sed -i 's/^#127.0.0.1/127.0.0.1\tlocalhost/g' /etc/hosts
+sed -i 's/^#\(127\.0\.0\.1\s*localhost\)/\1/' /etc/hosts
+sed -i 's/^127\.0\.0\.1\s\+.*/127.0.0.1\tlocalhost/' /etc/hosts
