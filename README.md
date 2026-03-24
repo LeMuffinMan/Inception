@@ -2,6 +2,8 @@
 
 # Inception
 
+optimisations done 
+
 ## Description
 
 Inception is a system administration / DevOps project that introduces Docker-based infrastructure management. The goal is to set up a small but complete web stack composed of multiple services, each running in its own dedicated container, orchestrated via Docker Compose inside a virtual machine.

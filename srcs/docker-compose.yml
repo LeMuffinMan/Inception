@@ -107,9 +107,6 @@ services:
     secrets:
       - ftp_user
       - ftp_pass
-    # ports:
-    # - "21:21"
-    # - "21100-21100:21110-21110"
     volumes:
       - wordpress_data:/var/www/html
     networks:
@@ -118,6 +115,21 @@ services:
       wordpress:
         condition: service_healthy
         restart: true
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "lftp",
+          "-u",
+          "user,password",
+          "-e",
+          "quit",
+          "ftps://localhost || exit 1",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
     restart: on-failure
 
 networks:
