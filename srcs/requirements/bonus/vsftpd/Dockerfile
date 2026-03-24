@@ -1,13 +1,13 @@
 FROM alpine:3.22.3
 
-RUN apk add --no-cache vsftpd \
-    openssl \
-    bash
-
+COPY tools/init.sh /usr/local/bin/init.sh
 # COPY conf/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
-COPY tools/init.sh /usr/local/bin/init.sh
-RUN chmod +x /usr/local/bin/init.sh
+RUN apk add --no-cache vsftpd \
+        openssl \
+        bash \
+    && rm -rf /tmp/* /var/cache/apk/* \
+    && chmod +x /usr/local/bin/init.sh
 
 EXPOSE 21 21100-21110
 

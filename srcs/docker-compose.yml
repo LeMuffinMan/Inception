@@ -2,6 +2,8 @@ services:
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
+    environment:
+      WORDPRESS_REDIS_HOST: redis
     secrets:
       - db_password
       - mysql_user
@@ -80,6 +82,18 @@ services:
   redis:
     container_name: redis
     build: ./requirements/bonus/redis
+    # fix 1:C 24 Mar 2026 17:12:02.252 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+    # net.core.somaxconn : change queue size for accpet() up to 511 instead of default lower value
+    # sysctl:
+    #   - vm.overcommit_memory=1
+    #   - net.core.somaxconn=511
+    healthcheck:
+      test: ["CMD", "redis-cli ping || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+      start_interval: 20s
     restart: on-failure
     networks:
       - inception
