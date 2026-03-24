@@ -87,7 +87,8 @@ section "Generating Secrets"
 
 # --- Random secrets -----------------------------------------------------------
 
-for FILE in db_password.txt db_root_password.txt wp_admin_password.txt wp_user_password.txt ftp_pass.txt; do
+for FILE in "${CREDENTIALS_FILES[@]}"; do
+    echo "FILE = $FILE"
     if [ ! -s "${SECRETS_DIR}/${FILE}" ]; then
         write_secret "$FILE" "$(generate_secret $SECRET_LENGTH)"
     else
@@ -115,18 +116,10 @@ section "Writing Credentials"
 # for val in "${STATIC_SECRETS[@]}"; do
 #     echo "$val"
 # done
-declare -A STATIC_SECRETS=(
-    ["mysql_user.txt"]="$DEFAULT_MYSQL_USER"
-    ["wp_admin_user.txt"]="$DEFAULT_WP_ADMIN_USER"
-    ["wp_user.txt"]="$DEFAULT_WP_USER"
-    ["mysql_admin_email.txt"]="$DEFAULT_ADMIN_EMAIL"
-    ["mysql_user_email.txt"]="$DEFAULT_USER_EMAIL"
-    ["ftp_user.txt"]="$DEFAULT_FTP_USER"
-)
 
-for FILE in "${!STATIC_SECRETS[@]}"; do
+for FILE in "${CREDENTIALS_FILES[@]}"; do
     if [ ! -s "${SECRETS_DIR}/${FILE}" ]; then
-        write_secret "$FILE" "${STATIC_SECRETS[$FILE]}"
+        write_secret "$FILE" "$(generate_secret $SECRET_LENGTH)"
     else
         skip "$FILE"
     fi
@@ -185,15 +178,37 @@ fi
 # --- /etc/hosts ---------------------------------------------------------------
 section "Hosts"
 # If /etc/hosts is not setup to redirect localhost to <login>.42.fr, we update it automaticaly
-HOSTS_FILE="/etc/hosts"
-HOSTS_ENTRY="127.0.0.1	${USER}.42.fr"
 
-if grep -q "^127\.0\.0\.1 ${USER}\.42\.fr$" "$HOSTS_FILE"; then
-    check "$HOSTS_FILE" "ok"
-elif grep -q "^127\.0\.0\.1" "$HOSTS_FILE"; then
-    sudo sed -i "s|^127\.0\.0\.1.*|${HOSTS_ENTRY}|" "$HOSTS_FILE"
-    check "$HOSTS_FILE" "ok" "updated → ${HOSTS_ENTRY}"
-else
-    echo "$HOSTS_ENTRY" | sudo tee -a "$HOSTS_FILE" > /dev/null
-    check "$HOSTS_FILE" "ok" "added → ${HOSTS_ENTRY}"
+HOSTS_FILE="/etc/hosts"
+BACKUP_FILE="/etc/hosts.bak"
+
+if [ ! -f "$BACKUP_FILE" ]; then
+  cp "$HOSTS_FILE" "$BACKUP_FILE"
 fi
+
+#Since /etc/hosts is sensitive file, we want to edit it securly, using a tmp:
+# - if our script crash, /etc/hosts is not edited
+# - in any case, we created a backup to undo manualy
+tmp=$(mktemp)
+
+awk '
+# Décommente exactement la ligne voulue
+$0 == "#127.0.0.1\tlocalhost" {
+    print "127.0.0.1\tlocalhost"
+    next
+}
+
+# Supprime toutes les autres lignes en 127.0.0.1
+$0 ~ /^127\.0\.0\.1/ {
+    next
+}
+
+# Garde le reste
+{
+    print
+}
+' "$HOSTS_FILE" > "$tmp"
+
+# doing so, we do an atomic replacement : the file is replaced in one operation, not open and edit char by char
+# it prevent corruption risk for such sensitive file
+sudo mv "$tmp" "$HOSTS_FILE"

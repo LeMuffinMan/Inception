@@ -22,13 +22,16 @@ SECRET_LENGTH=32
 WAIT_TIMEOUT=45
 RESTART_TIMEOUT=45
 
+#Add in this array all credentials files you need to generate. It will be randomly generated to prevent leaking secrets
+CREDENTIALS_FILES=("ftp_user.txt" "wp_user.txt" "wp_admin_user.txt" "mysql_user_email.txt" "mysql_user.txt" "mysql_admin_email.txt" "db_password.txt" "db_root_password.txt" "wp_admin_password.txt" "wp_user_password.txt" "ftp_pass.txt")
+
 # to customize your own mariadb/wordpress setup, edit theses variables
-DEFAULT_MYSQL_USER="mysql_user"
-DEFAULT_WP_ADMIN_USER="wp_su_${LOGIN}"
-DEFAULT_WP_USER="wp_user_${LOGIN}"
-DEFAULT_ADMIN_EMAIL="su@${LOGIN}.42.fr"
-DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
-DEFAULT_FTP_USER="ftp_user"
+# DEFAULT_MYSQL_USER="mysql_user"
+# DEFAULT_WP_ADMIN_USER="wp_su_${LOGIN}"
+# DEFAULT_WP_USER="wp_user_${LOGIN}"
+# DEFAULT_ADMIN_EMAIL="su@${LOGIN}.42.fr"
+# DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
+# DEFAULT_FTP_USER="ftp_user"
 
 #Each service must have his container, named as the service
 # Feel free to add a new service, adding a new CONTAINER variablem and add it in the variable

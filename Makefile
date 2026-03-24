@@ -39,8 +39,8 @@ fclean: clean
 	docker builder prune -f > /dev/null
 	@echo "Removing images ..."
 	$(COMPOSE) down --rmi all
-	rm -rf secrets
-	rm -rf srcs/.env
+	# rm -rf secrets
+	# rm -rf srcs/.env
 
 re:  fclean up check
 

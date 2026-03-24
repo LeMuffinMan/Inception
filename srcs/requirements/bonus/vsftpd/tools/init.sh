@@ -6,13 +6,15 @@ FTP_USER=$(cat /run/secrets/ftp_user)
 FTP_PASS=$(cat /run/secrets/ftp_pass)
 
 if ! id $FTP_USER  > /dev/null; then
-    useradd -m -d "$FTP_USER" || echo "Failed to create $FTP_USER"
-    echo "$FTP_USER:$FTP_PASS" | chpasswd
+    echo "Setting FTP_USER ..."
+    adduser -D -h "/home/$FTP_USER" "$FTP_USER"
+    echo "$FTP_USER:$FTP_PASSWORD" | chpasswd
+else
+    echo "vsftpd is alrady configured"
 fi
 
-mkdir -p /var/www/html
+mkdir -p /var/run/vsftpd/empty
 #chown le repertoire ?
 
-mkdir -p /var/run/vsftpd/empty
-
-exec vsftpd /etc/vsftpd.conf
+echo "Starting vsftpd ..."
+exec vsftpd /etc/vsftd/vsftpd.conf || echo "Failed to start vsftpd"
