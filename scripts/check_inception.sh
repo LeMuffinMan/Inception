@@ -350,9 +350,7 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
         fi
 
         # Adminer connection to Mariadb
-        DB_PROBE=$(docker exec "$CONTAINER_ADMINER" \
-        wget -qO- --timeout=3 "http://${CONTAINER_MARIADB}:3306" 2>&1 | grep -c ".")
-        if [ "$DB_PROBE" -gt 0 ]; then
+        if docker exec "$CONTAINER_ADMINER" nc -z -w3 mariadb 3306; then
             check "connects to MariaDB" "ok"
         else
             check "connects to MariaDB" "ko" "check credentials or network"

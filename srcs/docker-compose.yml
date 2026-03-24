@@ -88,12 +88,11 @@ services:
     #   - vm.overcommit_memory=1
     #   - net.core.somaxconn=511
     healthcheck:
-      test: ["CMD", "redis-cli ping || exit 1"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 3
       start_period: 10s
-      start_interval: 20s
     restart: on-failure
     networks:
       - inception

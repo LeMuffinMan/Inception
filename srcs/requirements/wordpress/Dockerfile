@@ -4,7 +4,7 @@ COPY tools/init.sh /usr/local/bin/init.sh
 # virer les dependances en trop
 RUN apk add --no-cache \
         wget \
-        # mariadb-client \
+        mariadb-client \
         php83-redis \
         php83-fpm \
         php83-tokenizer \
@@ -12,6 +12,7 @@ RUN apk add --no-cache \
         php83-xml \
         php83-mbstring \
         php83-zip \
+        php83-ctype \
         # php83-gd \
         # php83-intl \
         php83-pecl-imagick \
