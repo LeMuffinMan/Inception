@@ -30,4 +30,6 @@ docker compose -f "$COMPOSE_FILE"  down --rmi all
 
 echo -e "${YELLOW}Editing /etc/hosts ..."
 sudo sed -i 's/^#\(127\.0\.0\.1\s*localhost\)/\1/' /etc/hosts
-sudo sed -i 's/^127\.0\.0\.1\s\+.*/127.0.0.1\tlocalhost/' /etc/hosts
+if grep -qP '^127\.0\.0\.1\s+(?!localhost)' /etc/hosts; then
+    sudo sed -i 's/^127\.0\.0\.1\s\+.*/127.0.0.1\tlocalhost/' /etc/hosts
+fi
