@@ -27,21 +27,24 @@ if [[ ! -f "$HOSTS_FILE" ]]; then
     exit 1
 fi
 
-LINE_TO_EDIT=$(grep "^127.0.0.1" /etc/hosts)
-if echo "$LINE_TO_EDIT" | grep -q "$HOST"; then
-    echo "/etc/hosts already edit to redirect localhost to $HOST"
+if grep -qE "^127\.0\.0\.1[[:blank:]]+${HOST}([[:blank:]]|$)" "$HOSTS_FILE"; then
+    echo "/etc/hosts already redirects 127.0.0.1 to ${HOST}"
 else
     BACKUP="${HOSTS_FILE}.bak.$(date +%Y%m%d%H%M%S)"
     cp --preserve=mode,ownership "$HOSTS_FILE" "$BACKUP"
     echo "/etc/hosts backup created: ${BACKUP}"
 
-    # Atomic edit via temp file
     TMPFILE=$(mktemp)
-    #we clean automatically this tmp file in any case, using trap: at end of execution, in case of crash or not, we rm -rf it
-    trap 'rm -f "$TMPFILE"' EXIT
+    trap 'rm -f "$TMPFILE" "${TMPFILE}.new"' EXIT
 
     sed -E 's|^(127\.0\.0\.1[[:blank:]]+.*)$|#\1|' "$HOSTS_FILE" > "$TMPFILE"
 
-    # Atomically replace the hosts file
-    cp --preserve=mode,ownership "$TMPFILE" "$HOSTS_FILE" && echo "/etc/hosts successfully updated with 127.0.0.1 $HOST" || echo "Failed to edit /etc/hosts to redirect on $HOST"
+    { printf '127.0.0.1\t%s\n' "$HOST"; cat "$TMPFILE"; } > "${TMPFILE}.new"
+
+    if cp --preserve=mode,ownership "${TMPFILE}.new" "$HOSTS_FILE"; then
+        echo "/etc/hosts successfully updated: 127.0.0.1 ${HOST}"
+    else
+        echo "Error: failed to update /etc/hosts." >&2
+        exit 1
+    fi
 fi
