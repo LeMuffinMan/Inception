@@ -169,6 +169,12 @@ REDIS
 https://github.com/rhubarbgroup/redis-cache/blob/develop/INSTALL.md
 DOCKERDOCS
 
+VSFTPD SSL :
+https://www.linuxtricks.fr/wiki/vsftpd-le-fichier-de-configuration-vsftpd-conf
+
+MEMO :
+docker run --rm -it srcs-ftp:latest ash "vsftd /etc/vsftpd/vsftpd.conf; echo $?"
+
 ### AI Usage
  
 AI was used as a productivity tool for specific, well-defined tasks.

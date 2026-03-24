@@ -100,7 +100,7 @@ done
 
 # --- Static credentials -------------------------------------------------------
 
-section "Writing Credentials"
+# section "Writing Credentials"
 
 # declare -A STATIC_SECRETS : declaring a dict, pairing variable name and their content
 # it allows such access:
@@ -116,16 +116,16 @@ section "Writing Credentials"
 #     echo "$val"
 # done
 
-for FILE in "${CREDENTIALS_FILES[@]}"; do
-    if [ ! -s "${SECRETS_DIR}/${FILE}" ]; then
-        write_secret "$FILE" "$(generate_secret $SECRET_LENGTH)"
-    else
-        skip "$FILE"
-    fi
-    if ! chmod 600 "${SECRETS_DIR}/${FILE}"; then
-        echo "Failed to chmod 600 ${FILE}"
-    fi
-done
+# for FILE in "${CREDENTIALS_FILES[@]}"; do
+#     if [ ! -s "${SECRETS_DIR}/${FILE}" ]; then
+#         write_secret "$FILE" "$(generate_secret $SECRET_LENGTH)"
+#     else
+#         skip "$FILE"
+#     fi
+#     if ! chmod 600 "${SECRETS_DIR}/${FILE}"; then
+#         echo "Failed to chmod 600 ${FILE}"
+#     fi
+# done
 
 
 echo
