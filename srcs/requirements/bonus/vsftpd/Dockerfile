@@ -1,7 +1,6 @@
 FROM alpine:3.22.3
 
 COPY tools/init.sh /usr/local/bin/init.sh
-# COPY conf/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
 RUN apk add --no-cache vsftpd \
         openssl \

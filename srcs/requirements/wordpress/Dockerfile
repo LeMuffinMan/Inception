@@ -37,7 +37,7 @@ RUN apk add --no-cache \
 
 EXPOSE 9000
 
-HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --start-interval=20s --retries=3 \
-        CMD php-fpm83 -t || exit 1
+# HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --start-interval=20s --retries=3 \
+#         CMD php-fpm83 -t || exit 1
 
 ENTRYPOINT ["/usr/local/bin/init.sh"]

@@ -15,12 +15,6 @@ services:
       - mysql_user_email
     env_file:
       - .env
-    volumes:
-      - type: volume
-        source: wordpress_data
-        target: /var/www/html
-    networks:
-      - inception
     depends_on:
       mariadb:
         condition: service_healthy
@@ -28,7 +22,18 @@ services:
       redis:
         condition: service_healthy
         restart: true
+    healthcheck:
+      test: ["CMD", "pgrep", "php-fpm83"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: on-failure
+    volumes:
+      - type: volume
+        source: wordpress_data
+        target: /var/www/html
+    networks:
+      - inception
   mariadb:
     secrets:
       - db_password
@@ -36,19 +41,20 @@ services:
       - mysql_user
     container_name: mariadb
     build: ./requirements/mariadb
+    # pas tout lui donner !
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: on-failure
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
       - inception
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: on-failure
   nginx:
     container_name: nginx
     build: ./requirements/nginx
@@ -69,15 +75,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-    volumes:
-      - wordpress_data:/var/www/html
-    networks:
-      - inception
     depends_on:
       wordpress:
         condition: service_healthy
         restart: true
     restart: on-failure
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
 
   redis:
     container_name: redis
@@ -89,7 +95,7 @@ services:
     #   - net.core.somaxconn=511
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 30s
       timeout: 3s
       retries: 3
       start_period: 10s
@@ -102,8 +108,8 @@ services:
     build: ./requirements/bonus/adminer
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080/"]
-      interval: 10s
-      timeout: 10s
+      interval: 30s
+      timeout: 3s
       retries: 3
       start_period: 10s
     depends_on:
@@ -120,10 +126,6 @@ services:
     secrets:
       - ftp_user
       - ftp_pass
-    volumes:
-      - wordpress_data:/var/www/html
-    networks:
-      - inception
     depends_on:
       wordpress:
         condition: service_healthy
@@ -135,6 +137,10 @@ services:
       start_period: 10s
       retries: 3
     restart: on-failure
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
 
 networks:
   inception:
