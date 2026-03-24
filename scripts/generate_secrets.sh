@@ -88,7 +88,6 @@ section "Generating Secrets"
 # --- Random secrets -----------------------------------------------------------
 
 for FILE in "${CREDENTIALS_FILES[@]}"; do
-    echo "FILE = $FILE"
     if [ ! -s "${SECRETS_DIR}/${FILE}" ]; then
         write_secret "$FILE" "$(generate_secret $SECRET_LENGTH)"
     else
@@ -170,45 +169,19 @@ else
     else
         check "$ENV_FILE" "ok" "patched: ${patched[*]}"
     fi
-    if ! chmod 600 "srcs/${ENV_FILE}"; then
+    if ! chmod 600 "${ENV_FILE}"; then
         echo "Failed to chmod 600 ${ENV_FILE}"
     fi
 fi
 
 # --- /etc/hosts ---------------------------------------------------------------
 section "Hosts"
-# If /etc/hosts is not setup to redirect localhost to <login>.42.fr, we update it automaticaly
 
-HOSTS_FILE="/etc/hosts"
-BACKUP_FILE="/etc/hosts.bak"
-
-if [ ! -f "$BACKUP_FILE" ]; then
-  cp "$HOSTS_FILE" "$BACKUP_FILE"
+# If /etc/hosts is not edited to redirect localhost to <login>.42.fr,
+# we update it automaticaly, but it require sudo privileges
+if [[ $EUID -ne 0 ]]; then
+    sudo scripts/edit_hosts.sh
+else
+    echo "You must have sudo privilege to modify /etc/hosts"
+    echo "You can still access your site through localhost only"
 fi
-
-#Since /etc/hosts is sensitive file, we want to edit it securly, using a tmp:
-# - if our script crash, /etc/hosts is not edited
-# - in any case, we created a backup to undo manualy
-tmp=$(mktemp)
-
-awk '
-# Décommente exactement la ligne voulue
-$0 == "#127.0.0.1\tlocalhost" {
-    print "127.0.0.1\tlocalhost"
-    next
-}
-
-# Supprime toutes les autres lignes en 127.0.0.1
-$0 ~ /^127\.0\.0\.1/ {
-    next
-}
-
-# Garde le reste
-{
-    print
-}
-' "$HOSTS_FILE" > "$tmp"
-
-# doing so, we do an atomic replacement : the file is replaced in one operation, not open and edit char by char
-# it prevent corruption risk for such sensitive file
-sudo mv "$tmp" "$HOSTS_FILE"
