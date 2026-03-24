@@ -21,7 +21,7 @@ down:
 	$(COMPOSE) down
 
 clean:
-	@echo "Stoping and deleting all containers ..."
+	@echo "\033[0;33mStoping and deleting all containers ...\033[0m"
 	$(COMPOSE) down -v
 
 fclean: clean
