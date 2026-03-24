@@ -1,7 +1,7 @@
 FROM alpine:3.22.3
 
 COPY tools/init.sh /usr/local/bin/init.sh
-# virer les dependances en trop
+
 RUN apk add --no-cache \
         wget \
         mariadb-client \
@@ -26,18 +26,11 @@ RUN apk add --no-cache \
     chmod +x /usr/local/bin/wp && \
     addgroup -g 82 -S www-data || true && \
     addgroup -u 82 -D -S -G www-data www-data|| true && \
-    # mv wp-cli.phar /usr/local/bin/wp && \
-    # ln -sf /usr/local/bin/php83 /usr/local/bin/php && \
     sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php83/php.ini && \
     mkdir -p /var/www/html && \
     chmod +x /usr/local/bin/init.sh && \
     rm -rf /tmp/* /var/cache/apk/*
 
-# COPY conf/wp-config.php /tmp/wp-config.php
-
 EXPOSE 9000
-
-# HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --start-interval=20s --retries=3 \
-#         CMD php-fpm83 -t || exit 1
 
 ENTRYPOINT ["/usr/local/bin/init.sh"]

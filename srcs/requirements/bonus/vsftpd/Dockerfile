@@ -5,8 +5,8 @@ COPY tools/init.sh /usr/local/bin/init.sh
 RUN apk add --no-cache vsftpd \
         openssl \
         bash \
-    && rm -rf /tmp/* /var/cache/apk/* \
-    && chmod +x /usr/local/bin/init.sh
+    && chmod +x /usr/local/bin/init.sh \
+    && rm -rf /tmp/* /var/cache/apk/*
 
 EXPOSE 21 21100-21110
 
