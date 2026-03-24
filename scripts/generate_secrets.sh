@@ -1,5 +1,16 @@
 #!/bin/bash
 
+if [[ $EUID -eq 0 ]]; then
+    echo "You must have sudo privilege to setup this project, to perform following operations:
+        - Create folders, attribute it to other users, their deletion (make fclean) require sudo
+        - Edit /etc/hosts to redirect 127.0.0.1 to your domain name instead of localhost"
+    exit 1
+fi
+
+# ici verifier la presence du .env et des variables minimales a avoir
+
+# Si pas de .env / pas de secrets, afficher une liste des fichiers qui seront generes et demander confirmation
+
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
@@ -177,11 +188,4 @@ fi
 # --- /etc/hosts ---------------------------------------------------------------
 section "Hosts"
 
-# If /etc/hosts is not edited to redirect localhost to <login>.42.fr,
-# we update it automaticaly, but it require sudo privileges
-if [[ $EUID -ne 0 ]]; then
-    sudo scripts/edit_hosts.sh "$DOMAIN"
-else
-    echo "You must have sudo privilege to modify /etc/hosts"
-    echo "You can still access your site through localhost only"
-fi
+sudo scripts/edit_hosts.sh "$DOMAIN"

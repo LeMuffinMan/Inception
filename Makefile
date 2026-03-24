@@ -4,6 +4,7 @@ CHECK_SCRIPT=scripts/check_inception.sh
 CRASH_SCRIPT=scripts/crash_test.sh
 VOLUME_SCRIPT=scripts/volumes_check.sh
 SECRET_GEN_SCRIPT=scripts/generate_secrets.sh
+CLEAN_SCRIPT=scripts/fclean.sh
 
 all: up check
 
@@ -20,26 +21,11 @@ down:
 	$(COMPOSE) down
 
 clean:
-	@echo "Cleaning containers and volumes ..."
+	@echo "Stoping and deleting all containers ..."
 	$(COMPOSE) down -v
 
 fclean: clean
-	@echo "Full cleaning ..."
-	@echo "Shutting down and removing containers and volumes ..."
-	$(COMPOSE) down --volumes --remove-orphans
-	@echo "Cleaning stopped containers ..."
-	docker container prune -f > /dev/null
-	@echo "Cleaning volumes ..."
-	sudo rm -rf ~/data/mysql
-	sudo rm -rf ~/data/wordpress
-	@echo "Cleaning dangling images ..."
-	docker image prune -f > /dev/null
-	@echo "Cleaning building cache ..."
-	docker builder prune -f > /dev/null
-	@echo "Removing images ..."
-	$(COMPOSE) down --rmi all
-	# rm -rf secrets
-	# rm -rf srcs/.env
+	$(CLEAN_SCRIPT)
 
 re:  fclean up check
 
