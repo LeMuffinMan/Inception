@@ -180,7 +180,7 @@ section "Hosts"
 # If /etc/hosts is not edited to redirect localhost to <login>.42.fr,
 # we update it automaticaly, but it require sudo privileges
 if [[ $EUID -ne 0 ]]; then
-    sudo scripts/edit_hosts.sh
+    sudo scripts/edit_hosts.sh "$DOMAIN"
 else
     echo "You must have sudo privilege to modify /etc/hosts"
     echo "You can still access your site through localhost only"
