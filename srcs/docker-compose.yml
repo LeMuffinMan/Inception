@@ -24,9 +24,10 @@ services:
         restart: true
     healthcheck:
       test: ["CMD", "pgrep", "php-fpm83"]
-      interval: 30s
+      interval: 10s
       timeout: 10s
       retries: 3
+      start_period: 20s
     restart: on-failure
     volumes:
       - type: volume
