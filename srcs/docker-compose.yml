@@ -47,10 +47,10 @@ services:
       - .env
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
-      interval: 10s
+      interval: 3s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 10
+      start_period: 10s
     restart: on-failure
     volumes:
       - mariadb_data:/var/lib/mysql
