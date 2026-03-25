@@ -44,9 +44,15 @@ xferlog_std_format=NO
 dual_log_enable=YES
 xferlog_file=/var/log/vsftpd/xferlog.log
 vsftpd_log_file=/var/log/vsftpd/vsftpd.log
+
+# one_process_model=YES
 EOF
 else
     echo "vsftpd is already configured"
 fi
 
+# this line solve the 139 exit code
+# exec strace -f vsftpd /etc/vsftpd/vsftpd.conf
+
+# echo "EXEC VSFTPD"
 exec vsftpd /etc/vsftpd/vsftpd.conf
