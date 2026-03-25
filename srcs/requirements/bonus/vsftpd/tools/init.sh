@@ -29,54 +29,41 @@ mkdir -p /home/$FTP_USER
 chown -R $FTP_USER:$FTP_USER /home/$FTP_USER
 chmod 700 /home/$FTP_USER
 
-cat > /etc/vsftpd/vsftpd.conf << 'EOF'
+echo "$FTP_USER" > /etc/vsftpd/chroot_list
+
+cat > /etc/vsftpd/vsftpd.conf << EOF
 listen=YES
 listen_ipv6=NO
-
+background=NO
 anonymous_enable=NO
 local_enable=YES
 write_enable=YES
 local_umask=022
-
 dirmessage_enable=YES
 use_localtime=YES
 xferlog_enable=YES
 connect_from_port_20=YES
-
-# No root access needed
-chroot_local_user=NO
-# Each user can write in his folder
+chroot_local_user=YES
 allow_writeable_chroot=YES
-# each user is locked in his home folder
 chroot_list_enable=YES
 chroot_list_file=/etc/vsftpd/chroot_list
 secure_chroot_dir=/var/run/vsftpd/empty
-
 pasv_enable=YES
-pasv_promiscuous=NO
 pasv_min_port=40000
 pasv_max_port=40100
 pasv_addr_resolve=YES
-#utiliser env var
 pasv_address=oelleaum.42.fr
-port_promiscuous=NO
-
 ssl_enable=YES
 allow_anon_ssl=NO
 force_local_data_ssl=NO
 force_local_logins_ssl=YES
-
-ssl_tlsv1=YES
-ssl_sslv2=YES
-ssl_sslv3=YES
-
+ssl_tlsv1_2=YES
+ssl_sslv2=NO
+ssl_sslv3=NO
 rsa_cert_file=/etc/ssl/private/vsftpd.cert.pem
 rsa_private_key_file=/etc/ssl/private/vsftpd.key.pem
-
 log_ftp_protocol=YES
-debug_ssl=YES
-
 EOF
 
 echo "Starting vsftpd ..."
-exec vsftpd -v /etc/vsftpd/vsftpd.conf
+exec vsftpd /etc/vsftpd/vsftpd.conf
