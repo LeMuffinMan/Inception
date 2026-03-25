@@ -4,6 +4,9 @@
 
 optimisations done 
 
+ajouter les dependances 
+lftp popur le ftp / client compatible
+
 ## Description
 
 Inception is a system administration / DevOps project that introduces Docker-based infrastructure management. The goal is to set up a small but complete web stack composed of multiple services, each running in its own dedicated container, orchestrated via Docker Compose inside a virtual machine.
@@ -176,6 +179,10 @@ https://www.linuxtricks.fr/wiki/vsftpd-le-fichier-de-configuration-vsftpd-conf
 
 MEMO :
 docker run --rm -it srcs-ftp:latest ash "vsftd /etc/vsftpd/vsftpd.conf; echo $?"
+
+VSFTPD:
+https://doc.ubuntu-fr.org/vsftpd
+
 
 ### AI Usage
  

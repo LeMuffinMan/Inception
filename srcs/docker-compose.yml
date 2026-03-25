@@ -127,6 +127,9 @@ services:
     secrets:
       - ftp_user
       - ftp_pass
+    ports: #ajouter ports au dockerfile
+      - 21:21
+      - 40000:40100
     depends_on:
       wordpress:
         condition: service_healthy
