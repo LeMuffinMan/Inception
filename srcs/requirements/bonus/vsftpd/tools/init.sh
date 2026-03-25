@@ -10,24 +10,40 @@ if ! id $FTP_USER  > /dev/null 2>&1; then
     echo "$FTP_USER:$FTP_PASS" | chpasswd
     chown -R $FTP_USER:$FTP_USER /home/$FTP_USER/ftp/
 
+    mkdir -p /var/log/vsftpd/
+    chown -R $FTP_USER:$FTP_USER /var/log/vsftpd/
+    mkdir -p /var/empty
+    chown -R $FTP_USER:$FTP_USER /var/empty
+
     cat > /etc/vsftpd/vsftpd.conf << EOF
+# write permissions
 anonymous_enable=NO
 local_enable=YES
 write_enable=YES
-local_umask=022
-dirmessage_enable=YES
-xferlog_enable=YES
-connect_from_port_20=YES
 chroot_local_user=YES
-allow_writeable_chroot=YES
 secure_chroot_dir=/var/empty
+allow_writeable_chroot=YES
+local_root=/home/$FTP_USER/ftp/
+
+# network
+listen=YES
+listen_ipv6=NO
+local_umask=022
+connect_from_port_20=YES
+dirmessage_enable=YES
 pam_service_name=vsftpd
 pasv_enable=YES
 pasv_min_port=21100
 pasv_max_port=21110
 seccomp_sandbox=NO
-local_root=/home/$FTP_USER/ftp/
-listen=YES
+
+#logs
+log_ftp_protocol=YES
+xferlog_enable=YES
+xferlog_std_format=NO
+dual_log_enable=YES
+xferlog_file=/var/log/vsftpd/xferlog.log
+vsftpd_log_file=/var/log/vsftpd/vsftpd.log
 EOF
 else
     echo "vsftpd is already configured"

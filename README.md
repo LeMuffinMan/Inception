@@ -181,6 +181,7 @@ MEMO :
 docker run --rm -it srcs-ftp:latest ash "vsftd /etc/vsftpd/vsftpd.conf; echo $?"
 
 VSFTPD:
+https://wiki.alpinelinux.org/wiki/FTP
 https://doc.ubuntu-fr.org/vsftpd
 docker run --rm -it srcs-vsftpd:latest bash
 

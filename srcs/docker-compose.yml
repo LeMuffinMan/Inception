@@ -135,7 +135,7 @@ services:
         condition: service_healthy
         restart: true
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/21"]
+      test: ["CMD", "nc", "-zv", "localhost", "21"]
       interval: 30s
       timeout: 5s
       start_period: 10s
