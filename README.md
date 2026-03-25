@@ -182,6 +182,7 @@ docker run --rm -it srcs-ftp:latest ash "vsftd /etc/vsftpd/vsftpd.conf; echo $?"
 
 VSFTPD:
 https://doc.ubuntu-fr.org/vsftpd
+docker run --rm -it srcs-vsftpd:latest bash
 
 
 ### AI Usage
