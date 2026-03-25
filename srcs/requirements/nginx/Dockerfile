@@ -7,8 +7,7 @@ RUN apk add --no-cache \
     nginx \
     openssl && \
     rm -rf /etc/nginx/http.d/default.conf && \
-    chmod +x /usr/local/bin/init.sh && \
-    rm -rf /tmp/* /var/cache/apk/*
+    chmod +x /usr/local/bin/init.sh
 
 EXPOSE 443
 

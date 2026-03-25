@@ -4,11 +4,13 @@ CHECK_SCRIPT=scripts/check_inception.sh
 CRASH_SCRIPT=scripts/crash_test.sh
 VOLUME_SCRIPT=scripts/volumes_check.sh
 SECRET_GEN_SCRIPT=scripts/generate_secrets.sh
+ENV_GEN_SCRIPT=scripts/generate_env.sh
 CLEAN_SCRIPT=scripts/fclean.sh
 
 all: up check
 
 up:
+	$(ENV_GEN_SCRIPT)
 	$(SECRET_GEN_SCRIPT)
 	@echo "Creating folders for persistent storage ..."
 	mkdir -p ~/data/mysql

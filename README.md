@@ -184,6 +184,19 @@ VSFTPD:
 https://doc.ubuntu-fr.org/vsftpd
 docker run --rm -it srcs-vsftpd:latest bash
 
+pour tester la connection ftp : 
+ftp localhost 
+le user doit correspondre ici
+mdp dans le secret 
+
+  put -> upload le fichier
+  get -> dl le fichier
+  
+scripting
+https://bruceediger.com/scripting.ftp.html
+# pour trouver ou son les fichiers 
+docker exec -it vsftpd ash
+ 
 
 ### AI Usage
  

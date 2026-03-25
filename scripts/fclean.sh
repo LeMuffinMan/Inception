@@ -21,8 +21,9 @@ sudo rm -rf ~/data/mysql && echo -e "${YELLOW}~/data/mysql deleted successfully$
 sudo rm -rf ~/data/wordpress && echo -e "${YELLOW}~/data/wordpress deleted successfully${NC}"
 echo -e "${YELLOW}Cleaning dangling images ...${NC}"
 docker image prune -f
-echo -e "${YELLOW}Cleaning building cache ...${NC}"
-docker builder prune -f
+# faire un make pour vider le building cache ?
+# echo -e "${YELLOW}Cleaning building cache ...${NC}"
+# docker builder prune -f
 echo -e "${YELLOW}Removing images ...${NC}"
 docker compose -f "$COMPOSE_FILE"  down --rmi all
 # rm -rf secrets

@@ -127,9 +127,9 @@ services:
     secrets:
       - ftp_user
       - ftp_pass
-    ports: #ajouter ports au dockerfile
+    ports:
       - 21:21
-      - 40000:40100
+      - 21100-21110:21100-21110
     depends_on:
       wordpress:
         condition: service_healthy
@@ -142,7 +142,9 @@ services:
       retries: 3
     restart: on-failure
     volumes:
-      - wordpress_data:/var/www/html
+      - type: volume
+        source: wordpress_data
+        target: /home/oelleaum/ftp/
     networks:
       - inception
 

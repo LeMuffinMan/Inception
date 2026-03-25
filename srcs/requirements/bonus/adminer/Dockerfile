@@ -7,8 +7,7 @@ RUN apk add --no-cache \
     	php-mysqli \
     	php-session \
         wget \
-    && wget -O adminer.php https://www.adminer.org/latest.php \
-    && rm -rf /tmp/* /var/cache/apk/*
+    && wget -O adminer.php https://www.adminer.org/latest.php
 
 EXPOSE 8080
 

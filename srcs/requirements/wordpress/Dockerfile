@@ -28,8 +28,7 @@ RUN apk add --no-cache \
     addgroup -u 82 -D -S -G www-data www-data|| true && \
     sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php83/php.ini && \
     mkdir -p /var/www/html && \
-    chmod +x /usr/local/bin/init.sh && \
-    rm -rf /tmp/* /var/cache/apk/*
+    chmod +x /usr/local/bin/init.sh
 
 EXPOSE 9000
 

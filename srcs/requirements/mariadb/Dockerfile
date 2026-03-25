@@ -7,8 +7,7 @@ RUN apk add --no-cache mariadb mariadb-client && rm -rf /var/lib/mysql \
     && mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql \
     && mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld \
     && chmod +x /usr/local/bin/init.sh \
-    && chmod +x /usr/local/bin/healthcheck.sh \
-    && rm -rf /tmp/* /var/cache/apk/*
+    && chmod +x /usr/local/bin/healthcheck.sh
 
 EXPOSE 3306
 
