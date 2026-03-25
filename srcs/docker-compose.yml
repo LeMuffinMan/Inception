@@ -141,8 +141,8 @@ services:
       start_period: 10s
       retries: 3
     restart: on-failure
-    security_opt:
-      - seccomp:unconfined
+    # security_opt:
+    #   - seccomp:unconfined
     volumes:
       - type: volume
         source: wordpress_data

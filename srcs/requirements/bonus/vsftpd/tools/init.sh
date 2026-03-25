@@ -55,4 +55,4 @@ fi
 # exec strace -f vsftpd /etc/vsftpd/vsftpd.conf
 
 # echo "EXEC VSFTPD"
-exec vsftpd /etc/vsftpd/vsftpd.conf
+vsftpd /etc/vsftpd/vsftpd.conf
