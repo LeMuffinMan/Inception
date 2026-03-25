@@ -47,6 +47,7 @@ vsftpd_log_file=/var/log/vsftpd/vsftpd.log
 
 # one_process_model=YES
 background=NO
+seccomp_sandbox=NO
 EOF
 else
     echo "vsftpd is already configured"
@@ -56,4 +57,4 @@ fi
 # exec strace -f vsftpd /etc/vsftpd/vsftpd.conf
 
 # echo "EXEC VSFTPD"
-vsftpd /etc/vsftpd/vsftpd.conf
+exec /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
