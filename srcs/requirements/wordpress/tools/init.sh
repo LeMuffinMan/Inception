@@ -27,7 +27,7 @@ WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
 
 echo "Waiting for MariaDB..."
 TIME=0
-until mariadb -h mariadb -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -e "SELECT 1" > /dev/null 2>&1; do
+until nc -z mariadb 3306; do
     echo "Waiting for MariaDB...($TIME secs)"
     TIME=$((TIME + 1))
     sleep 1
@@ -77,4 +77,4 @@ fi
 
 sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /etc/php83/php-fpm.d/www.conf && echo "socket set OK" || echo "socket set KO"
 
-exec php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf
+exec su -s /bin/sh -c "php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf"

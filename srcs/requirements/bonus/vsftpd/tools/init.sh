@@ -44,7 +44,6 @@ vsftpd_log_file=/var/log/vsftpd/vsftpd.log
 
 # one_process_model=YES
 background=NO
-seccomp_sandbox=NO
 EOF
 else
     echo "vsftpd is already configured"

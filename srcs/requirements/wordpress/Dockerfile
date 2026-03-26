@@ -1,10 +1,17 @@
+FROM alpine:3.22.3 AS downloader
+
+RUN apk add --no-cache wget ca-certificates
+RUN wget -O /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x /usr/local/bin/wp
+
 FROM alpine:3.22.3
 
+COPY --from=downloader /usr/local/bin/wp /usr/local/bin/wp
 COPY tools/init.sh /usr/local/bin/init.sh
 
 RUN apk add --no-cache \
-        wget \
-        mariadb-client \
+        # wget \
+        # mariadb-client \
         php83-redis \
         php83-fpm \
         php83-tokenizer \
@@ -22,16 +29,10 @@ RUN apk add --no-cache \
         php83-json \
         php83-iconv \
         php83-session && \
-    wget -O /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-    chmod +x /usr/local/bin/wp && \
-    addgroup -g 82 -S www-data  && \
-    adduser -u 82 -D -S -G www-data www-datas && \
+    adduser -u 82 -D -S -G www-data www-data && \
     sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php83/php.ini && \
     mkdir -p /var/www/html && \
     chmod +x /usr/local/bin/init.sh
-
-# prevent container to run as root
-USER wwww-data
 
 EXPOSE 9000
 
