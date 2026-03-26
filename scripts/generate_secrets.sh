@@ -146,44 +146,44 @@ echo -e "  ${GRAY}→ Use ${WHITE}-f${GRAY} flag to force regeneration of all se
 echo
 
 # --- .env check / generation --------------------------------------------------
-section "Environment File"
+# section "Environment File"
 
-ENV_FILE="srcs/.env"
+# ENV_FILE="srcs/.env"
 
-declare -A EXPECTED_VALUES=(
-    ["MYSQL_DATABASE"]="${USER}_db"
-    ["MYSQL_USER"]="${USER}"
-    ["DOMAIN_NAME"]="${USER}.42.fr"
-    ["WP_TITLE"]="${USER}_wordpress"
-)
+# declare -A EXPECTED_VALUES=(
+#     ["MYSQL_DATABASE"]="${USER}_db"
+#     ["MYSQL_USER"]="${USER}"
+#     ["DOMAIN_NAME"]="${USER}.42.fr"
+#     ["WP_TITLE"]="${USER}_wordpress"
+# )
 
 # Keys in insertion order
-ORDERED_VARS=(MYSQL_DATABASE MYSQL_USER DOMAIN_NAME WP_TITLE)
+# ORDERED_VARS=(MYSQL_DATABASE MYSQL_USER DOMAIN_NAME WP_TITLE)
 
 # Either the file does'nt exist, or exist but is empty, or exist but and not empty
 #   - if not exiting or empty, we generate and fill it by default
 #   - if not, for each var, we check if we need to generate it to not overwrite existing ones
-if [ ! -s "$ENV_FILE" ]; then
-    generate_env
-else
-    patched=()
-    for VAR in "${ORDERED_VARS[@]}"; do
-        if ! grep -qE "^${VAR}=.+" "$ENV_FILE"; then
-            sed -i "/^${VAR}=/d" "$ENV_FILE"
-            printf '%s=%s\n' "$VAR" "${EXPECTED_VALUES[$VAR]}" >> "$ENV_FILE"
-            patched+=("$VAR")
-        fi
-    done
+# if [ ! -s "$ENV_FILE" ]; then
+#     generate_env
+# else
+#     patched=()
+#     for VAR in "${ORDERED_VARS[@]}"; do
+#         if ! grep -qE "^${VAR}=.+" "$ENV_FILE"; then
+#             sed -i "/^${VAR}=/d" "$ENV_FILE"
+#             printf '%s=%s\n' "$VAR" "${EXPECTED_VALUES[$VAR]}" >> "$ENV_FILE"
+#             patched+=("$VAR")
+#         fi
+#     done
 
-    if [ ${#patched[@]} -eq 0 ]; then
-        check "$ENV_FILE" "ok"
-    else
-        check "$ENV_FILE" "ok" "patched: ${patched[*]}"
-    fi
-    if ! chmod 600 "${ENV_FILE}"; then
-        echo "Failed to chmod 600 ${ENV_FILE}"
-    fi
-fi
+#     if [ ${#patched[@]} -eq 0 ]; then
+#         check "$ENV_FILE" "ok"
+#     else
+#         check "$ENV_FILE" "ok" "patched: ${patched[*]}"
+#     fi
+#     if ! chmod 600 "${ENV_FILE}"; then
+#         echo "Failed to chmod 600 ${ENV_FILE}"
+#     fi
+# fi
 
 # --- /etc/hosts ---------------------------------------------------------------
 section "Hosts"

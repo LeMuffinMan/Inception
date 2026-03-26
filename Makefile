@@ -59,7 +59,7 @@ regen:
 	$(SECRET_GEN_SCRIPT) -f
 
 uninstall: fclean
-    $(UNINSTALL_SCRIPT)
+	$(UNINSTALL_SCRIPT)
 	rm -rf secrets
 	rm -rf srcs/.env
     # echo -e "${YELLOW}Cleaning building cache ...${NC}"

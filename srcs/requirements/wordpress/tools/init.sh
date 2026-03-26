@@ -2,8 +2,10 @@
 
 set -e
 
+#WORKSTATION ?
 cd /var/www/html
 
+# a virer ?
 add_domain_if_missing() {
   local var="$1"
   if [[ "$var" != *"@"* ]]; then
