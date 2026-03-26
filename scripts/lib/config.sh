@@ -23,7 +23,7 @@ WAIT_TIMEOUT=45
 RESTART_TIMEOUT=45
 
 #Add in this array all credentials files you need to generate. It will be randomly generated to prevent leaking secrets
-CREDENTIALS_FILES=("wp_admin_user.txt" "mysql_user_email.txt" "mysql_user.txt" "mysql_admin_email.txt" "db_password.txt" "db_root_password.txt" "wp_admin_password.txt" "wp_user_password.txt" "ftp_pass.txt")
+CREDENTIALS_FILES=("mysql_user_email.txt" "mysql_user.txt" "mysql_admin_email.txt" "db_password.txt" "db_root_password.txt" "wp_admin_password.txt" "wp_user_password.txt" "ftp_pass.txt")
 
 # to customize your own mariadb/wordpress setup, edit theses variables
 # DEFAULT_MYSQL_USER="mysql_user"

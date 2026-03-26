@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export FTP_USER=$(cat /run/secrets/ftp_user)
-export FTP_PASS=$(cat /run/secrets/ftp_pass)
-
 if ! id $FTP_USER  > /dev/null 2>&1; then
     echo "Setting FTP_USER ..."
     # adduser -D -h "/home/$FTP_USER" -s /bin/sh "$FTP_USER"

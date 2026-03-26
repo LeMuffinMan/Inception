@@ -5,10 +5,10 @@ services:
     environment:
       - WORDPRESS_REDIS_HOST=redis
       - WP_USER=${WP_USER}
+      - WP_ADMIN_USER=$(WP_ADMIN_USER}
     secrets:
       - db_password
       - mysql_user
-      - wp_admin_user
       - wp_admin_password
       - wp_user_password
       - mysql_admin_email

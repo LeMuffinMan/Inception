@@ -7,6 +7,7 @@ SECRET_GEN_SCRIPT=scripts/generate_secrets.sh
 ENV_GEN_SCRIPT=scripts/generate_env.sh
 CLEAN_SCRIPT=scripts/fclean.sh
 UNINSTALL_SCRIPT=scripts/uninstall.sh
+KILL_SCRIPT=scripts/kill_containers.sh
 
 all: up check
 
@@ -30,10 +31,14 @@ clean:
 fclean: clean
 	$(CLEAN_SCRIPT)
 
-re:  fclean up check
+re:
+	$(KILL_SCRIPT)
+	$(clean_script)
+	$(MAKE) up
+	$(MAKE) check
 
 check:
-	$(CHECK_SCRIPT) $(or $(ARGS),)
+	$(CHECK_SCRIPT) $(or $(SERVICE),)
 
 logs:
 	$(COMPOSE) logs -f
@@ -43,11 +48,9 @@ status:
 
 crash:
 	$(CRASH_SCRIPT)
-	$(CHECK_SCRIPT)
 
 volume:
 	$(VOLUME_SCRIPT)
-	$(CHECK_SCRIPT)
 
 checks:
 	$(VOLUME_SCRIPT)
@@ -55,14 +58,11 @@ checks:
 	$(CHECK_SCRIPT)
 
 regen:
-	rm -rf srcs/.env
+	#rm -rf srcs/.env
 	$(SECRET_GEN_SCRIPT) -f
 
-uninstall: fclean
+uninstall:
+	$(KILL_SCRIPT)
 	$(UNINSTALL_SCRIPT)
-	rm -rf secrets
-	rm -rf srcs/.env
-    # echo -e "${YELLOW}Cleaning building cache ...${NC}"
-    # docker builder prune -f
 
 .PHONY: up down re clean check fclean logs status crash regen volume checks uninstall
