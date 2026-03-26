@@ -19,13 +19,24 @@ check_env() {
     [ ! -z "$MYSQL_USER" ] && \
     [ ! -z "$MYSQL_USER_EMAIL" ] && \
     [ ! -z "$MYSQL_ADMIN_EMAIL" ]; then
-        exit 0
+        return 0
     fi
+    return 1
     # verifier mails
     # identiques aussi
 }
 
-check_env
+if  check_env; then
+    exit 0
+fi
+
+if [ -f scripts/auto_generate_env.sh ]; then
+    read -p "use auto generation env script ? y/n " RES
+    if [ $RES == "y" ]; then
+        scripts/auto_generate_env.sh
+    fi
+    exit 0
+fi
 
 if [ -f srcs/.env ]; then
     set -a

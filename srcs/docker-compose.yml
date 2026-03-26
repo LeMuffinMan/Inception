@@ -6,18 +6,15 @@ services:
       - WORDPRESS_REDIS_HOST=redis
       - WP_USER=${WP_USER}
       - WP_ADMIN_USER=$(WP_ADMIN_USER}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_USER_EMAIL=${MYSQL_USER_EMAIL}
       - MYSQL_ADMIN_EMAIL=${MYSQL_ADMIN_EMAIL}
+      - WP_TITLE=${WP_TITLE}
     secrets:
       - db_password
-      # - mysql_user
       - wp_admin_password
       - wp_user_password
-      # - mysql_admin_email
-      # - mysql_user_email
-    env_file:
-      - .env
     depends_on:
       mariadb:
         condition: service_healthy
@@ -44,12 +41,11 @@ services:
     secrets:
       - db_password
       - db_root_password
-      # - mysql_user
     container_name: mariadb
     build: ./requirements/mariadb
     # pas tout lui donner !
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 3s
@@ -148,8 +144,6 @@ services:
       start_period: 10s
       retries: 3
     restart: on-failure
-    # security_opt:
-    #   - seccomp:unconfined
     volumes:
       - type: volume
         source: wordpress_data
