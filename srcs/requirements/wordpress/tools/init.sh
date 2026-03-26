@@ -6,29 +6,24 @@ set -e
 cd /var/www/html
 
 # a virer ? : filtrer a la generation
-add_domain_if_missing() {
-  local var="$1"
-  if [[ "$var" != *"@"* ]]; then
-    echo "${var}@mail.xx"
-  else
-    echo "$var"
-  fi
-}
+# add_domain_if_missing() {
+#   local var="$1"
+#   if [[ "$var" != *"@"* ]]; then
+#     echo "${var}@mail.xx"
+#   else
+#     echo "$var"
+#   fi
+# }
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
-# MYSQL_USER=$(cat /run/secrets/mysql_user)
-# MYSQL_ADMIN_EMAIL=$(cat /run/secrets/mysql_admin_email)
-# MYSQL_USER_EMAIL=$(cat /run/secrets/mysql_user_email)
 
 WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
-# WP_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
-# WP_USER=$(cat /run/secrets/wp_user)
 WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
 
 # a vrier
 #Wordpress won't accept a not formated email, we use placeholders
-MYSQL_ADMIN_EMAIL=$(add_domain_if_missing "$MYSQL_ADMIN_EMAIL")
-MYSQL_USER_EMAIL=$(add_domain_if_missing "$MYSQL_USER_EMAIL")
+# MYSQL_ADMIN_EMAIL=$(add_domain_if_missing "$MYSQL_ADMIN_EMAIL")
+# MYSQL_USER_EMAIL=$(add_domain_if_missing "$MYSQL_USER_EMAIL")
 
 echo "Waiting for MariaDB..."
 TIME=0
@@ -58,7 +53,6 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --admin_user="${WP_ADMIN_USER}" \
         --admin_password="${WP_ADMIN_PASSWORD}" \
         --admin_email="${MYSQL_ADMIN_EMAIL}" \
-        --skip-email \
         --allow-root
 
     echo "Creating additional user..."
@@ -68,12 +62,6 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --role=author \
         --user_pass="${WP_USER_PASSWORD}" \
         --allow-root
-
-    # wp config set DB_NAME ${MYSQL_DATABASE}
-    # wp config set DB_USER ${MYSQL_USER}
-    # wp config set DB_PASSWORD ${MYSQL_PASSWORD}
-
-    # cp /tmp/wp-config.php /var/www/html/wp-config.php || echo "Failed to copy wp-config.php"
 
     echo "Activate Redis cache plugin ..."
     wp plugin install redis-cache --activate --allow-root && echo "install and activate redis successfully" || echo "Failed to install and activate redis-cache"

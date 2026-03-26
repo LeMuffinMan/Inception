@@ -1,31 +1,27 @@
 #!/bin/sh
+
 set -e
 
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
-# MYSQL_USER=$(cat /run/secrets/mysql_user)
 
-# We want to install and setup the database, only if it does not exist
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     rm -rf /var/lib/mysql/*
 
     echo "Mariadb installation :"
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
-    echo "Starting Mariadb for first configuration..."
+    echo "Starting Mariadb ..."
 	# We start mariadb only to configure it. We want to prevent any external access, since to the db is not configured and since root has no password yet,
 	# -skip-networking prevents port 3306 to enable and allow extern access during the db configuration
 	/usr/bin/mariadbd --user=mysql --datadir=/var/lib/mysql --skip-networking &
 
-    # until == !while
-    # SELECT 1 is the simpliest request in SQL : it returns 1 without editing any table. It's a ping, we don't need the value returned, only the success / failure of the request
-    # As long as this request fails, we want to wait for the db to be fully started
 	until mariadb -u root --connect-timeout=2 -e "SELECT 1" > /dev/null 2>&1; do
 	    echo "Waiting mariadb to be fully started ..."
 	    sleep 1
 	done
 
-	echo "Mariadb is now running, configuration:"
+	echo "Mariadb is now running and ready for configuration ..."
 
     # for following lines, refer to .env to provide your own variables if needed
 	# we must configure a root password
