@@ -42,7 +42,7 @@ dual_log_enable=YES
 xferlog_file=/var/log/vsftpd/xferlog.log
 vsftpd_log_file=/var/log/vsftpd/vsftpd.log
 
-# one_process_model=YES
+one_process_model=YES
 background=NO
 EOF
 else
