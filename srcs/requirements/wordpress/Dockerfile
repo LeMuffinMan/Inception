@@ -2,6 +2,8 @@ FROM alpine:3.22.3 AS downloader
 
 RUN apk add --no-cache wget ca-certificates
 RUN wget -O /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    wget -O /tmp/wp-cli.phar.md5 https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar.md5 && \
+    echo "$(cat /tmp/wp-cli.phar.md5) /usr/local/bin/wp" | md5sum -c - && \
     chmod +x /usr/local/bin/wp
 
 FROM alpine:3.22.3
