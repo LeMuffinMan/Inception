@@ -30,9 +30,9 @@ fi
 if grep -qE "^127\.0\.0\.1[[:blank:]]+${HOST}([[:blank:]]|$)" "$HOSTS_FILE"; then
     echo "/etc/hosts already redirects 127.0.0.1 to ${HOST}"
 else
-    BACKUP="${HOSTS_FILE}.bak.$(date +%Y%m%d%H%M%S)"
-    cp --preserve=mode,ownership "$HOSTS_FILE" "$BACKUP"
-    echo "/etc/hosts backup created: ${BACKUP}"
+    # BACKUP="${HOSTS_FILE}.bak.$(date +%Y%m%d%H%M%S)"
+    # cp --preserve=mode,ownership "$HOSTS_FILE" "$BACKUP"
+    # echo "/etc/hosts backup created: ${BACKUP}"
 
     TMPFILE=$(mktemp)
     trap 'rm -f "$TMPFILE" "${TMPFILE}.new"' EXIT

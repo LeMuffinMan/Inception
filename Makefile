@@ -6,6 +6,7 @@ VOLUME_SCRIPT=scripts/volumes_check.sh
 SECRET_GEN_SCRIPT=scripts/generate_secrets.sh
 ENV_GEN_SCRIPT=scripts/generate_env.sh
 CLEAN_SCRIPT=scripts/fclean.sh
+UNINSTALL_SCRIPT=scripts/uninstall.sh
 
 all: up check
 
@@ -58,7 +59,10 @@ regen:
 	$(SECRET_GEN_SCRIPT) -f
 
 uninstall: fclean
+    $(UNINSTALL_SCRIPT)
 	rm -rf secrets
 	rm -rf srcs/.env
+    # echo -e "${YELLOW}Cleaning building cache ...${NC}"
+    # docker builder prune -f
 
 .PHONY: up down re clean check fclean logs status crash regen volume checks uninstall
