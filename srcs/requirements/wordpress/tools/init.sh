@@ -15,7 +15,7 @@ add_domain_if_missing() {
   fi
 }
 
-MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_password)
+MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 # MYSQL_USER=$(cat /run/secrets/mysql_user)
 # MYSQL_ADMIN_EMAIL=$(cat /run/secrets/mysql_admin_email)
 # MYSQL_USER_EMAIL=$(cat /run/secrets/mysql_user_email)
@@ -32,7 +32,7 @@ MYSQL_USER_EMAIL=$(add_domain_if_missing "$MYSQL_USER_EMAIL")
 
 echo "Waiting for MariaDB..."
 TIME=0
-until mariadb -h mariadb -u "${MYSQL_USER}" -p"${MYSQL_ROOT_PASSWORD}" -e "SELECT 1" > /dev/null 2>&1; do
+until mariadb -h mariadb -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" -e "SELECT 1" > /dev/null 2>&1; do
     echo "Waiting for MariaDB...($TIME secs)"
     TIME=$((TIME + 1))
     sleep 1
@@ -47,7 +47,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
     wp config create \
       --dbname="${MYSQL_DATABASE}" \
       --dbuser="${MYSQL_USER}" \
-      --dbpass="${MYSQL_ROOT_PASSWORD}" \
+      --dbpass="${MYSQL_PASSWORD}" \
       --dbhost=mariadb:3306 \
       --allow-root
 
@@ -71,7 +71,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 
     # wp config set DB_NAME ${MYSQL_DATABASE}
     # wp config set DB_USER ${MYSQL_USER}
-    # wp config set DB_PASSWORD ${MYSQL_ROOT_PASSWORD}
+    # wp config set DB_PASSWORD ${MYSQL_PASSWORD}
 
     # cp /tmp/wp-config.php /var/www/html/wp-config.php || echo "Failed to copy wp-config.php"
 

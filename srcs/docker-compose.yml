@@ -5,7 +5,7 @@ services:
     environment:
       - WORDPRESS_REDIS_HOST=redis
       - WP_USER=${WP_USER}
-      - WP_ADMIN_USER=$(WP_ADMIN_USER}
+      - WP_ADMIN_USER=${WP_ADMIN_USER}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_USER_EMAIL=${MYSQL_USER_EMAIL}
@@ -38,6 +38,7 @@ services:
   mariadb:
     environment:
       - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     secrets:
       - db_password
       - db_root_password
