@@ -53,7 +53,12 @@ checks:
 	$(CRASH_SCRIPT)
 	$(CHECK_SCRIPT)
 
-secrets:
+regen:
+	rm -rf srcs/.env
 	$(SECRET_GEN_SCRIPT) -f
 
-.PHONY: up down re clean check fclean logs status crash secrets volume checks
+uninstall: fclean
+	rm -rf secrets
+	rm -rf srcs/.env
+
+.PHONY: up down re clean check fclean logs status crash regen volume checks uninstall
