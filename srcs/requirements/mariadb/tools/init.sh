@@ -3,7 +3,7 @@ set -e
 
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
-MYSQL_USER=$(cat /run/secrets/mysql_user)
+# MYSQL_USER=$(cat /run/secrets/mysql_user)
 
 # We want to install and setup the database, only if it does not exist
 if [ ! -d "/var/lib/mysql/mysql" ]; then

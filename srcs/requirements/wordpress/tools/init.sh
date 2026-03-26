@@ -16,13 +16,13 @@ add_domain_if_missing() {
 }
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
-MYSQL_USER=$(cat /run/secrets/mysql_user)
+# MYSQL_USER=$(cat /run/secrets/mysql_user)
 WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 # WP_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
 # WP_USER=$(cat /run/secrets/wp_user)
 WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
-MYSQL_ADMIN_EMAIL=$(cat /run/secrets/mysql_admin_email)
-MYSQL_USER_EMAIL=$(cat /run/secrets/mysql_user_email)
+# MYSQL_ADMIN_EMAIL=$(cat /run/secrets/mysql_admin_email)
+# MYSQL_USER_EMAIL=$(cat /run/secrets/mysql_user_email)
 # WORDPRESS_REDIS_HOST=redis
 
 # a vrier

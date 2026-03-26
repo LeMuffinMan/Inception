@@ -9,14 +9,23 @@ get_var() {
     echo "$var_value"
 }
 
-if [ ! -z "$MYSQL_DATABASE" ]  && \
-[ ! -z "$MYSQL_USER" ] && \
-[ ! -z "$DOMAIN_NAME" ] && \
-[ ! -z "$WP_TITLE" ] && \
-[ ! -z "$WP_USER" ] && \
-[ ! -z "$WP_ADMIN_USER" ]; then
-    exit 0
-fi
+check_env() {
+    if [ ! -z "$MYSQL_DATABASE" ]  && \
+    [ ! -z "$MYSQL_USER" ] && \
+    [ ! -z "$DOMAIN_NAME" ] && \
+    [ ! -z "$WP_TITLE" ] && \
+    [ ! -z "$WP_USER" ] && \
+    [ ! -z "$WP_ADMIN_USER" ] && \
+    [ ! -z "$MYSQL_USER" ] && \
+    [ ! -z "$MYSQL_USER_EMAIL" ] && \
+    [ ! -z "$MYSQL_ADMIN_EMAIL" ]; then
+        exit 0
+    fi
+    # verifier mails
+    # identiques aussi
+}
+
+check_env
 
 if [ -f srcs/.env ]; then
     set -a
@@ -31,7 +40,10 @@ if [ -f srcs/.env ]; then
     [ ! -z "$WP_TITLE" ] && \
     [ ! -z "$FTP_USER" ] && \
     [ ! -z "$WP_USER" ] && \
-    [ ! -z "$WP_ADMIN_USER" ]; then
+    [ ! -z "$WP_ADMIN_USER" ] && \
+    [ ! -z "$MYSQL_USER" ] && \
+    [ ! -z "$MYSQL_USER_EMAIL" ] && \
+    [ ! -z "$MYSQL_ADMIN_EMAIL" ]; then
         exit 0
     fi
 else
@@ -50,19 +62,32 @@ if [ -z "$MYSQL_USER" ]; then
     echo "MYSQL_USER=$MYSQL_USER" >> srcs/.env
 fi
 
+if [ -z "$MYSQL_USER_EMAIL" ]; then
+    MYSQL_USER_EMAIL=$(get_var "MYSQL_USER_EMAIL")
+    # controler mail
+    echo "MYSQL_USER_EMAIL=$MYSQL_USER_EMAIL" >> srcs/.env
+fi
+
+while [ -z "$MYSQL_ADMIN_EMAIL" ]; do
+    MYSQL_ADMIN_EMAIL=$(get_var "MYSQL_ADMIN_EMAIL")
+    # controler mail
+    if  [ "$MYSQL_USER_EMAIL" == "$MYSQL_ADMIN_EMAIL" ]; then
+        echo "sSorry, that email address is already used!\nWordpress require 2 differents email adresses"
+        MYSQL_ADMIN_EMAIL=""
+    else
+        echo "MYSQL_ADMIN_EMAIL=$MYSQL_ADMIN_EMAIL" >> srcs/.env
+    fi
+done
+
 if [ -z "$DOMAIN_NAME" ]; then
     DOMAIN_NAME=$(get_var "DOMAIN_NAME")
+    # controler domain name
     echo "DOMAIN_NAME=$DOMAIN_NAME" >> srcs/.env
 fi
 
 if [ -z "$WP_TITLE" ]; then
     WP_TITLE=$(get_var "WP_TITLE")
     echo "WP_TITLE=$WP_TITLE" >> srcs/.env
-fi
-
-if [ -z "$FTP_USER" ]; then
-    FTP_USER=$(get_var "FTP_USER")
-    echo "FTP_USER=$FTP_USER" >> srcs/.env
 fi
 
 if [ -z "$WP_USER" ]; then
@@ -72,7 +97,12 @@ fi
 
 if [ -z "$WP_ADMIN_USER" ]; then
     WP_ADMIN_USER=$(get_var "WP_ADMIN_USER")
+    # controler admin / administrateur
     echo "WP_ADMIN_USER=$WP_ADMIN_USER" >> srcs/.env
 fi
 
+if [ -z "$FTP_USER" ]; then
+    FTP_USER=$(get_var "FTP_USER")
+    echo "FTP_USER=$FTP_USER" >> srcs/.env
+fi
 # pour les mail on ajoute un ctrl

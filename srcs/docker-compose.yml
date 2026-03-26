@@ -6,13 +6,16 @@ services:
       - WORDPRESS_REDIS_HOST=redis
       - WP_USER=${WP_USER}
       - WP_ADMIN_USER=$(WP_ADMIN_USER}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_USER_EMAIL=${MYSQL_USER_EMAIL}
+      - MYSQL_ADMIN_EMAIL=${MYSQL_ADMIN_EMAIL}
     secrets:
       - db_password
-      - mysql_user
+      # - mysql_user
       - wp_admin_password
       - wp_user_password
-      - mysql_admin_email
-      - mysql_user_email
+      # - mysql_admin_email
+      # - mysql_user_email
     env_file:
       - .env
     depends_on:
@@ -36,10 +39,12 @@ services:
     networks:
       - inception
   mariadb:
+    environment:
+      - MYSQL_USER=${MYSQL_USER}
     secrets:
       - db_password
       - db_root_password
-      - mysql_user
+      # - mysql_user
     container_name: mariadb
     build: ./requirements/mariadb
     # pas tout lui donner !

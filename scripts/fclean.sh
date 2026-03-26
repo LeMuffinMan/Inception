@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if [[ $EUID -eq 0 ]]; then
-    echo "You must have sudo privilege to use make fclean, to perform following operations:
-        - Deletion of ~/data/mysql and ~/data/wordpress require sudo since they are owned by their respective user
-        - Edit /etc/hosts to undo the redirection of 127.0.0.1 to your domain name instead of localhost"
-    echo "If you didn't setup this project yourself, please contact an administrator"
-    exit 1
-fi
+# if [[ $EUID -eq 0 ]]; then
+#     echo "You must have sudo privilege to use make fclean, to perform following operations:
+#         - Deletion of ~/data/mysql and ~/data/wordpress require sudo since they are owned by their respective user
+#         - Edit /etc/hosts to undo the redirection of 127.0.0.1 to your domain name instead of localhost"
+#     echo "If you didn't setup this project yourself, please contact an administrator"
+#     exit 1
+# fi
 
 source "$(dirname "$0")/lib/format.sh"
 COMPOSE_FILE="srcs/docker-compose.yml"

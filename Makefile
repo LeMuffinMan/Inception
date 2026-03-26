@@ -33,7 +33,9 @@ fclean: clean
 
 re:
 	$(KILL_SCRIPT)
-	$(clean_script)
+	docker image prune -f
+	sudo rm -rf ~/data/mysql
+	sudo rm -rf ~/data/wordpress
 	$(MAKE) up
 	$(MAKE) check
 

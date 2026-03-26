@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTAINERS=("wordpress" "mariadb" "nginx" "vsftpd" "redis")
+CONTAINERS=("wordpress" "mariadb" "nginx" "vsftpd" "redis" "adminer")
 
 for container in "${CONTAINERS[@]}"; do
     if docker ps | grep $container > /dev/null ; then
