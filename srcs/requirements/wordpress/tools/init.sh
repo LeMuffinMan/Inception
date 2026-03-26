@@ -5,7 +5,7 @@ set -e
 #WORKSTATION ?
 cd /var/www/html
 
-# a virer ?
+# a virer ? : filtrer a la generation
 add_domain_if_missing() {
   local var="$1"
   if [[ "$var" != *"@"* ]]; then
@@ -19,11 +19,13 @@ MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 MYSQL_USER=$(cat /run/secrets/mysql_user)
 WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 WORDPRESS_ADMIN_USER=$(cat /run/secrets/wp_admin_user)
-WORDPRESS_USER=$(cat /run/secrets/wp_user)
-WORDPRESS_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
+# WP_USER=$(cat /run/secrets/wp_user)
+WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
 MYSQL_ADMIN_EMAIL=$(cat /run/secrets/mysql_admin_email)
 MYSQL_USER_EMAIL=$(cat /run/secrets/mysql_user_email)
+# WORDPRESS_REDIS_HOST=redis
 
+# a vrier
 #Wordpress won't accept a not formated email, we use placeholders
 MYSQL_ADMIN_EMAIL=$(add_domain_if_missing "$MYSQL_ADMIN_EMAIL")
 MYSQL_USER_EMAIL=$(add_domain_if_missing "$MYSQL_USER_EMAIL")
@@ -61,10 +63,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 
     echo "Creating additional user..."
     wp user create \
-        "${WORDPRESS_USER}" \
+        "${WP_USER}" \
         "${MYSQL_USER_EMAIL}" \
         --role=author \
-        --user_pass="${WORDPRESS_USER_PASSWORD}" \
+        --user_pass="${WP_USER_PASSWORD}" \
         --allow-root
 
     # wp config set DB_NAME ${MYSQL_DATABASE}

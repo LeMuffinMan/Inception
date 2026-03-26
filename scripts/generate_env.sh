@@ -9,7 +9,11 @@ get_var() {
     echo "$var_value"
 }
 
-if [ ! -z "$MYSQL_DATABASE" ]  && [ ! -z "$MYSQL_USER" ] && [ ! -z "$DOMAIN_NAME" ] && [ ! -z "$WP_TITLE" ]; then
+if [ ! -z "$MYSQL_DATABASE" ]  && \
+[ ! -z "$MYSQL_USER" ] && \
+[ ! -z "$DOMAIN_NAME" ] && \
+[ ! -z "$WP_TITLE" ] && \
+[ ! -z "$WP_USER" ]; then
     exit 0
 fi
 
@@ -24,7 +28,8 @@ if [ -f srcs/.env ]; then
     [ ! -z "$MYSQL_USER" ] && \
     [ ! -z "$DOMAIN_NAME" ] && \
     [ ! -z "$WP_TITLE" ] && \
-    [ ! -z "$FTP_USER" ]; then
+    [ ! -z "$FTP_USER" ] && \
+    [ ! -z "$WP_USER" ]; then
         exit 0
     fi
 else
@@ -50,12 +55,17 @@ fi
 
 if [ -z "$WP_TITLE" ]; then
     WP_TITLE=$(get_var "WP_TITLE")
-    echo "FTP_USER=$FTP_USER" >> srcs/.env
+    echo "WP_TITLE=$WP_TITLE" >> srcs/.env
 fi
 
 if [ -z "$FTP_USER" ]; then
     FTP_USER=$(get_var "FTP_USER")
     echo "FTP_USER=$FTP_USER" >> srcs/.env
+fi
+
+if [ -z "$WP_USER" ]; then
+    WP_USER=$(get_var "WP_USER")
+    echo "WP_USER=$WP_USER" >> srcs/.env
 fi
 
 # pour les mail on ajoute un ctrl

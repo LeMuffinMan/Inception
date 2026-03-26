@@ -3,13 +3,13 @@ services:
     build: ./requirements/wordpress
     container_name: wordpress
     environment:
-      WORDPRESS_REDIS_HOST: redis
+      - WORDPRESS_REDIS_HOST=redis
+      - WP_USER=${WP_USER}
     secrets:
       - db_password
       - mysql_user
       - wp_admin_user
       - wp_admin_password
-      - wp_user
       - wp_user_password
       - mysql_admin_email
       - mysql_user_email
@@ -59,6 +59,7 @@ services:
   nginx:
     container_name: nginx
     build: ./requirements/nginx
+    # pas tout lui donner !
     env_file:
       - .env
     ports:
