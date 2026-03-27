@@ -12,7 +12,7 @@ unzip -o /tmp/chessgame.zip -d /tmp/chessgame_extracted
 
 cp -r /tmp/chessgame_extracted/dist/. "$DEST/"
 
-
+# fixer la pipeline de release ou ici ?
 sed -i \
   -e 's|href="/chess_game-|href="./chess_game-|g' \
   -e 's|from '"'"'/chess_game-|from '"'"'./chess_game-|g' \
