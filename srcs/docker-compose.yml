@@ -175,6 +175,17 @@ services:
     networks:
       - inception
 
+  llm-gen:
+    build: ./requirements/bonus/llm-gen
+    container_name: llm-gen
+    volumes: # bien nettoyer !!
+      - llm-gen_data:/car/www/html/magic-static
+    secrets: # a creer et gerer
+      - groq_api_key
+    networks:
+      - inception
+    restart: no
+
 networks:
   inception:
     driver: bridge
@@ -204,6 +215,12 @@ volumes:
       type: none
       o: bind
       device: ~/data/chessgame
+  llm-gen_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/llm-gen
 
 secrets:
   db_password:

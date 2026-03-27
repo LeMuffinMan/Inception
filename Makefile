@@ -19,6 +19,7 @@ up:
 	mkdir -p ~/data/wordpress
 	mkdir -p ~/data/hugo
 	mkdir -p ~/data/chessgame
+	mkdir -p ~/data/llm-gen
 	@echo "Starting containers ..."
 	$(COMPOSE) up -d --build --no-recreate
 
@@ -40,6 +41,7 @@ re:
 	sudo rm -rf ~/data/wordpress
 	sudo rm -rf ~/data/hugo
 	sudo rm -rf ~/data/chessgame
+	sudo rm -rf ~/data/llm-gen
 	$(MAKE) up
 	$(MAKE) check
 
