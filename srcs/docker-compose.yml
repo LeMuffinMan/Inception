@@ -165,6 +165,15 @@ services:
     networks:
       - inception
 
+  chessgame:
+    container_name: chessgame
+    build: ./requirements/bonus/chessgame
+    volumes:
+      - chessgame_data:/var/www/html/chessgame
+    restart: no
+    networks:
+      - inception
+
 networks:
   inception:
     driver: bridge
