@@ -17,4 +17,4 @@ RUN apk add --no-cache hugo git && \
 
 EXPOSE 4200
 
-CMD ["echo", "Hugo site is ready in /var/www/html/muffin_site"]
+CMD ["echo", "Hugo site is ready in /var/www/html/muffin_site/public"]
