@@ -30,6 +30,7 @@ services:
       - wordpress_data:/var/www/html
       - hugo_data:/var/www/html/muffin_site
       - chessgame_data:/var/www/html/chessgame
+      - llm-gen_data:/var/www/html/magic_site
     networks:
       - inception
 
@@ -155,6 +156,7 @@ services:
     networks:
       - inception
 
+  #dpeends on nginx ?
   hugo:
     container_name: hugo
     build: ./requirements/bonus/hugo
@@ -166,6 +168,7 @@ services:
     networks:
       - inception
 
+  #dpeends on nginx ?
   chessgame:
     container_name: chessgame
     build: ./requirements/bonus/chessgame
@@ -175,11 +178,12 @@ services:
     networks:
       - inception
 
+  #dpeends on nginx ?
   llm-gen:
     build: ./requirements/bonus/llm-gen
     container_name: llm-gen
     volumes: # bien nettoyer !!
-      - llm-gen_data:/car/www/html/magic-static
+      - llm-gen_data:/var/www/html/magic_site
     secrets: # a creer et gerer
       - groq_api_key
     networks:
@@ -243,3 +247,5 @@ secrets:
     file: ../secrets/mysql_user_email.txt
   ftp_pass:
     file: ../secrets/ftp_pass.txt
+  groq_api_key:
+    file: ../secrets/groq_api_key.txt

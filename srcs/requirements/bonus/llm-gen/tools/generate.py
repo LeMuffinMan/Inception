@@ -5,7 +5,7 @@ import json
 import requests
 
 SECRET_PATH = "/run/secrets/groq_api_key"
-OUTPUT_PATH = "/var/www/static/index.html"
+OUTPUT_PATH = "/var/www/html/magic_site/index.html"
 
 PROMPT = """Generate a single self-contained HTML page.
 Requirements:
