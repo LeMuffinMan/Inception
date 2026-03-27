@@ -28,7 +28,7 @@ services:
     restart: on-failure
     volumes:
       - wordpress_data:/var/www/html
-      - hugo_data:/var/www/html/muffin_site
+      - hugo_data:/var/www/html/muffin_site/public
     networks:
       - inception
 
