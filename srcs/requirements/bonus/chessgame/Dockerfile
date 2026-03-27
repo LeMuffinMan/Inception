@@ -1,14 +1,11 @@
-FROM alpine:3.22.3 AS downloader
-
-RUN apk add --no-cache curl jq unzip && \
-    curl -L \
-        "https://github.com/LeMuffinMan/ChessGame/releases/dwonload/1.0.1/chessgame-wasm.zip" \
-        -o chessgame-wasm.zip && \
-    unzip chessgame-wasm.zip
-
 FROM alpine:3.22.3
 
-COPY --from=downloader /dist /www/html
+RUN apk add --no-cache curl jq unzip
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 
 # Building version (10 min)
