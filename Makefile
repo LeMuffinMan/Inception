@@ -73,4 +73,23 @@ uninstall:
 	$(KILL_SCRIPT)
 	$(UNINSTALL_SCRIPT)
 
-.PHONY: up down re clean check fclean logs status crash regen volume checks uninstall
+# Génère la page statique avec le LLM (container éphémère)
+generate:
+	@echo ">>> Generating static page via Groq LLM..."
+	@if [ ! -f secrets/groq_api_key.txt ]; then \
+		echo "ERROR: secrets/groq_api_key.txt not found."; \
+		echo "Create it with: echo 'gsk_YOURKEY' > secrets/groq_api_key.txt"; \
+		exit 1; \
+	fi
+	docker compose -f srcs/docker-compose.yml run --rm llm-gen
+	@echo ">>> Static page generated."
+ 
+# Régénère sans reconstruire l'image
+regenerate:
+	docker compose -f srcs/docker-compose.yml run --rm --no-deps llm-gen
+ 
+# Build uniquement l'image llm-gen
+build-llm:
+	docker compose -f srcs/docker-compose.yml build llm-gen
+
+.PHONY: up down re clean check fclean logs status crash regen volume checks uninstall build-llm regenerate generate
