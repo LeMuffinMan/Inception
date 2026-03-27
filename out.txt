@@ -1,1 +1,1 @@
-/var/www/html/muffin_site/index.xml /var/www/html/muffin_site/404.html /var/www/html/muffin_site/index.html /var/www/html/muffin_site/sitemap.xml
+../data/hugo/public/categories/index.html ../data/hugo/public/page/1/index.html ../data/hugo/public/index.html ../data/hugo/public/tags/index.html
