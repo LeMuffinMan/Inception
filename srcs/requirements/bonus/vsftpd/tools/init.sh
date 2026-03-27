@@ -2,7 +2,6 @@
 
 if ! id $FTP_USER  > /dev/null 2>&1; then
     echo "Setting FTP_USER ..."
-    # adduser -D -h "/home/$FTP_USER" -s /bin/sh "$FTP_USER"
     adduser -D -h /home/$FTP_USER -s /bin/false $FTP_USER
     echo "$FTP_USER:$FTP_PASS" | chpasswd
     chown -R $FTP_USER:$FTP_USER /home/$FTP_USER/ftp/
@@ -49,8 +48,4 @@ else
     echo "vsftpd is already configured"
 fi
 
-# this line solve the 139 exit code
-# exec strace -f vsftpd /etc/vsftpd/vsftpd.conf
-
-# echo "EXEC VSFTPD"
 exec /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf

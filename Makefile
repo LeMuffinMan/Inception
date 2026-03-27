@@ -17,6 +17,7 @@ up:
 	@echo "Creating folders for persistent storage ..."
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
+	mkdir -p ~/data/hugo
 	@echo "Starting containers ..."
 	$(COMPOSE) up -d --build --no-recreate
 

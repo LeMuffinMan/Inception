@@ -19,6 +19,7 @@ docker container prune -f
 echo -e "${YELLOW}Cleaning volumes ...${NC}"
 sudo rm -rf ~/data/mysql && echo -e "${YELLOW}~/data/mysql deleted successfully${NC}"
 sudo rm -rf ~/data/wordpress && echo -e "${YELLOW}~/data/wordpress deleted successfully${NC}"
+sudo rm -rf ~/data/hugo && echo -e "${YELLOW}~/data/hugo deleted successfully${NC}"
 echo -e "${YELLOW}Cleaning dangling images ...${NC}"
 docker image prune -f
 echo -e "${YELLOW}Removing images ...${NC}"

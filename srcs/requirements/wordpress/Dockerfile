@@ -12,8 +12,6 @@ COPY --from=downloader /usr/local/bin/wp /usr/local/bin/wp
 COPY tools/init.sh /usr/local/bin/init.sh
 
 RUN apk add --no-cache \
-        # wget \
-        # mariadb-client \
         php83-redis \
         php83-fpm \
         php83-tokenizer \

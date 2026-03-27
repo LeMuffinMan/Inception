@@ -1,4 +1,37 @@
 services:
+  # ------------- Madatory services ------------------
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    # pas tout lui donner !
+    env_file:
+      - .env
+    ports:
+      - 443:443
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "-qO-",
+          "--no-check-certificate",
+          "https://localhost:443",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      wordpress:
+        condition: service_healthy
+        restart: true
+    restart: on-failure
+    volumes:
+      - wordpress_data:/var/www/html
+      - hugo_data:/var/www/html/muffin_site
+    networks:
+      - inception
+
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
@@ -35,6 +68,7 @@ services:
         target: /var/www/html
     networks:
       - inception
+
   mariadb:
     environment:
       - MYSQL_USER=${MYSQL_USER}
@@ -44,9 +78,6 @@ services:
       - db_root_password
     container_name: mariadb
     build: ./requirements/mariadb
-    # pas tout lui donner !
-    # env_file:
-    #   - .env
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 3s
@@ -58,37 +89,8 @@ services:
       - mariadb_data:/var/lib/mysql
     networks:
       - inception
-  nginx:
-    container_name: nginx
-    build: ./requirements/nginx
-    # pas tout lui donner !
-    env_file:
-      - .env
-    ports:
-      - 443:443
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "-qO-",
-          "--no-check-certificate",
-          "https://localhost:443",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    depends_on:
-      wordpress:
-        condition: service_healthy
-        restart: true
-    restart: on-failure
-    volumes:
-      - wordpress_data:/var/www/html
-    networks:
-      - inception
 
+  # ------------- Bonus services ------------------
   redis:
     container_name: redis
     build: ./requirements/bonus/redis
@@ -152,6 +154,17 @@ services:
     networks:
       - inception
 
+  hugo:
+    container_name: hugo
+    build: ./requirements/bonus/hugo
+    environment:
+      - DOMAIN=${DOMAIN_NAME}
+    volumes:
+      - hugo_data:/var/www/html/muffin_site
+    restart: no
+    networks:
+      - inception
+
 networks:
   inception:
     driver: bridge
@@ -169,6 +182,12 @@ volumes:
       type: none
       o: bind
       device: ~/data/mysql
+  hugo_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/hugo
 
 secrets:
   db_password:

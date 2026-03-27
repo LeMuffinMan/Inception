@@ -11,4 +11,5 @@ RUN apk add --no-cache \
 
 EXPOSE 21 21100-21110
 
+#ENTRYPOINT ?
 CMD ["/usr/local/bin/init.sh"]
