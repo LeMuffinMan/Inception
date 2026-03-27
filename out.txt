@@ -1,0 +1,1 @@
+/var/www/html/muffin_site/index.xml /var/www/html/muffin_site/404.html /var/www/html/muffin_site/index.html /var/www/html/muffin_site/sitemap.xml
