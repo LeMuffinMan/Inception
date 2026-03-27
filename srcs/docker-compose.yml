@@ -29,6 +29,7 @@ services:
     volumes:
       - wordpress_data:/var/www/html
       - hugo_data:/var/www/html/muffin_site
+      - chessgame_data:/var/www/html/chessgame
     networks:
       - inception
 
@@ -197,6 +198,12 @@ volumes:
       type: none
       o: bind
       device: ~/data/hugo
+  chessgame_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ~/data/chessgame
 
 secrets:
   db_password:
