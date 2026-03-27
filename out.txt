@@ -1,1 +1,6 @@
-[ { "CreatedAt": "2026-03-27T12:45:26-04:00", "Driver": "local", "Labels": { "com.docker.compose.config-hash": "ecede95f450b13217dac4f1650fadc1e7d5a0d1e218b0283464100544a21711a", "com.docker.compose.project": "srcs", "com.docker.compose.version": "5.1.1", "com.docker.compose.volume": "hugo_data" }, "Mountpoint": "/var/lib/docker/volumes/srcs_hugo_data/_data", "Name": "srcs_hugo_data", "Options": { "device": "/home/oelleaum/data/hugo", "o": "bind", "type": "none" }, "Scope": "local" } ]
+Loading module from “https://oelleaum.42.fr/chessgame/pkg/chessgame.js” was blocked because of a disallowed MIME type (“text/html”).
+chessgame
+Loading failed for the module with source “https://oelleaum.42.fr/chessgame/pkg/chessgame.js”. chessgame
+Loading module from “https://oelleaum.42.fr/chess_game-ca06d866cbbc2bd8.js/” was blocked because of a disallowed MIME type (“text/html”).
+chessgame
+The resource at “https://oelleaum.42.fr/chess_game-ca06d866cbbc2bd8_bg.wasm” preloaded with link preload was not used within a few seconds. Make sure all attributes of the preload tag are set correctly.

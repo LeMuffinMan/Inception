@@ -18,6 +18,7 @@ up:
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
 	mkdir -p ~/data/hugo
+	mkdir -p ~/data/chessgame
 	@echo "Starting containers ..."
 	$(COMPOSE) up -d --build --no-recreate
 
@@ -37,6 +38,8 @@ re:
 	docker image prune -f
 	sudo rm -rf ~/data/mysql
 	sudo rm -rf ~/data/wordpress
+	sudo rm -rf ~/data/hugo
+	sudo rm -rf ~/data/chessgame
 	$(MAKE) up
 	$(MAKE) check
 
