@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>∞ VOID GARDEN ∞</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #020409;
+    --ink: #e8f0fe;
+    --glow1: #6ef9f5;
+    --glow2: #b57bee;
+    --glow3: #f7c59f;
+    --accent: #f72585;
+    --gold: #ffd166;
+    --sans: 'Courier New', monospace;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    cursor: none;
+  }
+
+  /* ===== CUSTOM CURSOR ===== */
+  #cursor {
+    position: fixed; z-index: 9999;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--glow1);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: screen;
+    transition: width .15s, height .15s, background .2s;
+    box-shadow: 0 0 18px 4px var(--glow1);
+  }
+  #cursor.big {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    box-shadow: 0 0 30px 8px var(--accent);
+  }
+  #cursor-trail {
+    position: fixed; z-index: 9998;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--glow1);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: .35;
+    transition: left .08s ease, top .08s ease, opacity .2s;
+    mix-blend-mode: screen;
+  }
+
+  /* ===== MAIN CANVAS ===== */
+  #bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    display: block;
+  }
+
+  /* ===== OVERLAY UI ===== */
+  #overlay {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+
+  /* ===== INTRO SCREEN ===== */
+  #intro {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: var(--bg);
+    transition: opacity 1.2s ease, visibility 1.2s;
+  }
+  #intro.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+  .logo-wrap {
+    text-align: center;
+    animation: floatIn 1.2s cubic-bezier(.16,1,.3,1) both;
+  }
+  .logo-title {
+    font-size: clamp(2.8rem, 8vw, 7rem);
+    font-weight: 900;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, var(--glow1), var(--glow2), var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    filter: drop-shadow(0 0 30px rgba(110,249,245,.4));
+  }
+  .logo-sub {
+    font-size: clamp(.65rem, 1.5vw, 1rem);
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: rgba(232,240,254,.5);
+    margin-top: .8rem;
+    animation: fadeIn 2s 0.5s both;
+  }
+  .enter-btn {
+    margin-top: 3rem;
+    padding: .85rem 2.8rem;
+    border: 1px solid var(--glow1);
+    background: transparent;
+    color: var(--glow1);
+    font-family: var(--sans);
+    font-size: .85rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    cursor: none;
+    pointer-events: all;
+    transition: background .25s, color .25s, box-shadow .25s, transform .15s;
+    animation: fadeIn 2s 1s both;
+    position: relative;
+    overflow: hidden;
+  }
+  .enter-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--glow1);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s cubic-bezier(.16,1,.3,1);
+    z-index: -1;
+  }
+  .enter-btn:hover::after { transform: scaleX(1); }
+  .enter-btn:hover { color: var(--bg); box-shadow: 0 0 40px var(--glow1); }
+
+  /* ===== HUD ===== */
+  #hud {
+    position: fixed; inset: 0; z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s 0.5s;
+  }
+  #hud.visible { opacity: 1; }
+
+  .hud-corner {
+    position: absolute;
+    font-size: .65rem;
+    letter-spacing: .2em;
+    color: rgba(110,249,245,.5);
+    text-transform: uppercase;
+  }
+  .hud-tl { top: 1.5rem; left: 1.5rem; }
+  .hud-tr { top: 1.5rem; right: 1.5rem; text-align: right; }
+  .hud-bl { bottom: 1.5rem; left: 1.5rem; }
+  .hud-br { bottom: 1.5rem; right: 1.5rem; text-align: right; }
+
+  #mode-label {
+    position: fixed; top: 50%; left: 1.5rem;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: center;
+    font-size: .6rem; letter-spacing: .3em;
+    color: rgba(181,123,238,.5);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ===== MODE SELECTOR ===== */
+  #mode-btns {
+    position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: .6rem;
+    z-index: 30; pointer-events: all;
+    opacity: 0;
+    transition: opacity 1s .8s;
+  }
+  #mode-btns.visible { opacity: 1; }
+
+  .mbt {
+    padding: .4rem 1.1rem;
+    border: 1px solid rgba(110,249,245,.3);
+    background: rgba(2,4,9,.7);
+    color: rgba(232,240,254,.4);
+    font-family: var(--sans);
+    font-size: .6rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all .2s;
+    backdrop-filter: blur(8px);
+  }
+  .mbt:hover, .mbt.active {
+    border-color: var(--glow1);
+    color: var(--glow1);
+    background: rgba(110,249,245,.08);
+    box-shadow: 0 0 15px rgba(110,249,245,.2);
+  }
+
+  /* ===== INFO PANEL ===== */
+  #info-panel {
+    position: fixed; top: 50%; right: 1.5rem;
+    transform: translateY(-50%);
+    z-index: 30;
+    font-size: .6rem;
+    letter-spacing: .15em;
+    color: rgba(232,240,254,.3);
+    text-transform: uppercase;
+    line-height: 2.2;
+    opacity: 0;
+    transition: opacity 1s 1s;
+    pointer-events: none;
+  }
+  #info-panel.visible { opacity: 1; }
+  #info-panel span { color: rgba(110,249,245,.6); }
+
+  /* ===== RIPPLE FEEDBACK ===== */
+  .ripple {
+    position: fixed;
+    border-radius: 50%;
+    border: 1px solid var(--glow1);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    animation: rippleOut .8s ease-out forwards;
+    z-index: 15;
+  }
+  @keyframes rippleOut {
+    from { width: 0; height: 0; opacity: .8; }
+    to   { width: 120px; height: 120px; opacity: 0; }
+  }
+
+  /* ===== SCORE FLASH ===== */
+  .score-flash {
+    position: fixed;
+    font-size: 1.2rem;
+    font-weight: 900;
+    pointer-events: none;
+    z-index: 40;
+    animation: scoreRise 1s ease-out forwards;
+    text-shadow: 0 0 20px currentColor;
+  }
+  @keyframes scoreRise {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to   { opacity: 0; transform: translate(-50%, -60px); }
+  }
+
+  /* ===== KEYFRAMES ===== */
+  @keyframes floatIn {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  /* ===== SCANLINES OVERLAY ===== */
+  #scanlines {
+    position: fixed; inset: 0; z-index: 5;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,.06) 2px,
+      rgba(0,0,0,.06) 4px
+    );
+    opacity: .4;
+  }
+
+  /* ===== VIGNETTE ===== */
+  #vignette {
+    position: fixed; inset: 0; z-index: 6;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center,
+      transparent 50%,
+      rgba(2,4,9,.7) 100%
+    );
+  }
+
+  /* ===== EASTER EGG MESSAGE ===== */
+  #egg {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+    font-size: 1.1rem;
+    letter-spacing: .2em;
+    color: var(--gold);
+    text-shadow: 0 0 30px var(--gold);
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity .5s;
+    pointer-events: none;
+    text-align: center;
+    line-height: 2;
+  }
+  #egg.show { opacity: 1; }
+
+  /* Konami code hint (hidden) */
+  #konami-hint {
+    position: fixed; bottom: 5rem; left: 50%;
+    transform: translateX(-50%);
+    font-size: .55rem; letter-spacing: .3em;
+    color: rgba(255,255,255,.06);
+    pointer-events: none;
+    z-index: 25;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+
+<!-- Main canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Scanlines & vignette -->
+<div id="scanlines"></div>
+<div id="vignette"></div>
+
+<!-- Intro screen -->
+<div id="intro">
+  <div class="logo-wrap">
+    <div class="logo-title">VOID GARDEN</div>
+    <div class="logo-sub">an interactive cosmos · click to grow · breathe</div>
+  </div>
+  <button class="enter-btn" id="enter-btn">Enter the Garden</button>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-corner hud-tl">
+    VOID GARDEN<br>
+    <span id="hud-mode" style="color:rgba(110,249,245,.8)">—</span>
+  </div>
+  <div class="hud-corner hud-tr">
+    SEEDS <span id="seed-count" style="color:var(--glow1)">0</span><br>
+    BLOOMS <span id="bloom-count" style="color:var(--glow2)">0</span>
+  </div>
+  <div class="hud-corner hud-bl">
+    <span id="fps-label">—</span> FPS
+  </div>
+  <div class="hud-corner hud-br">
+    MOUSE · CLICK · SCROLL
+  </div>
+</div>
+
+<div id="mode-label">— INTERACTION MODE —</div>
+
+<!-- Mode buttons -->
+<div id="mode-btns">
+  <button class="mbt active" data-mode="garden">GARDEN</button>
+  <button class="mbt" data-mode="storm">STORM</button>
+  <button class="mbt" data-mode="void">VOID</button>
+  <button class="mbt" data-mode="pulse">PULSE</button>
+</div>
+
+<!-- Info panel -->
+<div id="info-panel">
+  MODE <span id="info-mode">GARDEN</span><br>
+  ENERGY <span id="info-energy">100</span>%<br>
+  DEPTH <span id="info-depth">0</span><br>
+  TIME <span id="info-time">0s</span>
+</div>
+
+<!-- Easter egg -->
+<div id="egg" id="egg"></div>
+
+<!-- Konami hint -->
+<div id="konami-hint">↑↑↓↓←→←→BA</div>
+
+<script>
+/* ============================================================
+   VOID GARDEN — A living generative cosmos
+   Modes: Garden | Storm | Void | Pulse
+   Interactions: mouse move, click, scroll, keyboard (Konami)
+   Audio: Web Audio API procedural synth
+   ============================================================ */
+
+// ── Utils ──────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const rnd  = (a, b) => a + Math.random() * (b - a);
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const TAU = Math.PI * 2;
+
+// ── State ──────────────────────────────────────────────────
+let W, H, cx, cy;
+let mouseX = 0, mouseY = 0;
+let trailX = 0, trailY = 0;
+let seeds = 0, blooms = 0;
+let mode = 'garden';
+let energy = 100;
+let depth = 0;
+let startTime = Date.now();
+let frameCount = 0, lastFPSTime = 0, fps = 60;
+let scrollDelta = 0;
+let isEntered = false;
+
+// ── Canvas ─────────────────────────────────────────────────
+const canvas = $('bg-canvas');
+const ctx    = canvas.getContext('2d');
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  cx = W / 2; cy = H / 2;
+}
+window.addEventListener('resize', () => { resize(); rebuildStars(); });
+resize();
+
+// ── Audio ──────────────────────────────────────────────────
+let audioCtx = null;
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playTone(freq, type = 'sine', duration = 0.3, vol = 0.08, detune = 0) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.type = type; osc.frequency.value = freq; osc.detune.value = detune;
+  const now = audioCtx.currentTime;
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(vol, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+  osc.start(now); osc.stop(now + duration);
+}
+
+function playChord(root, duration = 0.5) {
+  const ratios = [1, 1.25, 1.5, 2];
+  ratios.forEach((r, i) => {
+    setTimeout(() => playTone(root * r, 'sine', duration, 0.05), i * 30);
+  });
+}
+
+function playNoise(duration = 0.1, vol = 0.04) {
+  if (!audioCtx) return;
+  const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const src = audioCtx.createBufferSource();
+  const gain = audioCtx.createGain();
+  const filt = audioCtx.createBiquadFilter();
+  filt.type = 'bandpass'; filt.frequency.value = 800; filt.Q.value = 0.5;
+  src.buffer = buf; src.connect(filt); filt.connect(gain); gain.connect(audioCtx.destination);
+  const now = audioCtx.currentTime;
+  gain.gain.setValueAtTime(vol, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+  src.start(now);
+}
+
+// ── Stars (background layer) ───────────────────────────────
+let stars = [];
+function rebuildStars() {
+  stars = [];
+  const n = Math.floor(W * H / 2200);
+  for (let i = 0; i < n; i++) {
+    stars.push({
+      x: rnd(0, W), y: rnd(0, H),
+      r: rnd(0.3, 1.5),
+      alpha: rnd(0.1, 0.7),
+      twinkle: rnd(0.003, 0.012),
+      phase: rnd(0, TAU),
+    });
+  }
+}
+rebuildStars();
+
+// ── Particles ──────────────────────────────────────────────
+const particles = [];
+
+class Particle {
+  constructor(x, y, opts = {}) {
+    this.x = x; this.y = y;
+    this.ox = x; this.oy = y; // origin for return
+    this.vx = opts.vx ?? rnd(-2, 2);
+    this.vy = opts.vy ?? rnd(-2, 2);
+    this.life = 1;
+    this.decay = opts.decay ?? rnd(0.005, 0.018);
+    this.r    = opts.r    ?? rnd(1.5, 5);
+    this.color = opts.color ?? `hsl(${rnd(160,300)},90%,70%)`;
+    this.glow  = opts.glow ?? true;
+    this.type  = opts.type ?? 'spark'; // spark | petal | void | ring
+    this.angle = Math.atan2(this.vy, this.vx);
+    this.speed = Math.hypot(this.vx, this.vy);
+    this.spin  = rnd(-0.05, 0.05);
+    this.scale = 1;
+    this.returnHome = opts.returnHome ?? false;
+    this.trail = [];
+    this.maxTrail = opts.maxTrail ?? 5;
+  }
+  update(mode) {
+    // Store trail
+    if (this.maxTrail > 0) {
+      this.trail.unshift({ x: this.x, y: this.y });
+      if (this.trail.length > this.maxTrail) this.trail.pop();
+    }
+
+    if (mode === 'void') {
+      // Orbit around cursor
+      const dx = mouseX - this.x, dy = mouseY - this.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 5) {
+        this.vx += (dx / dist) * 0.18;
+        this.vy += (dy / dist) * 0.18;
+      }
+      // Perpendicular drift (orbit)
+      this.vx += -dy / (dist + 1) * 0.04;
+      this.vy +=  dx / (dist + 1) * 0.04;
+      this.vx *= 0.96; this.vy *= 0.96;
+    } else if (mode === 'storm') {
+      // Turbulent wind
+      const t = Date.now() * 0.001;
+      this.vx += Math.sin(this.y * 0.01 + t * 1.3) * 0.15;
+      this.vy += Math.cos(this.x * 0.01 + t * 0.9) * 0.15;
+      this.vx *= 0.97; this.vy *= 0.97;
+    } else if (mode === 'pulse') {
+      // Pulsate from center
+      const dx = this.x - cx, dy = this.y - cy;
+      const dist = Math.hypot(dx, dy);
+      const pulse = Math.sin(Date.now() * 0.003) * 0.3;
+      if (dist > 1) {
+        this.vx += (dx / dist) * pulse;
+        this.vy += (dy / dist) * pulse;
+      }
+      this.vx *= 0.97; this.vy *= 0.97;
+    } else {
+      // Garden: gentle flow toward mouse, gravity from cursor repulsion
+      const dx = mouseX - this.x, dy = mouseY - this.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 120) {
+        this.vx -= (dx / dist) * 0.5;
+        this.vy -= (dy / dist) * 0.5;
+      } else if (dist < 300) {
+        this.vx += (dx / dist) * 0.05;
+        this.vy += (dy / dist) * 0.05;
+      }
+      this.vy += 0.02; // subtle gravity
+      this.vx *= 0.98; this.vy *= 0.98;
+    }
+
+    this.x += this.vx;
+    this.y += this.vy;
+    this.angle += this.spin;
+    this.life -= this.decay;
+
+    // Wrap edges
+    if (this.x < -20) this.x = W + 20;
+    if (this.x > W + 20) this.x = -20;
+    if (this.y < -20) this.y = H + 20;
+    if (this.y > H + 20) this.y = -20;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = clamp(this.life, 0, 1);
+    if (this.glow) {
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur  = this.r * 4;
+    }
+
+    // Draw trail
+    for (let i = 0; i < this.trail.length; i++) {
+      const t = this.trail[i];
+      ctx.globalAlpha = clamp(this.life * (1 - i / this.trail.length) * 0.4, 0, 1);
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, this.r * (1 - i / this.trail.length), 0, TAU);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    }
+
+    ctx.globalAlpha = clamp(this.life, 0, 1);
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+
+    if (this.type === 'petal') {
+      // Petal shape
+      ctx.beginPath();
+      ctx.ellipse(0, -this.r * 1.5, this.r * 0.7, this.r * 1.5, 0, 0, TAU);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    } else if (this.type === 'ring') {
+      ctx.beginPath();
+      ctx.arc(0, 0, this.r, 0, TAU);
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, this.r, 0, TAU);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+  get dead() { return this.life <= 0; }
+}
+
+// ── Blooms (flowers) ────────────────────────────────────────
+const bloomList = [];
+
+class Bloom {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    this.petals = Math.floor(rnd(4, 9));
+    this.r = rnd(10, 30);
+    this.hue = rnd(0, 360);
+    this.life = 1;
+    this.decay = rnd(0.001, 0.004);
+    this.angle = rnd(0, TAU);
+    this.spin  = rnd(-0.005, 0.005);
+    this.born  = Date.now();
+    this.pulse = rnd(0.002, 0.006);
+    this.scale = 0; // grows in
+  }
+  update() {
+    if (this.scale < 1) this.scale = Math.min(1, this.scale + 0.04);
+    this.angle += this.spin;
+    this.life -= this.decay;
+  }
+  draw(ctx) {
+    const t = (Date.now() - this.born) * this.pulse;
+    const breathe = 1 + Math.sin(t) * 0.08;
+    ctx.save();
+    ctx.globalAlpha = clamp(this.life * 0.8, 0, 1);
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.scale(this.scale * breathe, this.scale * breathe);
+
+    // Glow core
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, this.r * 1.5);
+    grad.addColorStop(0, `hsla(${this.hue},100%,80%,0.9)`);
+    grad.addColorStop(1, `hsla(${this.hue},100%,60%,0)`);
+    ctx.shadowColor = `hsl(${this.hue},100%,65%)`;
+    ctx.shadowBlur  = 25;
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(0, 0, this.r * 1.5, 0, TAU); ctx.fill();
+
+    // Petals
+    for (let i = 0; i < this.petals; i++) {
+      const a = (i / this.petals) * TAU;
+      ctx.save();
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.ellipse(0, -this.r, this.r * 0.45, this.r, 0, 0, TAU);
+      ctx.fillStyle = `hsla(${this.hue + i * 12},90%,65%,0.7)`;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Center dot
+    ctx.beginPath(); ctx.arc(0, 0, this.r * 0.25, 0, TAU);
+    ctx.fillStyle = `hsl(${this.hue + 60},100%,85%)`;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+
+    ctx.restore();
+  }
+  get dead() { return this.life <= 0; }
+}
+
+// ── Nebula clouds ──────────────────────────────────────────
+const nebulae = [];
+function spawnNebula() {
+  for (let i = 0; i < 6; i++) {
+    nebulae.push({
+      x: rnd(0, W), y: rnd(0, H),
+      r: rnd(80, 250),
+      hue: rnd(160, 320),
+      alpha: rnd(0.02, 0.07),
+      drift: { x: rnd(-0.08, 0.08), y: rnd(-0.08, 0.08) },
+      pulse: rnd(0.0005, 0.0015),
+      phase: rnd(0, TAU),
+    });
+  }
+}
+spawnNebula();
+
+function drawNebulae(t) {
+  nebulae.forEach(n => {
+    n.x += n.drift.x; n.y += n.drift.y;
+    if (n.x < -n.r) n.x = W + n.r;
+    if (n.x > W + n.r) n.x = -n.r;
+    if (n.y < -n.r) n.y = H + n.r;
+    if (n.y > H + n.r) n.y = -n.r;
+
+    const a = n.alpha * (1 + Math.sin(t * n.pulse + n.phase) * 0.3);
+    const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
+    grad.addColorStop(0, `hsla(${n.hue},80%,60%,${a * 2})`);
+    grad.addColorStop(0.5, `hsla(${n.hue + 30},80%,50%,${a})`);
+    grad.addColorStop(1, `hsla(${n.hue},80%,40%,0)`);
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, TAU); ctx.fill();
+  });
+}
+
+// ── Spawn helpers ──────────────────────────────────────────
+function spawnBurst(x, y, count = 20, modeOverride = null) {
+  const m = modeOverride ?? mode;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * TAU;
+    const speed = rnd(1.5, 5.5);
+    let color, type;
+    if (m === 'storm') {
+      color = `hsl(${rnd(190,240)},85%,70%)`;
+      type  = 'ring';
+    } else if (m === 'void') {
+      color = `hsl(${rnd(260,310)},90%,70%)`;
+      type  = 'spark';
+    } else if (m === 'pulse') {
+      color = `hsl(${rnd(0,60)},90%,70%)`;
+      type  = 'ring';
+    } else {
+      color = `hsl(${rnd(60,200)},85%,70%)`;
+      type  = 'petal';
+    }
+    particles.push(new Particle(x, y, {
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      decay: rnd(0.008, 0.022),
+      r: rnd(2, 5),
+      color, type,
+      maxTrail: m === 'void' ? 8 : 3,
+    }));
+  }
+  seeds += count;
+  $('seed-count').textContent = seeds;
+}
+
+function spawnAmbient() {
+  if (!isEntered) return;
+  const edge = Math.random();
+  let x, y;
+  if (edge < 0.25)      { x = rnd(0, W); y = -10; }
+  else if (edge < 0.5)  { x = W + 10; y = rnd(0, H); }
+  else if (edge < 0.75) { x = rnd(0, W); y = H + 10; }
+  else                  { x = -10; y = rnd(0, H); }
+
+  const hue = mode === 'storm' ? rnd(190,240)
+            : mode === 'void'  ? rnd(260,310)
+            : mode === 'pulse' ? rnd(0,60)
+            : rnd(100, 280);
+  particles.push(new Particle(x, y, {
+    vx: rnd(-1, 1), vy: rnd(-1, 1),
+    decay: rnd(0.003, 0.008),
+    r: rnd(1, 4),
+    color: `hsl(${hue},80%,65%)`,
+    type: Math.random() < 0.3 ? 'ring' : 'spark',
+    maxTrail: 4,
+  }));
+}
+
+// ── Connection lines ───────────────────────────────────────
+function drawConnections() {
+  const live = particles.filter(p => p.life > 0.4);
+  const maxDist = mode === 'void' ? 100 : 70;
+  for (let i = 0; i < live.length; i++) {
+    for (let j = i + 1; j < live.length && j < i + 6; j++) {
+      const dx = live[i].x - live[j].x;
+      const dy = live[i].y - live[j].y;
+      const d  = Math.hypot(dx, dy);
+      if (d < maxDist) {
+        const alpha = (1 - d / maxDist) * 0.15 * Math.min(live[i].life, live[j].life);
+        ctx.beginPath();
+        ctx.moveTo(live[i].x, live[i].y);
+        ctx.lineTo(live[j].x, live[j].y);
+        ctx.strokeStyle = live[i].color.replace('hsl', 'hsla').replace(')', `,${alpha})`);
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+// ── Mouse ripple ────────────────────────────────────────────
+function spawnRipple(x, y) {
+  const el = document.createElement('div');
+  el.className = 'ripple';
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  el.style.borderColor = mode === 'storm' ? '#6ef9f5'
+                       : mode === 'void'  ? '#b57bee'
+                       : mode === 'pulse' ? '#f72585'
+                       : '#6ef9f5';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function scoreFlash(x, y, txt, color = '#6ef9f5') {
+  const el = document.createElement('div');
+  el.className = 'score-flash';
+  el.textContent = txt;
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  el.style.color = color;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ── Mode change ────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  $('hud-mode').textContent = m.toUpperCase();
+  $('info-mode').textContent = m.toUpperCase();
+  document.querySelectorAll('.mbt').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === m);
+  });
+  const notes = { garden: 261.63, storm: 329.63, void: 196, pulse: 392 };
+  playChord(notes[m] ?? 261.63, 0.6);
+  // Scatter burst from center
+  spawnBurst(cx, cy, 35);
+}
+
+// ── Konami code ─────────────────────────────────────────────
+const KONAMI = [38,38,40,40,37,39,37,39,66,65];
+let konamiIdx = 0;
+function checkKonami(k) {
+  if (k === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      easterEgg();
+    }
+  } else {
+    konamiIdx = 0;
+  }
+}
+
+function easterEgg() {
+  const egg = $('egg');
+  egg.innerHTML = '✦ YOU FOUND THE SECRET ✦<br>THE VOID HAS ALWAYS KNOWN YOU';
+  egg.classList.add('show');
+  playChord(523.25, 1.5);
+  setTimeout(() => playChord(659.25, 1.5), 300);
+  setTimeout(() => playChord(783.99, 1.5), 600);
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => spawnBurst(cx, cy, 40), i * 200);
+  }
+  for (let i = 0; i < 20; i++) {
+    setTimeout(() => bloomList.push(new Bloom(rnd(W*.2, W*.8), rnd(H*.2, H*.8))), i * 100);
+  }
+  setTimeout(() => egg.classList.remove('show'), 3500);
+}
+
+// ── Voice-reactive ambient bloom ────────────────────────────
+let analyser = null, dataArray = null;
+function tryMic() {
+  if (!audioCtx) return;
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      const src = audioCtx.createMediaStreamSource(stream);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      src.connect(analyser);
+    }).catch(() => {});
+}
+
+// ── Main animation loop ────────────────────────────────────
+let t = 0;
+function loop() {
+  requestAnimationFrame(loop);
+  t += 0.01;
+  frameCount++;
+
+  const now = performance.now();
+  if (now - lastFPSTime > 500) {
+    fps = Math.round(frameCount / ((now - lastFPSTime) / 1000));
+    frameCount = 0; lastFPSTime = now;
+    $('fps-label').textContent = fps;
+    energy = clamp(energy + rnd(-2, 3), 20, 100);
+    depth = clamp(depth + Math.round(rnd(-1, 2)), 0, 99);
+    $('info-energy').textContent = Math.round(energy);
+    $('info-depth').textContent  = depth;
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+    $('info-time').textContent = elapsed + 's';
+  }
+
+  if (!isEntered) return;
+
+  // Mic-reactive
+  if (analyser) {
+    analyser.getByteFrequencyData(dataArray);
+    const avg = dataArray.reduce((a,b) => a+b, 0) / dataArray.length;
+    if (avg > 40) {
+      spawnBurst(rnd(0, W), rnd(0, H), Math.floor(avg / 8));
+    }
+  }
+
+  // Ambient spawning
+  if (Math.random() < 0.35) spawnAmbient();
+
+  // Scroll reaction
+  if (scrollDelta !== 0) {
+    const count = Math.min(Math.abs(scrollDelta) * 0.5, 20);
+    spawnBurst(cx + rnd(-100,100), cy + rnd(-100,100), count);
+    scrollDelta = 0;
+  }
+
+  // ── Draw frame ──────────────────────────────────────────
+  // Background
+  ctx.fillStyle = 'rgba(2,4,9,0.18)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Nebulae
+  drawNebulae(t);
+
+  // Stars
+  stars.forEach(s => {
+    const a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.twinkle * 50 + s.phase));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, TAU);
+    ctx.fillStyle = `rgba(220,235,255,${a})`;
+    ctx.fill();
+  });
+
+  // Connections
+  ctx.save(); ctx.globalCompositeOperation = 'screen'; drawConnections(); ctx.restore();
+
+  // Particles
+  ctx.save(); ctx.globalCompositeOperation = 'screen';
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update(mode);
+    particles[i].draw(ctx);
+    if (particles[i].dead) particles.splice(i, 1);
+  }
+  ctx.restore();
+
+  // Blooms
+  ctx.save(); ctx.globalCompositeOperation = 'screen';
+  for (let i = bloomList.length - 1; i >= 0; i--) {
+    bloomList[i].update();
+    bloomList[i].draw(ctx);
+    if (bloomList[i].dead) bloomList.splice(i, 1);
+  }
+  ctx.restore();
+
+  // Cursor aura
+  const agrad = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, 80);
+  const modeColors = {
+    garden: '110,249,245', storm: '100,180,255',
+    void: '181,123,238', pulse: '247,37,133'
+  };
+  const mc = modeColors[mode] ?? '110,249,245';
+  agrad.addColorStop(0,   `rgba(${mc},0.08)`);
+  agrad.addColorStop(0.5, `rgba(${mc},0.03)`);
+  agrad.addColorStop(1,   `rgba(${mc},0)`);
+  ctx.save(); ctx.globalCompositeOperation = 'screen';
+  ctx.fillStyle = agrad;
+  ctx.beginPath(); ctx.arc(mouseX, mouseY, 80, 0, TAU); ctx.fill();
+  ctx.restore();
+
+  // Pulse mode: emanating rings
+  if (mode === 'pulse') {
+    const r = (t * 120) % Math.max(W, H);
+    ctx.save(); ctx.globalCompositeOperation = 'screen';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU);
+    ctx.strokeStyle = `rgba(247,37,133,${0.15 * (1 - r / Math.max(W,H))})`;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Trim particles
+  if (particles.length > 1800) particles.splice(0, 50);
+}
+
+// ── Events ─────────────────────────────────────────────────
+window.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  // Cursor
+  const cursor = $('cursor');
+  cursor.style.left = mouseX + 'px'; cursor.style.top = mouseY + 'px';
+  // Trail (delayed)
+  setTimeout(() => {
+    trailX = mouseX; trailY = mouseY;
+    const trail = $('cursor-trail');
+    trail.style.left = trailX + 'px'; trail.style.top = trailY + 'px';
+  }, 60);
+});
+
+window.addEventListener('click', e => {
+  if (!isEntered) return;
+  initAudio();
+  const x = e.clientX, y = e.clientY;
+  spawnBurst(x, y, mode === 'void' ? 30 : 20);
+  spawnRipple(x, y);
+
+  if (Math.random() < 0.35) {
+    bloomList.push(new Bloom(x + rnd(-30,30), y + rnd(-30,30)));
+    blooms++;
+    $('bloom-count').textContent = blooms;
+    scoreFlash(x, y, '+BLOOM', '#b57bee');
+    playTone(261.63 + Math.random() * 300, 'sine', 0.4, 0.07);
+  } else {
+    scoreFlash(x, y, '+' + (mode === 'void' ? 30 : 20), '#6ef9f5');
+    playNoise(0.15, 0.05);
+  }
+  $('cursor').classList.add('big');
+  setTimeout(() => $('cursor').classList.remove('big'), 200);
+});
+
+window.addEventListener('wheel', e => {
+  if (!isEntered) return;
+  scrollDelta += e.deltaY;
+});
+
+window.addEventListener('keydown', e => {
+  checkKonami(e.keyCode);
+  if (!isEntered) return;
+  initAudio();
+  const keyMap = {
+    '1': 'garden', '2': 'storm', '3': 'void', '4': 'pulse',
+    'g': 'garden', 's': 'storm', 'v': 'void', 'p': 'pulse',
+  };
+  if (keyMap[e.key]) setMode(keyMap[e.key]);
+  if (e.code === 'Space') {
+    e.preventDefault();
+    spawnBurst(cx + rnd(-100,100), cy + rnd(-100,100), 40);
+    playTone(130, 'sawtooth', 0.2, 0.06);
+  }
+  if (e.key === 'b') {
+    bloomList.push(new Bloom(mouseX, mouseY));
+    blooms++; $('bloom-count').textContent = blooms;
+    playChord(261.63, 0.5);
+  }
+});
+
+// Mode buttons
+document.querySelectorAll('.mbt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    initAudio();
+    setMode(btn.dataset.mode);
+  });
+});
+
+// Enter button
+$('enter-btn').addEventListener('click', () => {
+  initAudio();
+  tryMic();
+  isEntered = true;
+  $('intro').classList.add('hidden');
+  $('hud').classList.add('visible');
+  $('mode-btns').classList.add('visible');
+  $('info-panel').classList.add('visible');
+  startTime = Date.now();
+  lastFPSTime = performance.now();
+  // Welcome burst
+  setTimeout(() => {
+    spawnBurst(cx, cy, 50);
+    playChord(261.63, 0.8);
+    for (let i = 0; i < 8; i++) {
+      setTimeout(() => bloomList.push(new Bloom(
+        cx + rnd(-200, 200), cy + rnd(-150, 150)
+      )), i * 150);
+    }
+  }, 400);
+});
+
+// Start loop immediately
+loop();
+</script>
+</body>
+</html>
