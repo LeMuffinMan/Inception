@@ -31,7 +31,7 @@ RUN apk add --no-cache \
         php83-session && \
     adduser -u 82 -D -S -G www-data www-data && \
     sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php83/php.ini && \
-    mkdir -p /var/www/html && \
+    mkdir -p /var/www/html/wordpress && \
     chmod +x /usr/local/bin/init.sh
 
 EXPOSE 9000

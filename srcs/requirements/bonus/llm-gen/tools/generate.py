@@ -38,6 +38,7 @@ STRUCTURE:
    - Minimal, elegant, subtle glow
 
 TECHNICAL REQUIREMENTS:
+- cette ligne doit apparaitre : <title>INCEPTION</title>
 - Pure HTML + CSS only
 - No JavaScript
 - No external resources (no CDN, no fonts)

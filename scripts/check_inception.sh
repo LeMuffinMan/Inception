@@ -283,7 +283,7 @@ if [ -z $1 ] || [ "$1" == "redis" ]; then
             check "cache populated (keys > 0)" "ko" "0 keys — WordPress may not be using Redis"
         fi
 
-        REDIS_STATUS=$(docker exec "$CONTAINER_WORDPRESS" wp redis status --path=/var/www/html --allow-root 2>/dev/null)
+        REDIS_STATUS=$(docker exec "$CONTAINER_WORDPRESS" wp redis status --path=/var/www/html/wordpress --allow-root 2>/dev/null)
         if echo "$REDIS_STATUS" | grep -q "Drop-in: Valid" && echo "$REDIS_STATUS" | grep -q "Disabled: No"; then
             REDIS_VERSION=$(echo "$REDIS_STATUS" | grep "Redis Version:")
             check "wp redis status" "ok" "$REDIS_VERSION"
@@ -460,6 +460,22 @@ if [ -z $1 ] || [ "$1" == "network" ]; then
         check "domain reachable (${DOMAIN})" "ok"
     else
         check "domain reachable (${DOMAIN})" "ko"
+    fi
+
+    if curl -fsSLk "https://${DOMAIN}/muffin_site" | grep "<title>MuffinSite</title>" > /dev/null 2>&1; then
+        check "MuffinSite reachable (${DOMAIN}/MuffinSite)" "ok"
+    else
+        check "MuffinSite reachable (${DOMAIN}/MuffinSite)" "ko"
+    fi
+    if curl -fsSLk "https://${DOMAIN}/chessgame"  | grep "<title>ChessGame</title>" > /dev/null 2>&1; then
+        check "ChessGame reachable (${DOMAIN}/ChessGame)" "ok"
+    else
+        check "ChessGame reachable (${DOMAIN}/ChessGame)" "ko"
+    fi
+    if curl -fsSLk "https://${DOMAIN}/magic_site" | grep "<title>INCEPTION</title>" > /dev/null 2>&1; then
+        check "MagicSite reachable (${DOMAIN}/Magic_site)" "ok"
+    else
+        check "MagicSite reachable (${DOMAIN}/Magic_site)" "ko"
     fi
 
     if grep "^127\.0\.0\.1" /etc/hosts | grep -q $(whoami).42.fr; then

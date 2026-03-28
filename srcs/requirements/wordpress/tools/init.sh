@@ -3,7 +3,7 @@
 set -e
 
 #WORKSTATION ?
-cd /var/www/html
+cd /var/www/html/wordpress
 
 # a virer ? : filtrer a la generation
 # add_domain_if_missing() {
@@ -34,7 +34,7 @@ until nc -z mariadb 3306; do
 done
 echo "MariaDB is ready"
 
-if [ ! -f /var/www/html/wp-config.php ]; then
+if [ ! -f /var/www/html/wordpress/wp-config.php ]; then
 
     wp core download --allow-root
 
