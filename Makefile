@@ -25,19 +25,21 @@ down:
 	$(COMPOSE) down
 
 re:
-	@bash $(KILL_SCRIPT)
+	$(KILL_SCRIPT)
 	sudo rm -rf ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame ~/data/llm-gen
 	$(MAKE) up
 	$(MAKE) check
 
 logs:
-	$(COMPOSE) logs -f $(SERVICE)
+	alacritty -e sh -c '$(COMPOSE) logs -f $(SERVICE)' &
 
 logs-%:
 	alacritty -e sh -c '$(COMPOSE) logs -f $* | less +F' &
 
 status:
-	@bash $(STATUS_SCRIPT)
+	docker ps
+	docker volume ls
+	docker network
 
 restart:
 	@[ -n "$(SERVICE)" ] || (echo "Usage: make restart SERVICE=<name>"; exit 1)
@@ -45,7 +47,7 @@ restart:
 
 shell:
 	@[ -n "$(SERVICE)" ] || (echo "Usage: make shell SERVICE=<name>"; exit 1)
-	$(COMPOSE) exec $(SERVICE) sh
+	alacritty -e sh -c '$(COMPOSE) exec $(SERVICE) sh'
 
 # =============================================================================
 # DEV
@@ -53,29 +55,21 @@ shell:
 
 check:
 ifeq ($(TEST),crash)
-	@bash $(CRASH_SCRIPT)
+	$(CRASH_SCRIPT)
 else ifeq ($(TEST),volume)
-	@bash $(VOLUME_SCRIPT)
+	$(VOLUME_SCRIPT)
 else
-	@bash $(CHECK_SCRIPT) $(SERVICE)
+	$(CHECK_SCRIPT) $(SERVICE)
 endif
 
 fclean:
-	@bash $(FCLEAN_SCRIPT)
+	$(KILL_SCRIPT)
+	$(FCLEAN_SCRIPT)
 
 uninstall: fclean
-	@bash $(UNINSTALL_SCRIPT)
+	$(UNINSTALL_SCRIPT)
 
-reinstall: uninstall up
-
-regen:
-	$(SECRET_GEN_SCRIPT) -f
-
-hosts:
-	@grep -q "$(shell whoami).42.fr" /etc/hosts \
-		&& echo "/etc/hosts entry already present" \
-		|| (sudo sed -i 's/^127\.0\.0\.1.*/& $(shell whoami).42.fr/' /etc/hosts \
-			&& echo "Added $(shell whoami).42.fr to /etc/hosts")
+reinstall: uninstall up check
 
 newmagicsite:
 	@echo ">>> Generating static page via Groq LLM..."
@@ -84,7 +78,7 @@ newmagicsite:
 		echo "Create it with: echo 'gsk_YOURKEY' > secrets/groq_api_key.txt"; \
 		exit 1; \
 	fi
-	$(COMPOSE) run --rm llm-gen
+	docker run --rm llm-gen
 	@echo ">>> Static page generated."
 
 # =============================================================================
@@ -98,8 +92,11 @@ create_volumes:
 generate_env:
 	$(ENV_GEN_SCRIPT)
 
+regenarate_secrets:
+	$(SECRET_GEN_SCRIPT) -f
+
 generate_secrets:
 	$(SECRET_GEN_SCRIPT)
 
 .PHONY: all up down re logs status restart shell check fclean uninstall \
-        reinstall regen hosts newmagicsite create_volumes generate_env generate_secrets
+        reinstall regenerate_secrets newmagicsite create_volumes generate_env generate_secrets
