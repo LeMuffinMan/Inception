@@ -164,7 +164,7 @@ services:
       - DOMAIN=${DOMAIN_NAME}
     volumes:
       - hugo_data:/var/www/html/muffin_site
-    restart: no
+    restart: on-failure
     networks:
       - inception
 
@@ -174,7 +174,7 @@ services:
     build: ./requirements/bonus/chessgame
     volumes:
       - chessgame_data:/var/www/html/chessgame
-    restart: on-failure:5
+    restart: on-failure
     networks:
       - inception
 
@@ -188,7 +188,7 @@ services:
       - groq_api_key
     networks:
       - inception
-    restart: no
+    restart: on-failure
 
 networks:
   inception:

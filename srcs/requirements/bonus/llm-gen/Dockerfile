@@ -6,5 +6,9 @@ RUN apk add --no-cache python3 py3-pip \
 WORKDIR /app
 
 COPY tools/generate.py .
+COPY tools/fallback.html .
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-CMD [ "python3", "generate.py" ]
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+CMD [ "/usr/local/bin/entrypoint.sh" ]

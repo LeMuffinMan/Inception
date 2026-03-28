@@ -472,7 +472,7 @@ if [ -z $1 ] || [ "$1" == "network" ]; then
     else
         check "ChessGame reachable (${DOMAIN}/ChessGame)" "ko"
     fi
-    if curl -fsSLk "https://${DOMAIN}/magic_site" | grep "<title>INCEPTION</title>" > /dev/null 2>&1; then
+    if curl -fsSLk "https://${DOMAIN}/magic_site" | grep -E "<title>INCEPTION</title>|<title>∞ VOID GARDEN ∞</title>" > /dev/null 2>&1; then
         check "MagicSite reachable (${DOMAIN}/Magic_site)" "ok"
     else
         check "MagicSite reachable (${DOMAIN}/Magic_site)" "ko"
