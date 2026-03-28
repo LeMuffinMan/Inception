@@ -138,8 +138,9 @@ done
 #     fi
 # done
 
+GROQ_API_KEY=$(grep "GROQ_API_KEY=" srcs/.env)
 if [ ! -z "$GROQ_API_KEY" ]; then
-    echo "GROQ_API_KEY=$GROQ_API_KEY" >> secrets/groq_api_key.txt
+    echo "$GROQ_API_KEY" >> secrets/groq_api_key.txt
 fi
 
 echo

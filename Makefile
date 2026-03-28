@@ -80,7 +80,7 @@ uninstall:
 	$(UNINSTALL_SCRIPT)
 
 reinstall: uninstall
-    $(ENV_GEN_SCRIPT) "-y"
+	$(ENV_GEN_SCRIPT) -y
 	$(SECRET_GEN_SCRIPT)
 	@echo "Creating folders for persistent storage ..."
 	mkdir -p ~/data/mysql
