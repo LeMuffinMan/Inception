@@ -45,20 +45,43 @@ EOF
 mkdir -p content/projects
 cat > content/projects/_index.md << 'EOF'
 ---
-title: "Mes Projets"
+title: "My Projetcs"
 layout: "list"
 draft: false
 ---
-Bienvenue sur ma page de projets !
 EOF
 
 cat > content/projects/inception.md << 'EOF'
 ---
 title: "Inception"
-date: 2024-01-01
-description: "Déploiement de services via Docker Compose"
+date: 2026-03-26
+description: "Automated deployment of multi-service applications with Docker Compose"
 tags: ["docker", "devops"]
 draft: false
 ---
-Description du projet Inception.
+Inception is a project focused on automating the deployment of complex service stacks using Docker Compose. It demonstrates how to efficiently manage services such as MariaDB, Nginx, and WordPress in a reproducible environment.
+
+Stack: MariaDB, Nginx, WordPress
+EOF
+
+cat > content/projects/chessgame.md << 'EOF'
+---
+title: "ChessGame"
+date: 2026-03-26
+description: "A browser-based chess application built with Rust and WebAssembly"
+tags: ["rust", "wasm", "webdev"]
+draft: false
+---
+ChessGame is an interactive chess application built with Rust and compiled to WebAssembly for high performance in the browser. It showcases Rust's capabilities in front-end development and WASM integration.
+EOF
+
+cat > content/projects/magic_site.md << 'EOF'
+---
+title: "MagicSite"
+date: 2026-03-26
+description: "Static website generation powered by AI"
+tags: ["static site", "ai", "automation"]
+draft: false
+---
+MagicSite leverages AI to automatically generate static web pages. This project explores how modern language models can assist in web development, reducing manual work and improving content creation efficiency.
 EOF
