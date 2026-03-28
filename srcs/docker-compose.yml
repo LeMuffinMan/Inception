@@ -165,6 +165,9 @@ services:
     volumes:
       - hugo_data:/var/www/html/muffin_site
     restart: on-failure
+    depends_on:
+      nginx:
+        condition: service_started
     networks:
       - inception
 
@@ -175,6 +178,9 @@ services:
     volumes:
       - chessgame_data:/var/www/html/chessgame
     restart: on-failure
+    depends_on:
+      nginx:
+        condition: service_started
     networks:
       - inception
 
@@ -189,6 +195,9 @@ services:
     networks:
       - inception
     restart: on-failure
+    depends_on:
+      nginx:
+        condition: service_started
 
 networks:
   inception:

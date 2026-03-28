@@ -11,17 +11,23 @@ KILL_SCRIPT=scripts/kill_containers.sh
 
 all: up check
 
-up:
-	$(ENV_GEN_SCRIPT)
-	$(SECRET_GEN_SCRIPT)
+up: generate_env generate_secrets create_volumes
+	@echo "Starting containers ..."
+	$(COMPOSE) up -d --build --no-recreate
+
+create_volumes:
 	@echo "Creating folders for persistent storage ..."
 	mkdir -p ~/data/mysql
 	mkdir -p ~/data/wordpress
 	mkdir -p ~/data/hugo
 	mkdir -p ~/data/chessgame
 	mkdir -p ~/data/llm-gen
-	@echo "Starting containers ..."
-	$(COMPOSE) up -d --build --no-recreate
+
+generate_env:
+	$(ENV_GEN_SCRIPT)
+
+generate_secrets:
+	$(SECRET_GEN_SCRIPT)
 
 down:
 	@echo "Shutting down containers ..."
@@ -73,6 +79,18 @@ uninstall:
 	$(KILL_SCRIPT)
 	$(UNINSTALL_SCRIPT)
 
+reinstall: uninstall
+    $(ENV_GEN_SCRIPT) "-y"
+	$(SECRET_GEN_SCRIPT)
+	@echo "Creating folders for persistent storage ..."
+	mkdir -p ~/data/mysql
+	mkdir -p ~/data/wordpress
+	mkdir -p ~/data/hugo
+	mkdir -p ~/data/chessgame
+	mkdir -p ~/data/llm-gen
+	@echo "Starting containers ..."
+	$(COMPOSE) up -d --build --no-recreate
+
 generate:
 	@echo ">>> Generating static page via Groq LLM..."
 	@if [ ! -f secrets/groq_api_key.txt ]; then \
@@ -90,4 +108,4 @@ regenerate:
 build-llm:
 	docker compose -f srcs/docker-compose.yml build llm-gen
 
-.PHONY: up down re clean check fclean logs status crash regen volume checks uninstall build-llm regenerate generate
+.PHONY: up down re clean check fclean logs status crash regen volume checks uninstall build-llm regenerate generate generate_env generate_secrets generate_volumes

@@ -30,7 +30,7 @@ if  check_env; then
     exit 0
 fi
 
-if [ -f scripts/auto_generate_env.sh ]; then
+if [ "$1" == "-y" ] || [ -f scripts/auto_generate_env.sh ]; then
     read -p "use auto generation env script ? y/n " RES
     if [ $RES == "y" ]; then
         scripts/auto_generate_env.sh

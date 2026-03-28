@@ -7,7 +7,7 @@ mkdir -p "$DEST"
 URL=$(curl -s https://api.github.com/repos/LeMuffinMan/ChessGame/releases/latest \
       | jq -r '.assets[] | select(.name == "chessgame-wasm.zip") | .browser_download_url')
 
-curl -L "$URL" -o /tmp/chessgame.zip
+curl -L "$URL" -o /tmp/chessgame.zip || exit 1
 unzip -o /tmp/chessgame.zip -d /tmp/chessgame_extracted
 
 cp -r /tmp/chessgame_extracted/dist/. "$DEST/"

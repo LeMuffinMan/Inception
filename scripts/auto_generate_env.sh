@@ -10,4 +10,5 @@ DOMAIN_NAME=${USER}.42.fr
 WP_TITLE=${USER}_wordpress
 WP_USER=${USER}_wordpress_user
 WP_ADMIN_USER=${USER}_wordpress_su
-FTP_USER=$USER" >> srcs/.env
+FTP_USER=$USER
+GROQ_API_KEY=$GROQ_API_KEY" >> srcs/.env
