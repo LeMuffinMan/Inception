@@ -7,101 +7,57 @@ import requests
 SECRET_PATH = "/run/secrets/groq_api_key"
 OUTPUT_PATH = "/var/www/html/magic_site/index.html"
 
-PROMPT_GENERATE = """You are a world-class creative developer and digital artist.
+PROMPT_GENERATE = """You are an award-winning web designer.
 
-Your mission is to create an extraordinary, experimental, and visually breathtaking single-page web experience that showcases the full power of modern web technologies.
+Create a visually stunning, highly polished single HTML landing page.
 
-This is NOT a simple landing page.
-This is a DEMO of what is possible on the web.
+ART DIRECTION:
+- Futuristic cinematic interface (inspired by sci-fi like Interstellar / Tron)
+- Dark immersive background with glowing gradients (deep purple, electric blue, neon accents)
+- Glassmorphism UI (blur, transparency, layered depth)
+- Strong typography (bold, large, dramatic hierarchy)
+- Smooth CSS animations (floating, glowing, subtle motion)
 
-GOAL:
-Create an immersive, interactive, and unforgettable experience that feels like a fusion between an artwork, a futuristic UI, and a tech demo.
-
-CREATIVE FREEDOM:
-- You are strongly encouraged to be bold, unconventional, and surprising
-- Think: Awwwards-level, experimental web design, interactive art, sci-fi interface, or digital installation
-- Avoid anything generic or template-like
-
-TECHNOLOGIES:
-- Use HTML, CSS, and JavaScript
-- Everything must be contained in a SINGLE HTML file
-- No external resources (no CDN, no fonts, no libraries)
-- You may write complex JS if needed
-
-VISUAL DIRECTION:
-- Futuristic / cinematic / immersive
-- Advanced use of:
-  - gradients
-  - lighting effects
-  - particles or procedural visuals (canvas allowed)
-  - glassmorphism / neumorphism / depth
-  - dynamic layouts
-- Strong typography hierarchy (even with system fonts)
-- Use motion as a core design element
-
-INTERACTIVITY (VERY IMPORTANT):
-- The page MUST react to the user:
-  - mouse movement
-  - scrolling
-  - clicks
-  - hover effects
-- Add micro-interactions everywhere
-- Consider:
-  - parallax effects
-  - animated transitions
-  - reactive UI
-  - dynamic content
-
-SECTIONS (flexible, you can reinvent them):
-1. HERO EXPERIENCE
-   - Immediate "wow effect"
-   - Could be animated, interactive, or canvas-based
+STRUCTURE:
+1. HERO
    - Title: INCEPTION
    - Tagline: "Build your infrastructure. Dive deeper."
+   - Animated gradient background
+   - Centered layout, very impactful
 
-2. INTERACTIVE SHOWCASE
-   - Explain concepts (Docker, Nginx, WordPress, MariaDB)
-   - But do it in a creative way (not boring cards)
-   - Could be animated diagrams, interactive nodes, or visual storytelling
+2. FEATURES
+   - Explain Docker stack (Nginx, WordPress, MariaDB)
+   - Use modern cards with hover effects
+   - Each card should feel interactive (elevation, glow)
 
-3. TECH EXPERIENCE
-   - Present the stack as a dynamic system
-   - Make it feel alive (connections, flows, animations)
+3. TECH STACK
+   - Stylish badges (Docker, Nginx, WordPress, MariaDB)
+   - Responsive grid layout
 
-4. PLAYGROUND / EXPERIMENT
-   - Add something unexpected:
-     - mini interactive simulation
-     - generative visuals
-     - reactive background
-     - or a fun interaction
+4. FOOTER
+   - Minimal, elegant, subtle glow
 
-5. FOOTER
-   - Minimal but stylish
+TECHNICAL REQUIREMENTS:
+- Pure HTML + CSS only
+- No JavaScript
+- No external resources (no CDN, no fonts)
+- Everything in ONE file
+- All styles inside <style>
 
-ADVANCED FEATURES TO CONSIDER:
-- Canvas animations (particles, stars, waves, etc.)
-- Custom cursor
-- Scroll-based animations
-- Procedural generation
-- 3D-like illusions using CSS
-- Dynamic lighting or glow effects
-- Sound is NOT allowed
+ADVANCED CSS:
+- gradients
+- animations (@keyframes)
+- flexbox/grid
+- pseudo-elements
+- backdrop-filter (glass effect)
 
-QUALITY BAR:
-- This should feel like a premium interactive experience
-- Not a static website
-- Not a template
-- Not basic
-
-CONSTRAINTS:
-- Single HTML file
-- All CSS inside <style>
-- All JS inside <script>
-- No external dependencies
+IMPORTANT:
+- This must look like a premium Awwwards-level landing page
+- Avoid generic or basic design
+- Add depth, spacing, and visual hierarchy
 
 OUTPUT:
 Return ONLY raw HTML starting with <!DOCTYPE html>
-Do not include explanations.
 """
 
 def read_secret() -> str:
@@ -125,7 +81,7 @@ def call_groq(api_key: str, prompt: str) -> str:
     payload = {
         "model": "llama-3.3-70b-versatile",
         "max_tokens": 4096,
-        "temperature": 0.8,
+        "temperature": 0.9,
         "messages": [{"role": "user", "content": prompt}],
     }
 
@@ -139,69 +95,24 @@ def call_groq(api_key: str, prompt: str) -> str:
 
 def improve_design(api_key: str, html: str) -> str:
     prompt = f"""
-You are a senior creative technologist and award-winning frontend engineer.
+You are a senior frontend designer.
 
-Your task is to dramatically enhance and evolve the following HTML experience.
+Improve this HTML page to make it visually stunning and modern.
 
-This is NOT a simple refinement.
-You must push the design, interactivity, and immersion significantly further.
-
-GOALS:
-- Transform the page into a high-end, experimental, interactive experience
-- Increase the "wow factor"
-- Make it feel alive, reactive, and premium
-
-FOCUS AREAS:
-
-1. VISUAL DESIGN
-- Improve composition, spacing, and layout rhythm
-- Upgrade color systems (richer gradients, lighting, glow)
-- Enhance depth (layers, shadows, glass, perspective)
-- Make typography more impactful and expressive
-
-2. INTERACTIVITY (CRITICAL)
-- Add or improve:
-  - mouse tracking effects
-  - hover animations
-  - scroll-based animations
-  - dynamic transitions
-- Introduce delightful micro-interactions everywhere
-
-3. MOTION & ANIMATION
-- Add smooth, meaningful animations (not random)
-- Use keyframes, transforms, opacity, parallax
-- Make the UI feel fluid and responsive
-
-4. JAVASCRIPT ENHANCEMENTS
-- Improve logic and structure
-- Add interactive systems if missing
-- Consider:
-  - canvas effects
-  - reactive backgrounds
-  - dynamic elements
-
-5. EXPERIENCE DESIGN
-- Improve flow between sections
-- Make transitions feel intentional and cinematic
-- Reinforce a strong visual identity
-
-6. ORIGINALITY
-- Remove anything generic or template-like
-- Introduce unique elements or surprising interactions
+FOCUS:
+- Better spacing and layout
+- Stronger typography hierarchy
+- More polished colors and gradients
+- Add smooth animations
+- Enhance glassmorphism effects
+- Make it feel premium and futuristic
 
 CONSTRAINTS:
-- Keep everything in a SINGLE HTML file
-- No external libraries or CDNs
-- Use only HTML, CSS, and JavaScript
+- Keep pure HTML + CSS
+- Keep single file
+- Do not add JavaScript
 
-IMPORTANT:
-- Do NOT simplify
-- Do NOT remove features unless replacing with better ones
-- Prefer bold improvements over safe tweaks
-
-OUTPUT:
-Return ONLY the improved HTML starting with <!DOCTYPE html>
-No explanations.
+Return ONLY the improved HTML.
 
 HTML:
 {html}
@@ -210,60 +121,19 @@ HTML:
 
 def polish_html(api_key: str, html: str) -> str:
     prompt = f"""
-You are an expert frontend architect and code quality specialist.
-
-Your task is to refine, stabilize, and perfect the following HTML experience WITHOUT reducing its visual or interactive richness.
+Clean and refine this HTML page.
 
 GOALS:
-- Ensure production-level quality
-- Improve structure, clarity, and maintainability
-- Fix any hidden issues
+- Fix any structural issues
+- Ensure valid HTML5
+- Improve readability
+- Optimize CSS
+- Remove redundancies
 
-FOCUS:
+Do NOT simplify design.
+Do NOT remove animations.
 
-1. HTML QUALITY
-- Ensure valid, clean HTML5 structure
-- Improve semantic organization where possible
-- Fix nesting or structural inconsistencies
-
-2. CSS OPTIMIZATION
-- Remove redundancies and conflicts
-- Improve organization and readability
-- Ensure consistent naming and structure
-- Optimize animations for smooth performance
-
-3. JAVASCRIPT QUALITY
-- Clean and organize the code
-- Remove unnecessary complexity
-- Improve performance and readability
-- Avoid global pollution when possible
-- Ensure interactions are smooth and bug-free
-
-4. PERFORMANCE
-- Avoid unnecessary reflows/repaints
-- Optimize animations (prefer transform/opacity)
-- Ensure smooth experience on most devices
-
-5. CONSISTENCY
-- Harmonize spacing, colors, animation timing
-- Ensure visual coherence across sections
-
-6. ROBUSTNESS
-- Fix edge cases or fragile logic
-- Ensure the page works without errors
-
-IMPORTANT:
-- DO NOT downgrade the design
-- DO NOT remove animations or interactivity
-- DO NOT simplify the experience
-
-CONSTRAINTS:
-- Keep everything in a SINGLE HTML file
-- No external dependencies
-
-OUTPUT:
-Return ONLY the final HTML starting with <!DOCTYPE html>
-No explanations.
+Return ONLY final HTML.
 
 HTML:
 {html}
