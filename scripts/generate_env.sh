@@ -26,10 +26,6 @@ check_env() {
     # identiques aussi
 }
 
-set -a
-source srcs/.env
-set +a
-
 if  check_env; then
     exit 0
 fi

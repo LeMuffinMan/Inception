@@ -25,7 +25,8 @@ down:
 	$(COMPOSE) down
 
 re:
-	$(KILL_SCRIPT)
+	#$(KILL_SCRIPT)
+	$(COMPOSE) down
 	sudo rm -rf ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame ~/data/llm-gen
 	$(MAKE) up
 	$(MAKE) check
