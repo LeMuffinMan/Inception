@@ -25,7 +25,8 @@ down:
 	$(COMPOSE) down
 
 re:
-	$(COMPOSE) down
+	#$(COMPOSE) down
+	$(KILL_SCRIPT)
 	$(MAKE) delete_volumes
 	$(MAKE) create_volumes
 	$(COMPOSE) up -d --build # --no-recreate

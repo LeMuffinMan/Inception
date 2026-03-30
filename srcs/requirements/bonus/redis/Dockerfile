@@ -1,7 +1,6 @@
 FROM alpine:3.22.3
 
 RUN apk add --no-cache redis
-    # && sysctl vm.overcommit_memory=1 \
 
 EXPOSE 6379
 

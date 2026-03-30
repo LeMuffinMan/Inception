@@ -57,6 +57,7 @@ services:
       redis:
         condition: service_healthy
         restart: true
+        # mem_limit: 1g
     healthcheck:
       test: ["CMD", "pgrep", "php-fpm83"]
       interval: 10s

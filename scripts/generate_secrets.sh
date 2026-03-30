@@ -189,7 +189,18 @@ echo
 #     fi
 # fi
 
-# --- /etc/hosts ---------------------------------------------------------------
-section "Hosts"
+section "Host configuration"
 
 sudo scripts/edit_hosts.sh "$DOMAIN"
+
+# Allows the kernel to allocate memory even if there’s no
+# guarantee that the memory will be available when the
+# program tries to use it.
+# This is needed to redis to work correctly as it use specific cache data strucutres
+# relying on kernel memory management
+#
+# setting it to 1 will not be persistent after reboot
+# to make it persistent edit /etc/sysctl.conf and append to it : vm.overcommit_memory=1
+sudo sysctl vm.overcommit_memory=1
+
+echo
