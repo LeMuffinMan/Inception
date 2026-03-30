@@ -1,14 +1,55 @@
-FROM alpine:3.22.3
+FROM alpine:3.18
 
-RUN apk add --no-cache curl jq unzip
+ENV DEST=/var/www/html/chessgame
+COPY fallback/chessgame-wasm.zip /tmp/chessgame-fallback.zip
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN apk add --no-cache curl unzip jq bash \
+    && mkdir -p "$DEST" \
+    && RELEASE_JSON=$(curl -s https://api.github.com/repos/LeMuffinMan/ChessGame/releases/latest) \
+    && URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name == "chessgame-wasm.zip") | .browser_download_url') \
+    && (curl -L "$URL" -o /tmp/chessgame.zip || \
+        (echo "Download failed, using fallback archive"; cp /tmp/chessgame-fallback.zip /tmp/chessgame.zip)) \
+    && unzip -o /tmp/chessgame.zip -d /tmp/chessgame_extracted \
+    && cp -r /tmp/chessgame_extracted/dist/. "$DEST/" \
+    && sed -i \
+         -e 's|href="/chess_game-|href="./chess_game-|g' \
+         -e 's|from '"'"'/chess_game-|from '"'"'./chess_game-|g' \
+         -e 's|module_or_path: '"'"'/chess_game-|module_or_path: '"'"'./chess_game-|g' \
+         "$DEST/index.html" \
+    && sed -i 's|<script type="module">[^<]*import init from "./pkg/chessgame.js"[^<]*</script>||' "$DEST/index.html" \
+    && rm -rf /tmp/chessgame.zip /tmp/chessgame_extracted /tmp/chessgame-fallback.zip
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["echo", "ChessGame deployed successfully"]
+
+# Curl  release and copy version (limited curl calls)
+# FROM alpine:3.22.3
+
+# RUN apk add --no-cache curl jq unzip
+
+# COPY entrypoint.sh /entrypoint.sh
+# RUN chmod +x /entrypoint.sh
+
+# ENTRYPOINT ["/entrypoint.sh"]
 
 
-# Building version (10 min)
+# using rust ofiicial image (10 min)
+
+# FROM rust:1.94.1
+
+# RUN rustup target add wasm32-unknown-unknown
+# RUN cargo install --locked trunk
+
+# # RUN rustup component add rustfmt clippy
+
+# WORKDIR /app
+
+# COPY ChessGame/Cargo.toml ChessGame/Cargo.lock ./
+# COPY ChessGame/src ./src
+
+# CMD ["trunk", "build", "--release", "--public-url", "/chessgame/"]
+
+
+# Building from scratch version (10 min)
 
 # FROM alpine:3.22
 

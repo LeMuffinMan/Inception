@@ -32,7 +32,7 @@ re:
 	$(MAKE) check
 
 logs:
-	alacritty -e sh -c '$(COMPOSE) logs -f $(SERVICE)' &
+	$(COMPOSE) logs -f $(SERVICE)
 
 logs-%:
 	alacritty -e sh -c '$(COMPOSE) logs -f $* | less +F' &

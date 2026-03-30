@@ -26,7 +26,7 @@ check_env() {
     # identiques aussi
 }
 
-if  check_env; then
+if  [ -z srcs/.env ] || check_env; then
     exit 0
 fi
 
