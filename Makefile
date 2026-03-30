@@ -25,10 +25,10 @@ down:
 	$(COMPOSE) down
 
 re:
-	#$(KILL_SCRIPT)
 	$(COMPOSE) down
-	sudo rm -rf ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame ~/data/llm-gen
-	$(MAKE) up
+	$(MAKE) delete_volumes
+	$(MAKE) create_volumes
+	$(COMPOSE) up -d --build --no-recreate
 	$(MAKE) check
 
 logs:
@@ -89,6 +89,10 @@ newmagicsite:
 create_volumes:
 	@echo "Creating folders for persistent storage ..."
 	mkdir -p ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame ~/data/llm-gen
+
+delete_volumes:
+	@echo "Deleting folders for persistent storage ..."
+	sudo rm -rf ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame ~/data/llm-gen
 
 generate_env:
 	$(ENV_GEN_SCRIPT)

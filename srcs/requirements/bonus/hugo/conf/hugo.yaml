@@ -1,0 +1,29 @@
+baseURL: "${DOMAIN}/muffin_site"
+languageCode: en-us
+title: MuffinSite
+theme: ["PaperMod"]
+params:
+  profileMode:
+    enabled: true
+    title: "Muffin"
+    subtitle: "Curious and passionate about systems and coding"
+    imageUrl: "images/avatar.jpg"
+    imageTitle: ""
+    imageWidth: 220
+    imageHeight: 220
+    buttons:
+      - name: Github
+        url: "https://github.com/LeMuffinMan"
+      - name: LinkedIn
+        url: ""
+menu:
+  main:
+    - name: "Accueil"
+      url: "/"
+      weight: 1
+    - name: "Projets"
+      url: "/projects/"
+      weight: 2
+caches:
+  images:
+    dir: :cacheDir/images
