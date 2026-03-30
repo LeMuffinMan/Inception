@@ -28,7 +28,7 @@ re:
 	$(COMPOSE) down
 	$(MAKE) delete_volumes
 	$(MAKE) create_volumes
-	$(COMPOSE) up -d --build --no-recreate
+	$(COMPOSE) up -d --build # --no-recreate
 	$(MAKE) check
 
 logs:
@@ -70,7 +70,12 @@ fclean:
 uninstall: fclean
 	$(UNINSTALL_SCRIPT)
 
-reinstall: uninstall up check
+reinstall: uninstall
+	$(ENV_GEN_SCRIPT) -y
+	$(SECRET_GEN_SCRIPT)
+	$(MAKE) create_volumes
+	$(COMPOSE) up -d --build # --no-recreate
+	$(MAKE) check
 
 newmagicsite:
 	@echo ">>> Generating static page via Groq LLM..."

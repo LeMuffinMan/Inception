@@ -22,6 +22,8 @@ if [ ! -f /etc/nginx/ssl/cert.pem ]; then
 
     sed -i "s/server_name localhost/server_name ${DOMAIN_NAME}/g" /etc/nginx/http.d/nginx.conf
 
+    cp 404.html /var/www/html/404.html
+    # mv -r images /var/www/html/images
 fi
 
 # Docker monitors PID 1 : we don't want nginx to run as daemon (fork and exit)
