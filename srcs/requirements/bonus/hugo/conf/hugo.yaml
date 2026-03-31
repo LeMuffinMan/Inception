@@ -14,8 +14,6 @@ params:
     buttons:
       - name: Github
         url: "https://github.com/LeMuffinMan"
-      - name: LinkedIn
-        url: ""
 menu:
   main:
     - name: "Accueil"

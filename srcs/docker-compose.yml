@@ -117,7 +117,7 @@ services:
     build: ./requirements/bonus/adminer
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080/"]
-      interval: 30s
+      interval: 5m
       timeout: 3s
       retries: 3
       start_period: 10s

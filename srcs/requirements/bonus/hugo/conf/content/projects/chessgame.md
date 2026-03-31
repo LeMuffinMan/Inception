@@ -7,3 +7,4 @@ draft: false
 ---
 ChessGame is an interactive chess application built with Rust and compiled to WebAssembly for high performance in the browser. It showcases Rust's capabilities in front-end development and WASM integration.
 
+try it live at : https://oelleaum.42.fr/chessgame/ or https://lemuffinman.github.io/ChessGame/

@@ -7,3 +7,10 @@ draft: false
 ---
 MagicSite leverages AI to automatically generate static web pages. This project explores how modern language models can assist in web development, reducing manual work and improving content creation efficiency.
 
+Ajouter ici les commandes pour regenerer
+
+les variables pour ajuster : prompt,  modele
+
+update API key et rebuild only command
+
+le fall back et les prompts
