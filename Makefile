@@ -9,6 +9,7 @@ FCLEAN_SCRIPT       = scripts/fclean.sh
 UNINSTALL_SCRIPT    = scripts/uninstall.sh
 KILL_SCRIPT         = scripts/kill_containers.sh
 STATUS_SCRIPT       = scripts/status.sh
+FTP_SCRIPT	 		= scripts/ftp.sh
 
 # =============================================================================
 # PROD
@@ -50,6 +51,18 @@ restart:
 shell:
 	@[ -n "$(SERVICE)" ] || (echo "Usage: make shell SERVICE=<name>"; exit 1)
 	alacritty -e sh -c '$(COMPOSE) exec $(SERVICE) sh'
+
+ftp-list:
+	$(FTP_SCRIPT) -l
+
+ftp-dl-%:
+	$(FTP_SCRIPT) -d $*
+
+ftp-up-%:
+	$(FTP_SCRIPT) -u $*
+
+
+
 
 # =============================================================================
 # DEV

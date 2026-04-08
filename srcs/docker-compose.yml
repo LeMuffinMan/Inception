@@ -136,7 +136,6 @@ services:
       - seccomp:unconfined
     environment:
       - FTP_USER=${FTP_USER}
-      - FTP_PASS=${FTP_PASS}
     secrets:
       - ftp_pass
     ports:

@@ -364,6 +364,40 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
 fi
 
 # =============================================================================
+# VSFTPD
+# =============================================================================
+
+if [ -z $1 ] || [ "$1" == "vsftpd" ]; then
+    section "vsftpd"
+
+    LIST=$(scripts/ftp.sh -l | grep wp-config.php)
+    if [ ! -z "$LIST" ]; then
+        check "ftp listing wordpress files" "ok"
+        DOWNLOAD=$(scripts/ftp.sh -d wp-config.php)
+        if [ -e wp-config.php ]; then
+            check "ftp download" "ok"
+            rm -rf wp-config.php
+        else
+            check "ftp download" "ko"
+        fi
+
+        touch upload_check
+        UPLOAD=$(scripts/ftp.sh -u upload_check)
+        if scripts/ftp.sh -l | grep upload_check > /dev/null; then
+            check "ftp upload" "ok"
+        else
+            check "ftp upload" "ko"
+        fi
+        rm -rf upload_check
+    else
+        check "ftp listing wordpress files" "ko"
+        check "ftp download" "ko"
+        check "ftp upload" "ko"
+    fi
+fi
+
+
+# =============================================================================
 # PROJECT INTEGRITY
 # =============================================================================
 if [ -z $1 ] || [ "$1" == "integrity" ]; then
