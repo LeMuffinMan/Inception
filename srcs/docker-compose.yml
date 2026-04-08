@@ -132,28 +132,32 @@ services:
   vsftpd:
     container_name: vsftpd
     build: ./requirements/bonus/vsftpd
+    security_opt:
+      - seccomp:unconfined
     environment:
       - FTP_USER=${FTP_USER}
+      - FTP_PASS=${FTP_PASS}
     secrets:
       - ftp_pass
     ports:
-      - 21:21
-      - 21100-21110:21100-21110
+      - 127.0.0.1:21:21
+      - 127.0.0.1:21100-21110:21100-21110
     depends_on:
       wordpress:
         condition: service_healthy
         restart: true
     healthcheck:
-      test: ["CMD", "nc", "-z", "127.0.0.1", "21"]
+      test: ["CMD", "pgrep", "vsftpd"]
       interval: 30s
       timeout: 5s
       start_period: 10s
       retries: 3
     restart: on-failure
     volumes:
-      - type: volume
-        source: wordpress_data
-        target: /home/oelleaum/ftp/
+      - wordpress_data:/var/www/html
+      # - type: volume
+      #   source: wordpress_data
+      #   target: /home/oelleaum/ftp/
     networks:
       - inception
 

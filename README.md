@@ -9,6 +9,8 @@ lftp popur le ftp / client compatible
 
 https://aws.plainenglish.io/resolving-redis-memory-overcommit-must-be-enabled-error-4b4d32ac050c
 
+https://docs.redhat.com/fr/documentation/red_hat_enterprise_linux/6/html/performance_tuning_guide/s-memory-captun
+
 ## Description
 
 Inception is a system administration / DevOps project that introduces Docker-based infrastructure management. The goal is to set up a small but complete web stack composed of multiple services, each running in its own dedicated container, orchestrated via Docker Compose inside a virtual machine.
