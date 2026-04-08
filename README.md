@@ -11,6 +11,8 @@ https://aws.plainenglish.io/resolving-redis-memory-overcommit-must-be-enabled-er
 
 https://docs.redhat.com/fr/documentation/red_hat_enterprise_linux/6/html/performance_tuning_guide/s-memory-captun
 
+https://oneuptime.com/blog/post/2026-02-08-how-to-fix-docker-container-immediately-exiting-with-code-139/view
+
 ## Description
 
 Inception is a system administration / DevOps project that introduces Docker-based infrastructure management. The goal is to set up a small but complete web stack composed of multiple services, each running in its own dedicated container, orchestrated via Docker Compose inside a virtual machine.
