@@ -1,92 +1,18 @@
-➜  Inception git:(main) ✗ make ftp-dl-404.html
-scripts/ftp.sh -d 404.html
-Connected to 127.0.0.1.
-220 (vsFTPd 3.0.5)
-331 Please specify the password.
-230 Login successful.
-local: 404.html remote: 404.html
-229 Entering Extended Passive Mode (|||21105|)
-150 Opening BINARY mode data connection for 404.html (2342 bytes).
-  2342       39.88 MiB/s
-226 Transfer complete.
-WARNING! 80 bare linefeeds received in ASCII mode.
-File may not have transferred correctly.
-2342 bytes received in 00:00 (7.70 MiB/s)
-221 Goodbye.
-
-parfois mon vsftpd crash 139 au download
-
-c'est un container dans un reseau docker :
-
-FROM debian:13.3
-
-COPY tools/init.sh /usr/local/bin/init.sh
-COPY conf/vsftpd.conf /etc/vsftpd/vsftpd.conf
-
-RUN apt update && apt install -y \
-    vsftpd \
-    iproute2 \
-    && rm -rf /var/lib/apt/lists/* \
-    && chmod +x /usr/local/bin/init.sh
-
-EXPOSE 21 21100-21110
-
-ENTRYPOINT ["/usr/local/bin/init.sh"]
-
 #!/bin/bash
+# diagnose-139.sh - Diagnose exit code 139 in a Docker container
+IMAGE=$1
 
-set -e
+echo "=== Image Architecture ==="
+docker inspect "$IMAGE" --format '{{.Architecture}}'
 
-FTP_PASS=$(cat /run/secrets/ftp_pass)
+echo ""
+echo "=== Host Architecture ==="
+uname -m
 
-if ! id $FTP_USER  > /dev/null 2>&1; then
-    echo "Setting FTP_USER ..."
-    useradd -m -d /var/log/vsftpd $FTP_USER
-    echo "$FTP_USER:$FTP_PASS" | chpasswd
-    chown -R $FTP_USER:$FTP_USER /var/www/html
-    mkdir -p /var/log/vsftpd/
-    mkdir -p /var/empty
-else
-    echo "vsftpd is already configured"
-fi
+echo ""
+echo "=== Checking binary dependencies ==="
+docker run --entrypoint sh "$IMAGE" -c "ldd /app/myapp 2>&1 || echo 'ldd not available'"
 
-exec /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
-
-
-listen=YES
-listen_ipv6=NO
-
-# auth
-anonymous_enable=NO
-local_enable=YES
-write_enable=YES
-local_umask=022
-
-#chroot
-chroot_local_user=YES
-#secure_chroot_dir=/var/empty
-allow_writeable_chroot=YES
-local_root=/var/www/html
-
-user_sub_token=$USER
-
-# network
-#connect_from_port_20=YES
-#dirmessage_enable=YES
-#pam_service_name=vsftpd
-pasv_enable=YES
-pasv_min_port=21100
-pasv_max_port=21110
-pasv_address=127.0.0.1
-#seccomp_sandbox=NO
-
-# logs
-log_ftp_protocol=YES
-xferlog_enable=YES
-xferlog_std_format=NO
-dual_log_enable=YES
-xferlog_file=/var/log/vsftpd/xferlog.log
-vsftpd_log_file=/var/log/vsftpd/vsftpd.log
-
-# one_process_model=YES
-background=NO
+echo ""
+echo "=== Running with strace ==="
+docker run --cap-add SYS_PTRACE --entrypoint strace "$IMAGE" -f -e trace=memory /app/myapp 2>&1 | tail -20
