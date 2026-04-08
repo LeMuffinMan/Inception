@@ -30,7 +30,6 @@ services:
       - wordpress_data:/var/www/html
       - hugo_data:/var/www/html/muffin_site
       - chessgame_data:/var/www/html/chessgame
-      - llm-gen_data:/var/www/html/magic_site
     networks:
       - inception
 
@@ -188,21 +187,6 @@ services:
     networks:
       - inception
 
-  #dpeends on nginx ?
-  llm-gen:
-    build: ./requirements/bonus/llm-gen
-    container_name: llm-gen
-    volumes: # bien nettoyer !!
-      - llm-gen_data:/var/www/html/magic_site
-    secrets: # a creer et gerer
-      - groq_api_key
-    networks:
-      - inception
-    restart: on-failure
-    depends_on:
-      nginx:
-        condition: service_started
-
 networks:
   inception:
     driver: bridge
@@ -232,12 +216,6 @@ volumes:
       type: none
       o: bind
       device: ~/data/chessgame
-  llm-gen_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ~/data/llm-gen
 
 secrets:
   db_password:

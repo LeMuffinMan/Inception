@@ -1,9 +1,0 @@
-.git
-.gitignore
-README.md
-Makefile
-scripts/
-secrets/
-srcs/.env
-*.md
-.DS_Store

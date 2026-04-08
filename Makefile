@@ -94,7 +94,7 @@ clean-stop-containers:
 
 create-volumes:
 	@echo "${YELLOW}Creating folders for persistent storage ...${NC}"
-	mkdir -p ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame ~/data/llm-gen
+	mkdir -p ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame
 
 delete-volumes:
 	echo "${YELLOW}Cleaning volumes ...${NC}"
@@ -102,8 +102,6 @@ delete-volumes:
 	sudo rm -rf ~/data/chessgame && echo "${YELLOW}~/data/chessgame deleted successfully${NC}"
 	sudo rm -rf ~/data/wordpress && echo "${YELLOW}~/data/wordpress deleted successfully${NC}"
 	sudo rm -rf ~/data/hugo && echo "${YELLOW}~/data/hugo deleted successfully${NC}"
-	#A VIRER !!!
-	sudo rm -rf ~/data/llm-gen && echo "${YELLOW}~/data/llm-gen deleted successfully${NC}"
 
 clean-dangling-images:
 	echo "${YELLOW}Cleaning dangling images ...${NC}"
