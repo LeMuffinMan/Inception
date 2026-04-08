@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# a fix et a preciser
+
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 

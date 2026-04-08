@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# ajouter plus de controles
+
 get_var() {
     local var_name="$1"
     local var_value=""

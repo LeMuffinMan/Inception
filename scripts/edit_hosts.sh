@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Rendre plus simple : un script qui edit overcommit et hosts bien documente
+
 set -euo pipefail
 
 HOSTS_FILE="/etc/hosts"

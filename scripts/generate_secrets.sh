@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# A reclean avec la modif du config.sh
+
 if [[ $EUID -eq 0 ]]; then
     echo "You must have sudo privilege to setup this project, to perform following operations:
         - Create folders, attribute it to other users, their deletion (make fclean) require sudo

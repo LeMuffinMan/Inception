@@ -13,6 +13,8 @@ https://docs.redhat.com/fr/documentation/red_hat_enterprise_linux/6/html/perform
 
 https://oneuptime.com/blog/post/2026-02-08-how-to-fix-docker-container-immediately-exiting-with-code-139/view
 
+https://computingpost.medium.com/how-to-use-tini-init-system-in-docker-containers-69283d0099ed
+
 ## Description
 
 Inception is a system administration / DevOps project that introduces Docker-based infrastructure management. The goal is to set up a small but complete web stack composed of multiple services, each running in its own dedicated container, orchestrated via Docker Compose inside a virtual machine.

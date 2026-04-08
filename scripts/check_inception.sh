@@ -15,8 +15,6 @@ source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
 
-# LABEL_WIDTH=40
-
 # --- Init ---------------------------------------------------------------------
 
 set -a
@@ -124,7 +122,6 @@ if [ -z $1 ] || [ "$1" == "nginx" ]; then
         fi
 
         #-k ignores SSL certificate check, needed since we autosign our certs
-        #-v verbose mode:
         TLS_VERSION=$(curl -k -v "https://localhost:443" 2>&1 | grep -o "TLSv1\.[0-9]" | sort -u)
         if [ -n "$TLS_VERSION" ]; then
             check "TLS version detected" "ok" "$TLS_VERSION"
@@ -271,10 +268,6 @@ if [ -z $1 ] || [ "$1" == "redis" ]; then
         else
             check "probe (PING)" "ko" "got: $REDIS_PING"
         fi
-
-        #We curl our site to create at least 1 key to check for redis
-        # curl -k "https://${DOMAIN}" > /dev/null 2>&1
-        # sleep 1
 
         REDIS_KEYS=$(docker exec "$CONTAINER_REDIS" redis-cli dbsize 2>/dev/null)
         if [ "$REDIS_KEYS" -gt 0 ] 2>/dev/null; then

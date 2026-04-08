@@ -11,4 +11,4 @@ WP_TITLE=${USER}_wordpress
 WP_USER=${USER}_wordpress_user
 WP_ADMIN_USER=${USER}_wordpress_su
 FTP_USER=$USER
-GROQ_API_KEY=$GROQ_API_KEY" >> srcs/.env
+GROQ_API_KEY=$GROQ_API_KEY" > srcs/.env
