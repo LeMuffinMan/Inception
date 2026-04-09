@@ -33,7 +33,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 
     echo "Installing WordPress..."
     wp core install \
-        --url="https://${DOMAIN_NAME}" \
+        --url="${DOMAIN_NAME}" \
         --title="${WP_TITLE}" \
         --admin_user="${WP_ADMIN_USER}" \
         --admin_password="${WP_ADMIN_PASSWORD}" \
@@ -48,8 +48,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --user_pass="${WP_USER_PASSWORD}" \
         --allow-root
 
-    wp option update home "https://${DOMAIN_NAME}" --allow-root
-    wp option update siteurl "https://${DOMAIN_NAME}" --allow-root
+    echo "DOMAIN NAME = $DOMAIN_NAME"
+
+    # wp option update home "https://${DOMAIN_NAME}" --allow-root
+    # wp option update siteurl "https://${DOMAIN_NAME}" --allow-root
 
     echo "Activate Redis cache plugin ..."
     wp plugin install redis-cache --activate --allow-root && echo "install and activate redis successfully" || echo "Failed to install and activate redis-cache"
