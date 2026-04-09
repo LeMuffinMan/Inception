@@ -1,52 +1,35 @@
 #!/bin/bash
 
-# Rendre plus simple : un script qui edit overcommit et hosts bien documente
+source "$(dirname "$0")/lib/config.sh"
+source "$(dirname "$0")/lib/format.sh"
+RES=""
+section "Host configuration"
 
-set -euo pipefail
-
-HOSTS_FILE="/etc/hosts"
-HOST="${1:-}"
-
-if [[ -z "$HOST" ]]; then
-    echo "Error: no hostname provided." >&2
-    echo "Usage: sudo $0 <hostname>" >&2
-    exit 1
-fi
-
-# Allow only valid hostname characters (RFC 1123 + dots)
-if [[ ! "$HOST" =~ ^[a-zA-Z0-9]([a-zA-Z0-9._-]{0,252}[a-zA-Z0-9])?$ ]]; then
-    echo "Error: invalid hostname '${HOST}'." >&2
-    exit 1
-fi
-
-if [[ ! -e "$HOSTS_FILE" ]]; then
-    echo "Error: '${HOSTS_FILE}' does not exist." >&2
-    exit 1
-fi
-
-if [[ ! -f "$HOSTS_FILE" ]]; then
-    echo "Error: '${HOSTS_FILE}' is not a regular file." >&2
-    exit 1
-fi
-
-if grep -qE "^127\.0\.0\.1[[:blank:]]+${HOST}([[:blank:]]|$)" "$HOSTS_FILE"; then
-    echo "/etc/hosts already redirects 127.0.0.1 to ${HOST}"
-else
-    # BACKUP="${HOSTS_FILE}.bak.$(date +%Y%m%d%H%M%S)"
-    # cp --preserve=mode,ownership "$HOSTS_FILE" "$BACKUP"
-    # echo "/etc/hosts backup created: ${BACKUP}"
-
-    TMPFILE=$(mktemp)
-    trap 'rm -f "$TMPFILE" "${TMPFILE}.new"' EXIT
-
-    sed -E 's|^(127\.0\.0\.1[[:blank:]]+.*)$|#\1|' "$HOSTS_FILE" > "$TMPFILE"
-
-    { printf '127.0.0.1\t%s\n' "$HOST"; cat "$TMPFILE"; } > "${TMPFILE}.new"
-
-    if cp --preserve=mode,ownership "${TMPFILE}.new" "$HOSTS_FILE"; then
-        echo "/etc/hosts successfully updated: 127.0.0.1 ${HOST}"
-    else
-        echo "Error: failed to update /etc/hosts." >&2
-        exit 1
+if ! grep -qE "^127\.0\.0\.1[[:blank:]]+${DOMAIN}([[:blank:]]|$)" /etc/hosts; then
+    read -p "Confirm edit /etc/hosts to redirect localhost to $DOMAIN ? y/n " RES
+    if [ $RES == "y" ]; then
+        sudo sed -i "/^127\.0\.0\.1[[:space:]]\+localhost/{
+            s/^/#/
+            a 127.0.0.1\t$DOMAIN
+        }" /etc/hosts
     fi
 fi
+
+# Allows the kernel to allocate memory even if there’s no
+# guarantee that the memory will be available when the
+# program tries to use it.
+# This is needed to redis to work correctly as it use specific cache data strucutres
+# relying on kernel memory management
+#
+# setting it to 1 will not be persistent after reboot
+# to make it persistent edit /etc/sysctl.conf and append to it : vm.overcommit_memory=1
+
+RES=""
+if sysctl vm.overcommit_memory | grep "vm.overcommit_memory = 0" > /dev/null; then
+    read -p "Confirm to enable memory overcommit (required for Redis-cache) y/n " RES
+    if [ $RES == "y" ]; then
+        sudo sysctl vm.overcommit_memory=1
+    fi
+fi
+
+echo

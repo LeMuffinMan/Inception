@@ -238,5 +238,3 @@ secrets:
     file: ../secrets/mysql_user_email.txt
   ftp_pass:
     file: ../secrets/ftp_pass.txt
-  groq_api_key:
-    file: ../secrets/groq_api_key.txt
