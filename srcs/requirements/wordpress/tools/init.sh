@@ -63,6 +63,10 @@ if [ ! -f /var/www/html/wordpress/wp-config.php ]; then
         --user_pass="${WP_USER_PASSWORD}" \
         --allow-root
 
+    wp option update siteurl "https://${DOMAIN_NAME}" --allow-root
+    wp option update home "https://${DOMAIN_NAME}" --allow-root
+    wp rewrite flush --hard --allow-root
+
     echo "Activate Redis cache plugin ..."
     wp plugin install redis-cache --activate --allow-root && echo "install and activate redis successfully" || echo "Failed to install and activate redis-cache"
     wp config set WP_REDIS_HOST redis --allow-root && echo "set WP_REDIS_HOST successfully" || echo "Failed to set WP_REDIS_HOST"

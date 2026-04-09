@@ -6,7 +6,6 @@ COPY conf/vsftpd.conf /etc/vsftpd/vsftpd.conf
 
 RUN apt update && apt install -y \
     vsftpd \
-    strace \
     tini \
     && rm -rf /var/lib/apt/lists/* \
     && chmod +x /usr/local/bin/init.sh
