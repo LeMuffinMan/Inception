@@ -62,6 +62,10 @@ re: kill delete-volumes create-volumes
 # DEV
 # =============================================================================
 
+build-%:
+	@printf "${YELLOW}Rebuilding $* from scratch ...${NC}\n"
+	$(COMPOSE) up -d --build $*
+
 check:
 	$(CHECK_SCRIPT) $(SERVICE)
 
@@ -101,10 +105,10 @@ create-volumes:
 
 delete-volumes:
 	@printf "${YELLOW}Cleaning volumes ...${NC}\n"
-	sudo rm -rf ~/data/mysql && echo "${YELLOW}~/data/mysql deleted successfully${NC}"
-	sudo rm -rf ~/data/chessgame && echo "${YELLOW}~/data/chessgame deleted successfully${NC}"
-	sudo rm -rf ~/data/wordpress && echo "${YELLOW}~/data/wordpress deleted successfully${NC}"
-	sudo rm -rf ~/data/hugo && echo "${YELLOW}~/data/hugo deleted successfully${NC}"
+	@sudo rm -rf ~/data/mysql && echo "${YELLOW}~/data/mysql deleted successfully${NC}"
+	@sudo rm -rf ~/data/chessgame && echo "${YELLOW}~/data/chessgame deleted successfully${NC}"
+	@sudo rm -rf ~/data/wordpress && echo "${YELLOW}~/data/wordpress deleted successfully${NC}"
+	@sudo rm -rf ~/data/hugo && echo "${YELLOW}~/data/hugo deleted successfully${NC}"
 
 clean-dangling-images:
 	@printf "${YELLOW}Cleaning dangling images ...${NC}\n"
