@@ -41,7 +41,7 @@ CONTAINER_NGINX="nginx"
 CONTAINER_WORDPRESS="wordpress"
 CONTAINER_REDIS="redis"
 CONTAINER_ADMINER="adminer"
-CONTAINER_FTP="vsftp"
+CONTAINER_FTP="vsftpd"
 # CONTAINER_YOUR_SERVICE="your_service"
 # ADD in this array your new container to integrate it as a container to wait or to crash test
 CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_ADMINER" "$CONTAINER_FTP")

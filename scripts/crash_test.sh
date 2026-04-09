@@ -5,8 +5,6 @@ source "$(dirname "$0")/lib/format.sh"
 
 COMPOSE="docker compose -f ${COMPOSE_FILE}"
 
-header "Crash Test" "login: ${LOGIN}"
-
 section "Crash Test"
 
 crash_test() {
