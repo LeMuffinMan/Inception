@@ -46,16 +46,6 @@ CONTAINER_FTP="vsftpd"
 # ADD in this array your new container to integrate it as a container to wait or to crash test
 CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_ADMINER" "$CONTAINER_FTP")
 
-# by default, because of the subject requirements, your volumes named <service>_data will be prefixed with srcs_ because
-# its in the folder srcs ... these lines are used to grep your volumes, so change it following your setup
-VOLUME_MARIADB="srcs_mariadb_data"
-VOLUME_WORDPRESS="srcs_wordpress_data"
-
-# we need at least two volumes and their persistancy for the mandatory PORT_MARIADB_EXPECTED
-# for the bonus part, we add the adminer volume too
-VOLUMES_TO_CHECK=("mariadb" "wordpress" "hugo" "chessgame")
-VOLUME_HOST_PATH_PATTERN="/home/.*/data"
-
 # Theses variables are set to respect the tree example provided in the subject.
 ROOT_DIR="$(dirname "$0")/.."
 COMPOSE_FILE="${ROOT_DIR}/srcs/docker-compose.yml"
@@ -74,5 +64,7 @@ PORT_WORDPRESS_EXPECTED="9000/tcp"
 # these variables follow the subject requirements
 TLS_ACCEPT=("1.2" "1.3")
 TLS_REJECT=("1.1")
+
+#a revoir
 REQUIRED_ENV_VARS=("DOMAIN_NAME" "MYSQL_USER" "MYSQL_DATABASE")
 ADMIN_FORBIDDEN_PATTERN="^admin$|admin-|^administrator$"

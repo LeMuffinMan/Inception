@@ -3,27 +3,12 @@
 set -e
 
 #WORKSTATION ?
-cd /var/www/html/wordpress
-
-# a virer ? : filtrer a la generation
-# add_domain_if_missing() {
-#   local var="$1"
-#   if [[ "$var" != *"@"* ]]; then
-#     echo "${var}@mail.xx"
-#   else
-#     echo "$var"
-#   fi
-# }
+cd /var/www/html/
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 
 WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
 WP_USER_PASSWORD=$(cat /run/secrets/wp_user_password)
-
-# a vrier
-#Wordpress won't accept a not formated email, we use placeholders
-# MYSQL_ADMIN_EMAIL=$(add_domain_if_missing "$MYSQL_ADMIN_EMAIL")
-# MYSQL_USER_EMAIL=$(add_domain_if_missing "$MYSQL_USER_EMAIL")
 
 echo "Waiting for MariaDB..."
 TIME=0
@@ -34,7 +19,7 @@ until nc -z mariadb 3306; do
 done
 echo "MariaDB is ready"
 
-if [ ! -f /var/www/html/wordpress/wp-config.php ]; then
+if [ ! -f /var/www/html/wp-config.php ]; then
 
     wp core download --allow-root
 
@@ -48,7 +33,7 @@ if [ ! -f /var/www/html/wordpress/wp-config.php ]; then
 
     echo "Installing WordPress..."
     wp core install \
-        --url="${DOMAIN_NAME}" \
+        --url="https://${DOMAIN_NAME}" \
         --title="${WP_TITLE}" \
         --admin_user="${WP_ADMIN_USER}" \
         --admin_password="${WP_ADMIN_PASSWORD}" \
@@ -63,11 +48,13 @@ if [ ! -f /var/www/html/wordpress/wp-config.php ]; then
         --user_pass="${WP_USER_PASSWORD}" \
         --allow-root
 
+    wp option update home "https://${DOMAIN_NAME}" --allow-root
+    wp option update siteurl "https://${DOMAIN_NAME}" --allow-root
+
     echo "Activate Redis cache plugin ..."
     wp plugin install redis-cache --activate --allow-root && echo "install and activate redis successfully" || echo "Failed to install and activate redis-cache"
     wp config set WP_REDIS_HOST redis --allow-root && echo "set WP_REDIS_HOST successfully" || echo "Failed to set WP_REDIS_HOST"
     wp config set WP_REDIS_PORT 6379 --raw --allow-root && echo "set WP_REDIS_PORT to 6379 successfully" || echo "Failed to set WP_REDIS_PORT"
-    # wp config set WP_CACHE true --raw --allow-root && "set WP_CACHE true successfully" || echo "Failed to set WP_CACHE true"
     wp redis enable --allow-root && echo "redis-cache enabled and configured successfully" || echo "Failed to enable configured redis-cache"
 
     echo "Wordpress successfully installed"

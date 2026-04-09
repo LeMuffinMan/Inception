@@ -66,7 +66,7 @@ services:
     volumes:
       - type: volume
         source: wordpress_data
-        target: /var/www/html/wordpress
+        target: /var/www/html/
     networks:
       - inception
 
