@@ -1,5 +1,6 @@
 COMPOSE_FILE        = srcs/docker-compose.yml
 COMPOSE             = docker compose -f $(COMPOSE_FILE)
+
 CHECK_SCRIPT        = scripts/check_inception.sh
 CRASH_SCRIPT        = scripts/crash_test.sh
 VOLUME_SCRIPT       = scripts/volumes_check.sh
@@ -62,13 +63,13 @@ re: kill delete-volumes create-volumes
 # =============================================================================
 
 check:
-ifeq ($(TEST),crash)
-	$(CRASH_SCRIPT)
-else ifeq ($(TEST),volume)
-	$(VOLUME_SCRIPT)
-else
 	$(CHECK_SCRIPT) $(SERVICE)
-endif
+
+check-%:
+	$(CHECK_SCRIPT) $*
+
+crash:
+	$(CRASH_SCRIPT)
 
 fclean: kill shutdown-remove-volumes clean-stopped-containers delete-volumes clean-dangling-images remove-all-existing-images
 

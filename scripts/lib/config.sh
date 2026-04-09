@@ -53,7 +53,7 @@ VOLUME_WORDPRESS="srcs_wordpress_data"
 
 # we need at least two volumes and their persistancy for the mandatory PORT_MARIADB_EXPECTED
 # for the bonus part, we add the adminer volume too
-VOLUMES_TO_CHECK=("mariadb" "wordpress")
+VOLUMES_TO_CHECK=("mariadb" "wordpress" "hugo" "chessgame")
 VOLUME_HOST_PATH_PATTERN="/home/.*/data"
 
 # Theses variables are set to respect the tree example provided in the subject.
