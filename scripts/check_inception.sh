@@ -13,14 +13,14 @@ set +a
 COMPOSE="docker compose -f ${COMPOSE_FILE}"
 CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
-echo
-echo -e "${CYAN}${BOLD}  Inception — Project Check${NC}  ${DIM}login: ${LOGIN}  domain: ${DOMAIN}${NC}"
-
 if ! wait_for_containers; then
     echo
     $COMPOSE ps
     exit 1
 fi
+
+echo
+echo -e "${CYAN}${BOLD}  Inception — Project Check${NC}  ${DIM}login: ${LOGIN}  domain: ${DOMAIN}${NC}"
 
 # =============================================================================
 # MARIADB
@@ -63,7 +63,7 @@ if [ -z $1 ] || [ "$1" == "mariadb" ]; then
             check "port" "ko" "got: $PORT  expected: $PORT_MARIADB_EXPECTED"
         fi
 
-        if docker volume ls | grep -q "$VOLUME_MARIADB"; then
+        if docker volume ls | grep -q "mariadb"; then
             HOST_PATH=$(docker volume inspect -f '{{ .Options.device }}' "$VOLUME_MARIADB")
             MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' "$VOLUME_MARIADB")
             check "volume" "ok" "${HOST_PATH} → ${MOUNTPOINT}"

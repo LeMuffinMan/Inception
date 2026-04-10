@@ -97,6 +97,8 @@ wait_for_containers() {
     local containers=("${CONTAINERS_TO_TEST[@]}")
 
     echo
+    printf "  ${CYAN}${BOLD}Waiting all containers to be started and healthy${NC}\n"
+    echo
 
     while [ $elapsed -lt $timeout ]; do
         CONTAINERS=$($COMPOSE ps 2>/dev/null)
@@ -125,7 +127,6 @@ wait_for_containers() {
             output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\033[K\n"
         done
 
-        printf "\033[${#containers[@]}A" 2>/dev/null
         printf "%b" "$output"
 
         $all_ready && {
@@ -136,6 +137,8 @@ wait_for_containers() {
 
         sleep 1
         ((elapsed++))
+
+        printf "\033[${#containers[@]}A" 2>/dev/null
     done
 
     echo

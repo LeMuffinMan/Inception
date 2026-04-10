@@ -46,6 +46,10 @@ CONTAINER_FTP="vsftpd"
 # ADD in this array your new container to integrate it as a container to wait or to crash test
 CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_ADMINER" "$CONTAINER_FTP")
 
+VOLUME_MARIADB="srcs_mariadb_data"
+VOLUME_WORDPRESS="srcs_wordpress_data"
+VOLUME_NGINX="srcs_nginx_data"
+
 # Theses variables are set to respect the tree example provided in the subject.
 ROOT_DIR="$(dirname "$0")/.."
 COMPOSE_FILE="${ROOT_DIR}/srcs/docker-compose.yml"

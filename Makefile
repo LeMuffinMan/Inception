@@ -200,7 +200,7 @@ remove-secrets-env:
 
 check-sudo:
 	@printf "${CYAN} Checking sudo privileges ... ${RESET}\n"
-	$(SUDO_CHECK_SCRIPT)
+	@$(SUDO_CHECK_SCRIPT)
 
 .PHONY: all up down re logs status restart shell check fclean uninstall \
         reinstall regenerate-secrets create-volumes generate-env \
