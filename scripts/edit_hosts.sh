@@ -8,10 +8,15 @@ section "Host configuration"
 if ! grep -qE "^127\.0\.0\.1[[:blank:]]+${DOMAIN}([[:blank:]]|$)" /etc/hosts; then
     read -p "Confirm edit /etc/hosts to redirect localhost to $DOMAIN ? y/n " RES
     if [ $RES == "y" ]; then
-        sudo sed -i "/^127\.0\.0\.1[[:space:]]\+localhost/{
-            s/^/#/
-            a 127.0.0.1\t$DOMAIN
-        }" /etc/hosts
+        if grep -qE "^127\.0\.0\.1[[:space:]]+localhost" /etc/hosts; then
+            sudo sed -i "/^127\.0\.0\.1[[:space:]]\+localhost/{
+                s/^/#/
+                a 127.0.0.1\t$DOMAIN
+            }" /etc/hosts
+        else
+            sudo sed -i "1s/^/127.0.0.1\t${DOMAIN}\n/" /etc/hosts
+            log_warn "127.0.0.1 localhost not found — added $DOMAIN at top of /etc/hosts"
+        fi
     fi
 fi
 

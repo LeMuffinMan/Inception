@@ -19,7 +19,6 @@ COMPOSE            = docker compose -f $(COMPOSE_FILE)
 CHECK_SCRIPT       = scripts/check_inception.sh
 CRASH_SCRIPT       = scripts/crash_test.sh
 SECRET_GEN_SCRIPT  = scripts/generate_secrets.sh
-ENV_GEN_SCRIPT     = scripts/generate_env.sh
 KILL_SCRIPT        = scripts/kill_containers.sh
 FTP_SCRIPT         = scripts/ftp.sh
 EDIT_HOST_SCRIPT   = scripts/edit_hosts.sh
@@ -63,7 +62,7 @@ help:
 	@printf "  ${CYAN}%-28s${RESET} %s\n" "make crash"            "Run crash tests"
 	@printf "\n"
 
-up: check-sudo generate-env generate-secrets edit-host create-volumes
+up: check-sudo generate-secrets edit-host create-volumes
 	@printf "$(INFO_PFX)Starting containers ...\n"
 	$(COMPOSE) up -d --build --no-recreate
 
@@ -133,7 +132,6 @@ fclean: check-sudo \
 uninstall: fclean clean-building-cache restore-host
 
 reinstall: uninstall
-	$(ENV_GEN_SCRIPT) -y
 	$(SECRET_GEN_SCRIPT)
 	$(EDIT_HOST_SCRIPT)
 	$(MAKE) create-volumes
@@ -171,9 +169,6 @@ remove-all-existing-images:
 	@printf "$(WARN_PFX)Removing images ...\n"
 	$(COMPOSE) down --rmi all
 
-generate-env:
-	$(ENV_GEN_SCRIPT)
-
 regenerate-secrets:
 	$(SECRET_GEN_SCRIPT) -f
 
@@ -208,7 +203,7 @@ check-sudo:
 	@$(SUDO_CHECK_SCRIPT)
 
 .PHONY: all up down re logs status restart shell check fclean uninstall \
-        reinstall regenerate-secrets create-volumes generate-env \
+        reinstall regenerate-secrets create-volumes \
         generate-secrets kill shutdown-remove-volumes remove-all-existing-images \
         restore-host clean-stopped-containers delete-volumes clean-building-cache \
         edit-host help ftp-list ftp-dl-% ftp-up-% check-sudo
