@@ -20,6 +20,23 @@ NC = \033[0m
 
 all: up check
 
+help:
+	@printf "\n\033[1mInception — Docker infrastructure\033[0m\n\n"
+	@printf "\033[33m── production ──────────────────────────────────\033[0m\n"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make up"               "Build images and start all containers"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make down"             "Stop and remove containers"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make restart-<service>" "Restart a specific container"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make status"           "Show running containers and volumes"
+	@printf "  \033[31m%-28s\033[0m \033[31m⚠  Full rebuild — DELETES persistent volumes\033[0m\n" "make re"
+	@printf "\n\033[33m── development ──────────────────────────────────\033[0m\n"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make build-<service>"  "Rebuild a single service from scratch"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make logs SERVICE=<s>" "Follow logs for a service"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make logs-<service>"   "Follow logs in a new terminal window"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make shell-<service>"  "Open a shell inside a container"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make check"            "Run inception validation checks"
+	@printf "  \033[36m%-28s\033[0m %s\n" "make crash"            "Run crash/resilience tests"
+	@printf "\n"
+
 up: generate-env generate-secrets edit-host create-volumes
 	@printf "${YELLOW}Starting containers ...${NC}\n"
 	$(COMPOSE) up -d --build --no-recreate
@@ -159,4 +176,5 @@ remove-secrets-env:
 .PHONY: all up down re logs status restart shell check fclean uninstall \
         reinstall regenerate-secrets newmagicsite create-volumes generate-env \
         generate-secrets kill shutdown-remove-volumes remove-all-existing-images \
-        restore-host clean-stopped-containers delete-volumes clean-building-cache edit-host
+        restore-host clean-stopped-containers delete-volumes clean-building-cache \ 
+		edit-host help
