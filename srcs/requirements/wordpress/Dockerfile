@@ -12,6 +12,7 @@ COPY --from=downloader /usr/local/bin/wp /usr/local/bin/wp
 COPY --chmod=755 tools/init.sh /usr/local/bin/init.sh
 
 RUN apk add --no-cache \
+        php83 \
         php83-redis \
         php83-fpm \
         php83-tokenizer \

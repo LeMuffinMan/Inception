@@ -1,4 +1,4 @@
-FROM alpine:3.18
+FROM alpine:3.22.3
 
 ENV DEST=/var/www/html/chessgame
 COPY fallback/chessgame-wasm.zip /tmp/chessgame-fallback.zip

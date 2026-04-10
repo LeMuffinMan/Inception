@@ -5,7 +5,7 @@ set -e
 #WORKSTATION ?
 cd /var/www/html/
 chown -R www-data:www-data /var/www/html
-chown -R 755 /var/www/html
+chmod -R 755 /var/www/html
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 

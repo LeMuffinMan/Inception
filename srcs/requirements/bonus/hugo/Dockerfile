@@ -3,7 +3,6 @@ FROM alpine:3.22.3
 WORKDIR /var/hugo/muffin_site
 
 COPY conf /tmp/conf
-COPY --chmod=755 tools/init.sh /usr/local/bin/init.sh
 
 RUN apk add --no-cache hugo git && \
     hugo new site /var/hugo/muffin_site --format yaml && \
@@ -17,4 +16,4 @@ RUN apk add --no-cache hugo git && \
 
 EXPOSE 4200
 
-CMD ["/usr/local/bin/init.sh"]
+CMD ["echo", "Hugo site is published"]
