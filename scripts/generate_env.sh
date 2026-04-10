@@ -2,6 +2,8 @@
 
 # ajouter plus de controles
 
+source "$(dirname "$0")/lib/format.sh"
+
 get_var() {
     local var_name="$1"
     local var_value=""
@@ -45,7 +47,7 @@ fi
 if [ -f srcs/.env ]; then
     set -a
     if ! source srcs/.env; then
-        echo "Failed sourcing srcs/.env"
+        log_error "Failed sourcing srcs/.env"
         exit 1
     fi
     set +a
@@ -65,7 +67,7 @@ else
     touch "srcs/.env"
 fi
 
-echo "Please, fill the following environment variables:"
+log_info "Please fill the following environment variables:"
 
 if [ -z "$MYSQL_DATABASE" ]; then
     MYSQL_DATABASE=$(get_var "MYSQL_DATABASE")
@@ -87,7 +89,7 @@ while [ -z "$MYSQL_ADMIN_EMAIL" ]; do
     MYSQL_ADMIN_EMAIL=$(get_var "MYSQL_ADMIN_EMAIL")
     # controler mail
     if  [ "$MYSQL_USER_EMAIL" == "$MYSQL_ADMIN_EMAIL" ]; then
-        echo "sSorry, that email address is already used!\nWordpress require 2 differents email adresses"
+        log_warn "That email address is already used — WordPress requires 2 different email addresses"
         MYSQL_ADMIN_EMAIL=""
     else
         echo "MYSQL_ADMIN_EMAIL=$MYSQL_ADMIN_EMAIL" >> srcs/.env

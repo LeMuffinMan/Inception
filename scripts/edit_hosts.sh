@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# le commentaire a deplacer dans un README pour Redis
-
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 RES=""

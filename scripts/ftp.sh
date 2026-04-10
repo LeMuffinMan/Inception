@@ -7,20 +7,22 @@ set -a
 source srcs/.env
 set +a
 
+source "$(dirname "$0")/lib/format.sh"
+
 if [ -z "$FTP_USER" ]; then
-    echo "env var FTP_USER not found"
+    log_error "env var FTP_USER not found"
     exit 1
 fi
 if [ -z "$PASSWD" ]; then
-    echo "secret FTP_USER not found"
+    log_error "secret ftp_pass.txt not found or empty"
     exit 1
 fi
 
 if [ -z "$1" ] || { [ -z "$2" ] && [ "$1" != "-l" ]; }; then
-    echo "Usage: make ftp MODE=<d/u/l> FILE=<file-to-up/download>"
-    echo "MODE=d: download <file> from ftp server"
-    echo "MODE=u: upload <file> to ftp server"
-    echo "MODE=l: list content of folder <FILE> on ftp server"
+    log_info "Usage: make ftp-<list|dl-FILE|up-FILE>"
+    log_info "  -d <file>  download file from ftp server"
+    log_info "  -u <file>  upload file to ftp server"
+    log_info "  -l         list content of ftp server"
     exit 1
 fi
 
@@ -48,7 +50,8 @@ ls ${2}
 quit
 EOF
 else
-    echo "Usage: make ftp-<d/u>-<file>"
+    log_error "Unknown option: $1"
+    log_info  "Usage: make ftp-<list|dl-FILE|up-FILE>"
     exit 1
 fi
 

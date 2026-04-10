@@ -3,8 +3,6 @@
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
-COMPOSE="docker compose -f ${COMPOSE_FILE}"
-
 section "Crash Test"
 
 crash_test() {
@@ -20,7 +18,7 @@ crash_test() {
 
     local PID
     PID=$(docker inspect --format '{{.State.Pid}}' "$name" 2>/dev/null)
-    echo -e "  ${GRAY}→ sudo kill -9 $PID (pid of $name)${NC}"
+    log_debug "sudo kill -9 $PID (pid of $name)"
 
     if ! sudo kill -9 "$PID" 2>/dev/null; then
         check "$name → crash triggered" "ko" "kill -9 $PID failed"
@@ -73,7 +71,7 @@ crash_all() {
         fi
     done
 
-    echo -e "  ${GRAY}→ sudo kill -9 ${PIDS[*]}${NC}"
+    log_debug "sudo kill -9 ${PIDS[*]}"
     sudo kill -9 "${PIDS[@]}" 2>/dev/null
     check "all containers → crash triggered" "ok" "${#PIDS[@]} processes killed"
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# voir TOUT EN BAS
-
 # =============================================================================
 # lib/config.sh — Centralized configuration for all Inception check scripts
 #
@@ -9,8 +7,7 @@
 # to your setup. All scripts source this file automatically.
 # =============================================================================
 
-# Automatically, we set the <login> variable following the local username.
-# Edit manualy if your local user not match your login.:w
+# Login is derived from the local username — edit manually if it differs from your 42 login
 LOGIN=$(whoami)
 
 # For 42 subject, the domain name is such.
@@ -28,25 +25,14 @@ RESTART_TIMEOUT=45
 #Add in this array all credentials files you need to generate. It will be randomly generated to prevent leaking secrets
 CREDENTIALS_FILES=("db_password.txt" "db_root_password.txt" "wp_admin_password.txt" "wp_user_password.txt" "ftp_pass.txt")
 
-# to customize your own mariadb/wordpress setup, edit theses variables
-# DEFAULT_MYSQL_USER="mysql_user"
-# DEFAULT_WP_ADMIN_USER="wp_su_${LOGIN}"
-# DEFAULT_WP_USER="wp_user_${LOGIN}"
-# DEFAULT_ADMIN_EMAIL="su@${LOGIN}.42.fr"
-# DEFAULT_USER_EMAIL="user@${LOGIN}.42.fr"
-# DEFAULT_FTP_USER="ftp_user"
-
-#Each service must have his container, named as the service
-# Feel free to add a new service, adding a new CONTAINER variablem and add it in the variable
-# CONTAINERS_TO_TEST if you want it to be waited and checked
+# Each container name must match the service name in docker-compose.yml
 CONTAINER_MARIADB="mariadb"
 CONTAINER_NGINX="nginx"
 CONTAINER_WORDPRESS="wordpress"
 CONTAINER_REDIS="redis"
 CONTAINER_ADMINER="adminer"
 CONTAINER_FTP="vsftpd"
-# CONTAINER_YOUR_SERVICE="your_service"
-# ADD in this array your new container to integrate it as a container to wait or to crash test
+
 CONTAINERS_TO_TEST=("$CONTAINER_REDIS" "$CONTAINER_WORDPRESS" "$CONTAINER_NGINX" "$CONTAINER_MARIADB" "$CONTAINER_ADMINER" "$CONTAINER_FTP")
 
 VOLUME_MARIADB="srcs_mariadb_data"
@@ -56,6 +42,7 @@ VOLUME_NGINX="srcs_nginx_data"
 # Theses variables are set to respect the tree example provided in the subject.
 ROOT_DIR="$(dirname "$0")/.."
 COMPOSE_FILE="${ROOT_DIR}/srcs/docker-compose.yml"
+COMPOSE="docker compose -f ${COMPOSE_FILE}"
 ENV_FILE="${ROOT_DIR}/srcs/.env"
 SECRETS_DIR="${ROOT_DIR}/secrets"
 DB_SECRET_FILE="${SECRETS_DIR}/db_root_password.txt"
@@ -72,6 +59,15 @@ PORT_WORDPRESS_EXPECTED="9000/tcp"
 TLS_ACCEPT=("1.2" "1.3")
 TLS_REJECT=("1.1")
 
-#a revoir avec le check_inception
-REQUIRED_ENV_VARS=("DOMAIN_NAME" "MYSQL_USER" "MYSQL_DATABASE")
+REQUIRED_ENV_VARS=(
+    "DOMAIN_NAME"
+    "MYSQL_DATABASE"
+    "MYSQL_USER"
+    "MYSQL_USER_EMAIL"
+    "MYSQL_ADMIN_EMAIL"
+    "WP_TITLE"
+    "WP_USER"
+    "WP_ADMIN_USER"
+    "FTP_USER"
+)
 ADMIN_FORBIDDEN_PATTERN="^admin$|admin-|^administrator$"

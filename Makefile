@@ -15,15 +15,12 @@
 
 COMPOSE_FILE       = srcs/docker-compose.yml
 COMPOSE            = docker compose -f $(COMPOSE_FILE)
-VERBOSE 		   = 0
 
 CHECK_SCRIPT       = scripts/check_inception.sh
 CRASH_SCRIPT       = scripts/crash_test.sh
-VOLUME_SCRIPT      = scripts/volumes_check.sh
 SECRET_GEN_SCRIPT  = scripts/generate_secrets.sh
 ENV_GEN_SCRIPT     = scripts/generate_env.sh
 KILL_SCRIPT        = scripts/kill_containers.sh
-STATUS_SCRIPT      = scripts/status.sh
 FTP_SCRIPT         = scripts/ftp.sh
 EDIT_HOST_SCRIPT   = scripts/edit_hosts.sh
 SUDO_CHECK_SCRIPT  = scripts/check_sudo.sh
@@ -36,6 +33,12 @@ YELLOW = \033[33m
 BLUE   = \033[34m
 CYAN   = \033[36m
 WHITE  = \033[37m
+
+# Log-level prefixes (for make output)
+INFO_PFX = $(CYAN)[INFO] $(RESET)
+WARN_PFX = $(YELLOW)$(BOLD)[WARN] $(RESET)
+ERR_PFX  = $(RED)$(BOLD)[ERROR]$(RESET)
+OK_PFX   = $(GREEN)[OK]   $(RESET)
 
 # =============================================================================
 # PROD
@@ -61,11 +64,11 @@ help:
 	@printf "\n"
 
 up: check-sudo generate-env generate-secrets edit-host create-volumes
-	@printf "${YELLOW}Starting containers ...${RESET}\n"
+	@printf "$(INFO_PFX)Starting containers ...\n"
 	$(COMPOSE) up -d --build --no-recreate
 
 down:
-	@printf "${YELLOW}Shutting down containers ...${RESET}\n"
+	@printf "$(INFO_PFX)Shutting down containers ...\n"
 	$(COMPOSE) down
 
 restart-%:
@@ -84,7 +87,7 @@ re: check-sudo kill delete-volumes create-volumes
 # =============================================================================
 
 build-%:
-	@printf "${YELLOW}Rebuilding $* from scratch ...${RESET}\n"
+	@printf "$(INFO_PFX)Rebuilding $* from scratch ...\n"
 	$(COMPOSE) up -d --build $*
 logs:
 	$(COMPOSE) logs -f
@@ -117,10 +120,12 @@ ftp-up-%:
 
 # ============= Cleanup =================
 
+clean: down
+
 fclean: check-sudo \
 	kill \
 	shutdown-remove-volumes \
-	clean-stop-containers \
+	clean-stopped-containers \
 	delete-volumes \
 	clean-dangling-images \
 	remove-all-existing-images
@@ -140,30 +145,30 @@ reinstall: uninstall
 # =============================================================================
 
 shutdown-remove-volumes:
-	@printf "${YELLOW}Shutting down and removing containers and volumes ...${RESET}\n"
+	@printf "$(WARN_PFX)Shutting down and removing containers and volumes ...\n"
 	$(COMPOSE) down --volumes --remove-orphans
 
-clean-stop-containers:
-	@printf "${YELLOW}Cleaning stopped containers ...${RESET}\n"
+clean-stopped-containers:
+	@printf "$(WARN_PFX)Cleaning stopped containers ...\n"
 	docker container prune -f
 
 create-volumes: check-sudo
-	@printf "${YELLOW}Creating folders for persistent storage ...${RESET}\n"
+	@printf "$(INFO_PFX)Creating folders for persistent storage ...\n"
 	mkdir -p ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame
 
 delete-volumes: check-sudo
-	@printf "${YELLOW}Cleaning volumes ...${RESET}\n"
-	@sudo rm -rf ~/data/mysql && printf "${GREEN}~/data/mysql deleted successfully${RESET}\n"
-	@sudo rm -rf ~/data/chessgame && printf "${GREEN}~/data/chessgame deleted successfully${RESET}\n"
-	@sudo rm -rf ~/data/wordpress && printf "${GREEN}~/data/wordpress deleted successfully${RESET}\n"
-	@sudo rm -rf ~/data/hugo && printf "${GREEN}~/data/hugo deleted successfully${RESET}\n"
+	@printf "$(WARN_PFX)Cleaning volumes ...\n"
+	@sudo rm -rf ~/data/mysql && printf "$(OK_PFX)~/data/mysql deleted\n"
+	@sudo rm -rf ~/data/chessgame && printf "$(OK_PFX)~/data/chessgame deleted\n"
+	@sudo rm -rf ~/data/wordpress && printf "$(OK_PFX)~/data/wordpress deleted\n"
+	@sudo rm -rf ~/data/hugo && printf "$(OK_PFX)~/data/hugo deleted\n"
 
 clean-dangling-images:
-	@printf "${YELLOW}Cleaning dangling images ...${RESET}\n"
+	@printf "$(WARN_PFX)Cleaning dangling images ...\n"
 	docker image prune -f
 
 remove-all-existing-images:
-	@printf "${YELLOW}Removing images ...${RESET}\n"
+	@printf "$(WARN_PFX)Removing images ...\n"
 	$(COMPOSE) down --rmi all
 
 generate-env:
@@ -179,27 +184,27 @@ generate-secrets:
 	$(SECRET_GEN_SCRIPT)
 
 restore-host: check-sudo
-	@printf "${YELLOW}Editing /etc/hosts...${RESET}\n"
+	@printf "$(INFO_PFX)Restoring /etc/hosts ...\n"
 	sudo sed -i '/^127\.0\.0\.1/d' /etc/hosts
 	sudo sed -i 's/^#\(127\.0\.0\.1.*\)/\1/' /etc/hosts
 	sudo cat /etc/hosts
 	sudo sysctl vm.overcommit_memory=0
 
 kill:
-	@printf "${YELLOW}Killing containers ...${RESET}\n"
+	@printf "$(WARN_PFX)Killing containers ...\n"
 	$(KILL_SCRIPT)
 
 clean-building-cache:
-	@printf "${YELLOW}Cleaning builder cache...${RESET}\n"
+	@printf "$(WARN_PFX)Cleaning builder cache ...\n"
 	docker builder prune -f
 
 remove-secrets-env:
-	@printf "${YELLOW}Removing credentials and .env ...${RESET}\n"
+	@printf "$(WARN_PFX)Removing credentials and .env ...\n"
 	rm -rf secrets
 	rm -rf srcs/.env
 
 check-sudo:
-	@printf "${CYAN} Checking sudo privileges ... ${RESET}\n"
+	@printf "$(INFO_PFX)Checking sudo privileges ...\n"
 	@$(SUDO_CHECK_SCRIPT)
 
 .PHONY: all up down re logs status restart shell check fclean uninstall \

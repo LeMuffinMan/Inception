@@ -10,23 +10,20 @@ set -a
 MYSQL_ROOT_PASSWORD=$(cat "$DB_SECRET_FILE" 2>/dev/null)
 set +a
 
-COMPOSE="docker compose -f ${COMPOSE_FILE}"
-CONTAINERS=$($COMPOSE ps 2>/dev/null)
-
 if ! wait_for_containers; then
     echo
     $COMPOSE ps
     exit 1
 fi
 
-echo
-echo -e "${CYAN}${BOLD}  Inception — Project Check${NC}  ${DIM}login: ${LOGIN}  domain: ${DOMAIN}${NC}"
+header "Project Check" "login: ${LOGIN}  domain: ${DOMAIN}"
 
 # =============================================================================
 # MARIADB
 # =============================================================================
 if [ -z $1 ] || [ "$1" == "mariadb" ]; then
     section "MariaDB"
+    CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
     if echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep "Up" > /dev/null \
     && ! echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep "Restarting" > /dev/null; then
@@ -35,7 +32,7 @@ if [ -z $1 ] || [ "$1" == "mariadb" ]; then
         if echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep -q "unhealthy"; then
             check "healthy" "ko"
         elif echo "$CONTAINERS" | grep "$CONTAINER_MARIADB" | grep -q "health: starting"; then
-            printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+            pending "healthy" "starting..."
         else
             check "healthy" "ok"
         fi
@@ -84,6 +81,7 @@ fi
 
 if [ -z $1 ] || [ "$1" == "nginx" ]; then
     section "Nginx"
+    CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
     if echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep "Up" > /dev/null \
     && ! echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep "Restarting" > /dev/null; then
@@ -92,7 +90,7 @@ if [ -z $1 ] || [ "$1" == "nginx" ]; then
         if echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep -q "unhealthy"; then
             check "healthy" "ko"
         elif echo "$CONTAINERS" | grep "$CONTAINER_NGINX" | grep -q "health: starting"; then
-            printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+            pending "healthy" "starting..."
         else
             check "healthy" "ok"
         fi
@@ -153,6 +151,7 @@ fi
 
 if [ -z $1 ] || [ "$1" == "wordpress" ]; then
     section "WordPress"
+    CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
     if echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep "Up" > /dev/null \
     && ! echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep "Restarting" > /dev/null; then
@@ -161,7 +160,7 @@ if [ -z $1 ] || [ "$1" == "wordpress" ]; then
         if echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep -q "unhealthy"; then
             check "healthy" "ko"
         elif echo "$CONTAINERS" | grep "$CONTAINER_WORDPRESS" | grep -q "health: starting"; then
-            printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+            pending "healthy" "starting..."
         else
             check "healthy" "ok"
         fi
@@ -170,7 +169,7 @@ if [ -z $1 ] || [ "$1" == "wordpress" ]; then
         ELAPSED=0
         while [ $ELAPSED -lt $WAIT_TIMEOUT ]; do
             if docker logs "$CONTAINER_WORDPRESS" 2>&1 \
-            | grep -qE "Wordpress successfully installed|Wordpress already installed and configured"; then
+            | grep -iqE "WordPress successfully installed|WordPress already installed and configured"; then
                 LOG_OK=true; break
             fi
             sleep 1; ((ELAPSED++))
@@ -236,6 +235,7 @@ fi
 # =============================================================================
 if [ -z $1 ] || [ "$1" == "redis" ]; then
     section "Redis"
+    CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
     if echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep "Up" > /dev/null \
     && ! echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep "Restarting" > /dev/null; then
@@ -244,7 +244,7 @@ if [ -z $1 ] || [ "$1" == "redis" ]; then
         if echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep -q "unhealthy"; then
             check "healthy" "ko"
         elif echo "$CONTAINERS" | grep "$CONTAINER_REDIS" | grep -q "health: starting"; then
-            printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+            pending "healthy" "starting..."
         else
             check "healthy" "ok"
         fi
@@ -290,6 +290,7 @@ fi
 # =============================================================================
 if [ -z $1 ] || [ "$1" == "adminer" ]; then
     section "Adminer"
+    CONTAINERS=$($COMPOSE ps 2>/dev/null)
 
     if echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep "Up" > /dev/null \
     && ! echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep "Restarting" > /dev/null; then
@@ -298,7 +299,7 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
         if echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep -q "unhealthy"; then
             check "healthy" "ko"
         elif echo "$CONTAINERS" | grep "$CONTAINER_ADMINER" | grep -q "health: starting"; then
-            printf "  ${WHITE}%-30s${NC} ${YELLOW}starting...${NC}\n" "healthy"
+            pending "healthy" "starting..."
         else
             check "healthy" "ok"
         fi

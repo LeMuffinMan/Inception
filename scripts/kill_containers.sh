@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# sourcer config pour recuperer les containers ?
-CONTAINERS=("wordpress" "mariadb" "nginx" "vsftpd" "redis" "adminer")
+source "$(dirname "$0")/lib/format.sh"
 
-for container in "${CONTAINERS[@]}"; do
+for container in "${CONTAINERS_TO_TEST[@]}"; do
     if docker ps | grep $container > /dev/null ; then
         docker kill $container > /dev/null
-        echo "$container killed"
+        log_info "$container killed"
     fi
 done

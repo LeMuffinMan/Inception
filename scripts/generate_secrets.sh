@@ -1,20 +1,13 @@
 #!/bin/bash
 
-# A reclean avec la modif du config.sh
-
-if [[ $EUID -eq 0 ]]; then
-    echo "You must have sudo privilege to setup this project, to perform following operations:
-        - Create folders, attribute it to other users, their deletion (make fclean) require sudo
-        - Edit /etc/hosts to redirect 127.0.0.1 to your domain name instead of localhost"
-    exit 1
-fi
-
-# ici verifier la presence du .env et des variables minimales a avoir
-
-# Si pas de .env / pas de secrets, afficher une liste des fichiers qui seront generes et demander confirmation
-
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
+
+if [[ $EUID -eq 0 ]]; then
+    log_error "Run as a regular user with sudo privileges, not as root"
+    log_info  "sudo is needed for: folder creation, permissions, /etc/hosts editing"
+    exit 1
+fi
 
 write_secret() {
     local file="${SECRETS_DIR}/$1"
@@ -39,43 +32,21 @@ generate_secret() {
     fi
 }
 
-skip() {
-    local pad=$(( LABEL_WIDTH - ${#1} ))
-    [ $pad -lt 1 ] && pad=1
-    local spaces
-    spaces=$(printf '%*s' "$pad" '')
-    printf "  ${WHITE}%s${NC}%s ${GRAY}⊘ skipped (already exists)${NC}\n" "$1" "$spaces"
-}
-
-# creates .env file in srcs/
-# generates all variables and fill them with default value
-generate_env() {
-    mkdir -p "$(dirname "$ENV_FILE")"
-    for VAR in "${ORDERED_VARS[@]}"; do
-        printf '%s=%s\n' "$VAR" "${EXPECTED_VALUES[$VAR]}"
-    done > "$ENV_FILE"
-
-    if [ -s "$ENV_FILE" ]; then
-        check "$ENV_FILE" "ok" "generated"
-    else
-        check "$ENV_FILE" "ko" "could not write $ENV_FILE"
-    fi
-}
 # --- Force flag ---------------------------------------------------------------
 header "Secret Generator" "login: ${LOGIN}"
 
 # This flag will overwrite all crendentials and secrets
 if [ "$1" = "-f" ]; then
     if [ -d "$SECRETS_DIR" ]; then
-        printf "\n  ${YELLOW}${BOLD}secrets/ already exists. Override? [y/n]${NC} "
+        log_warn "secrets/ already exists. Override? [y/n] "
         read -r res
         case "$res" in
             [yY])
                 rm -rf "$SECRETS_DIR"
-                echo -e "  ${GRAY}→ secrets/ removed${NC}"
+                log_info "secrets/ removed"
                 ;;
             *)
-                echo -e "\n  ${GRAY}Canceled.${NC}\n"
+                log_info "Canceled."
                 exit 0
                 ;;
         esac
@@ -97,14 +68,14 @@ for FILE in "${CREDENTIALS_FILES[@]}"; do
         skip "$FILE"
     fi
     if ! chmod 600 "${SECRETS_DIR}/${FILE}"; then
-        echo "Failed to chmod 600 ${FILE}"
+        log_error "Failed to chmod 600 ${FILE}"
     fi
 done
 
 echo
 TOTAL=$(ls "$SECRETS_DIR" | wc -l)
-echo -e "  ${GRAY}→ ${TOTAL} file(s) in ${SECRETS_DIR}${NC}"
-echo -e "  ${GRAY}→ Use ${WHITE}-f${GRAY} flag to force regeneration of all secrets${NC}"
+log_debug "${TOTAL} file(s) in ${SECRETS_DIR}"
+log_info  "Use -f flag to force regeneration of all secrets"
 echo
 
 chmod 600 srcs/.env

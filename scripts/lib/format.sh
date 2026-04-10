@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# dplacer les fonctions utilitaires ? wait container ...
-
 # =============================================================================
 # lib/format.sh — Shared formatting library for Inception check scripts
 # Source this file at the top of each script:
@@ -13,9 +11,10 @@ source "$(dirname "$0")/lib/config.sh"
 # --- Colors -------------------------------------------------------------------
 
 BOLD='\033[1m'
+DIM='\033[2m'
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
+YELLOW='\033[1;33m'
 RED='\033[0;31m'
 CYAN='\033[0;36m'
 WHITE='\033[1;37m'
@@ -27,12 +26,31 @@ FAIL="${RED}${BOLD}✘ KO${NC}"
 # Width reserved for check labels (increase if labels are longer)
 LABEL_WIDTH=50
 
-# format section title and separators
+# --- Log levels ---------------------------------------------------------------
+# INFO  (cyan)    : normal operational messages
+# DEBUG (gray)    : verbose detail — shown only when VERBOSE=1
+# WARN  (yellow)  : unexpected but non-fatal
+# ERROR (red)     : critical failure, written to stderr
+
+log_info()  { printf "${CYAN}[INFO]${NC}  %s\n" "$*"; }
+log_debug() { [ "${VERBOSE:-0}" = "1" ] && printf "${GRAY}[DEBUG]${NC} %s\n" "$*" || true; }
+log_warn()  { printf "${YELLOW}${BOLD}[WARN]${NC}  %s\n" "$*" >&2; }
+log_error() { printf "${RED}${BOLD}[ERROR]${NC} %s\n" "$*" >&2; }
+
+# --- UI components ------------------------------------------------------------
+
 section() {
     echo
     echo -e "${CYAN}${BOLD}┌─────────────────────────────────────────┐${NC}"
     printf "${CYAN}${BOLD}│  %-41s│${NC}\n" "$1"
     echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
+}
+
+header() {
+    local title="$1"
+    local subtitle="$2"
+    echo
+    echo -e "${CYAN}${BOLD}  Inception — ${title}${NC}  ${GRAY}${subtitle}${NC}"
 }
 
 # display ok or ko and details if provided
@@ -55,6 +73,16 @@ check() {
     [ -n "$detail" ] && echo -e "  ${GRAY}→ ${detail}${NC}" || echo
 }
 
+# display a "skipped" line (item already exists, no action taken)
+skip() {
+    local label="$1"
+    local pad=$(( LABEL_WIDTH - ${#label} ))
+    [ $pad -lt 1 ] && pad=1
+    local spaces
+    spaces=$(printf '%*s' "$pad" '')
+    printf "  ${WHITE}%s${NC}%s ${GRAY}⊘ skipped (already exists)${NC}\n" "$label" "$spaces"
+}
+
 pending() {
     local label="$1"
     local msg="$2"
@@ -65,13 +93,6 @@ pending() {
     spaces=$(printf '%*s' "$pad" '')
 
     printf "  ${WHITE}%s${NC}%s ${YELLOW}⧖ %s${NC}\n" "$label" "$spaces" "$msg"
-}
-
-header() {
-    local title="$1"
-    local subtitle="$2"
-    echo
-    echo -e "${CYAN}${BOLD}  Inception — ${title}${NC}  ${GRAY}${subtitle}${NC}"
 }
 
 # Waiting for each argument execution to returns 0
@@ -86,16 +107,9 @@ wait_for() {
     return 1
 }
 
-section() {
-    echo
-    echo -e "${CYAN}${BOLD}┌─────────────────────────────────────────┐${NC}"
-    printf "${CYAN}${BOLD}│  %-41s│${NC}\n" "$1"
-    echo -e "${CYAN}${BOLD}└─────────────────────────────────────────┘${NC}"
-}
-
 # --- Wait for all containers to be up and healthy -------------------------
 wait_for_containers() {
-    local timeout=30
+    local timeout=${WAIT_TIMEOUT:-30}
     local elapsed=0
     local containers=("${CONTAINERS_TO_TEST[@]}")
 
