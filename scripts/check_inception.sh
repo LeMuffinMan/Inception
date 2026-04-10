@@ -276,7 +276,7 @@ if [ -z $1 ] || [ "$1" == "redis" ]; then
             check "cache populated (keys > 0)" "ko" "0 keys — WordPress may not be using Redis"
         fi
 
-        REDIS_STATUS=$(docker exec "$CONTAINER_WORDPRESS" wp redis status --path=/var/www/html/wordpress --allow-root 2>/dev/null)
+        REDIS_STATUS=$(docker exec "$CONTAINER_WORDPRESS" wp redis status --path=/var/www/html/ --allow-root 2>/dev/null)
         if echo "$REDIS_STATUS" | grep -q "Drop-in: Valid" && echo "$REDIS_STATUS" | grep -q "Disabled: No"; then
             REDIS_VERSION=$(echo "$REDIS_STATUS" | grep "Redis Version:")
             check "wp redis status" "ok" "$REDIS_VERSION"
