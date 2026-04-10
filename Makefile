@@ -1,9 +1,21 @@
 # =============================================================================
+#  ██╗███╗   ██╗ ██████╗███████╗██████╗ ████████╗██╗ ██████╗ ███╗   ██╗
+#  ██║████╗  ██║██╔════╝██╔════╝██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
+#  ██║██╔██╗ ██║██║     █████╗  ██████╔╝   ██║   ██║██║   ██║██╔██╗ ██║
+#  ██║██║╚██╗██║██║     ██╔══╝  ██╔═══╝    ██║   ██║██║   ██║██║╚██╗██║
+#  ██║██║ ╚████║╚██████╗███████╗██║        ██║   ██║╚██████╔╝██║ ╚████║
+#  ╚═╝╚═╝  ╚═══╝ ╚═════╝╚══════╝╚═╝        ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+# =============================================================================
+
+# edit scripts/lib/config.sh to customize your inception setup
+
+# =============================================================================
 # VARIABLES & CONFIG
 # =============================================================================
 
 COMPOSE_FILE       = srcs/docker-compose.yml
 COMPOSE            = docker compose -f $(COMPOSE_FILE)
+VERBOSE 		   = 0
 
 CHECK_SCRIPT       = scripts/check_inception.sh
 CRASH_SCRIPT       = scripts/crash_test.sh
@@ -14,6 +26,7 @@ KILL_SCRIPT        = scripts/kill_containers.sh
 STATUS_SCRIPT      = scripts/status.sh
 FTP_SCRIPT         = scripts/ftp.sh
 EDIT_HOST_SCRIPT   = scripts/edit_hosts.sh
+SUDO_CHECK_SCRIPT  = scripts/check_sudo.sh
 
 BOLD   = \033[1m
 RESET  = \033[0m
@@ -47,7 +60,7 @@ help:
 	@printf "  ${CYAN}%-28s${RESET} %s\n" "make crash"            "Run crash tests"
 	@printf "\n"
 
-up: generate-env generate-secrets edit-host create-volumes
+up: check-sudo generate-env generate-secrets edit-host create-volumes
 	@printf "${YELLOW}Starting containers ...${RESET}\n"
 	$(COMPOSE) up -d --build --no-recreate
 
@@ -62,7 +75,7 @@ status:
 	docker ps
 	docker volume ls
 
-re: kill delete-volumes create-volumes
+re: check-sudo kill delete-volumes create-volumes
 	$(COMPOSE) up -d --build
 	$(MAKE) check
 
@@ -104,7 +117,13 @@ ftp-up-%:
 
 # ============= Cleanup =================
 
-fclean: kill shutdown-remove-volumes clean-stop-containers delete-volumes clean-dangling-images remove-all-existing-images
+fclean: check-sudo \
+	kill \
+	shutdown-remove-volumes \
+	clean-stop-containers \
+	delete-volumes \
+	clean-dangling-images \
+	remove-all-existing-images
 
 uninstall: fclean clean-building-cache restore-host
 
@@ -128,12 +147,11 @@ clean-stop-containers:
 	@printf "${YELLOW}Cleaning stopped containers ...${RESET}\n"
 	docker container prune -f
 
-create-volumes:
+create-volumes: check-sudo
 	@printf "${YELLOW}Creating folders for persistent storage ...${RESET}\n"
 	mkdir -p ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame
-	sudo chown -R 82:82 ~/data/wordpress
 
-delete-volumes:
+delete-volumes: check-sudo
 	@printf "${YELLOW}Cleaning volumes ...${RESET}\n"
 	@sudo rm -rf ~/data/mysql && printf "${GREEN}~/data/mysql deleted successfully${RESET}\n"
 	@sudo rm -rf ~/data/chessgame && printf "${GREEN}~/data/chessgame deleted successfully${RESET}\n"
@@ -154,13 +172,13 @@ generate-env:
 regenerate-secrets:
 	$(SECRET_GEN_SCRIPT) -f
 
-edit-host:
+edit-host: check-sudo
 	$(EDIT_HOST_SCRIPT)
 
 generate-secrets:
 	$(SECRET_GEN_SCRIPT)
 
-restore-host:
+restore-host: check-sudo
 	@printf "${YELLOW}Editing /etc/hosts...${RESET}\n"
 	sudo sed -i '/^127\.0\.0\.1/d' /etc/hosts
 	sudo sed -i 's/^#\(127\.0\.0\.1.*\)/\1/' /etc/hosts
@@ -180,8 +198,12 @@ remove-secrets-env:
 	rm -rf secrets
 	rm -rf srcs/.env
 
+check-sudo:
+	@printf "${CYAN} Checking sudo privileges ... ${RESET}\n"
+	$(SUDO_CHECK_SCRIPT)
+
 .PHONY: all up down re logs status restart shell check fclean uninstall \
         reinstall regenerate-secrets create-volumes generate-env \
         generate-secrets kill shutdown-remove-volumes remove-all-existing-images \
-        restore-host clean-stop-containers delete-volumes clean-building-cache \
-        edit-host help
+        restore-host clean-stopped-containers delete-volumes clean-building-cache \
+        edit-host help ftp-list ftp-dl-% ftp-up-% check-sudo
