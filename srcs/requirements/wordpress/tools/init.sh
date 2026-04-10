@@ -4,6 +4,12 @@ set -e
 
 #WORKSTATION ?
 cd /var/www/html/
+chown -R www-data:www-data /var/www/html
+chown -R 755 /var/www/html
+mkdir -p /var/log/php83 && \
+touch /var/log/php83/error.log && \
+chown -R www-data:www-data /var/log/php83
+
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 
@@ -66,4 +72,4 @@ fi
 
 sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /etc/php83/php-fpm.d/www.conf && echo "socket set OK" || echo "socket set KO"
 
-exec su -s /bin/sh -c "php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf"
+exec su -s /bin/sh www-data -c "php-fpm83 --nodaemonize --fpm-config /etc/php83/php-fpm.conf"
