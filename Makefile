@@ -40,11 +40,11 @@ help:
 	@printf "  ${RED}%-28s${RESET} ${RED}⚠  Full rebuild — DELETES persistent volumes${RESET}\n" "make re"
 	@printf "\n${YELLOW}── development ──────────────────────────────────${RESET}\n"
 	@printf "  ${CYAN}%-28s${RESET} %s\n" "make build-<service>"  "Rebuild a single service from scratch"
-	@printf "  ${CYAN}%-28s${RESET} %s\n" "make logs SERVICE=<s>" "Follow logs for a service"
-	@printf "  ${CYAN}%-28s${RESET} %s\n" "make logs-<service>"   "Follow logs in a new terminal window"
-	@printf "  ${CYAN}%-28s${RESET} %s\n" "make shell-<service>"  "Open a shell inside a container"
+	@printf "  ${CYAN}%-28s${RESET} %s\n" "make logs"             "Follow all logs"
+	@printf "  ${CYAN}%-28s${RESET} %s\n" "make logs-<service>"   "Follow logs of a specific service in a new terminal window"
+	@printf "  ${CYAN}%-28s${RESET} %s\n" "make shell-<service>"  "Open a shell inside a specific container"
 	@printf "  ${CYAN}%-28s${RESET} %s\n" "make check"            "Run inception validation checks"
-	@printf "  ${CYAN}%-28s${RESET} %s\n" "make crash"            "Run crash/resilience tests"
+	@printf "  ${CYAN}%-28s${RESET} %s\n" "make crash"            "Run crash tests"
 	@printf "\n"
 
 up: generate-env generate-secrets edit-host create-volumes
@@ -55,12 +55,12 @@ down:
 	@printf "${YELLOW}Shutting down containers ...${RESET}\n"
 	$(COMPOSE) down
 
+restart-%:
+	$(COMPOSE) restart $*
+
 status:
 	docker ps
 	docker volume ls
-
-restart-%:
-	$(COMPOSE) restart $*
 
 re: kill delete-volumes create-volumes
 	$(COMPOSE) up -d --build
@@ -70,18 +70,17 @@ re: kill delete-volumes create-volumes
 # DEV
 # =============================================================================
 
+build-%:
+	@printf "${YELLOW}Rebuilding $* from scratch ...${RESET}\n"
+	$(COMPOSE) up -d --build $*
 logs:
-	$(COMPOSE) logs -f $(SERVICE)
+	$(COMPOSE) logs -f
 
 logs-%:
 	alacritty -e sh -c '$(COMPOSE) logs -f $* | less +F' &
 
 shell-%:
 	alacritty -e sh -c '$(COMPOSE) exec $* sh'
-
-build-%:
-	@printf "${YELLOW}Rebuilding $* from scratch ...${RESET}\n"
-	$(COMPOSE) up -d --build $*
 
 check:
 	$(CHECK_SCRIPT) $(SERVICE)
