@@ -72,8 +72,8 @@ restart-%:
 	$(COMPOSE) restart $*
 
 status:
-	docker ps
-	docker volume ls
+	@docker ps
+	@docker volume ls
 
 re: check-sudo kill delete-volumes create-volumes
 	$(COMPOSE) up -d --build
