@@ -53,7 +53,7 @@ ftp-dl-%:
 ftp-up-%:
 	$(FTP_SCRIPT) -u $*
 
-	# Ajouter un danger ici ? on veut delete les volumes ?
+# === /!\ this command will delete persistant volumes ===
 re: kill delete-volumes create-volumes
 	$(COMPOSE) up -d --build
 	$(MAKE) check
@@ -102,6 +102,7 @@ clean-stop-containers:
 create-volumes:
 	@printf "${YELLOW}Creating folders for persistent storage ...${NC}\n"
 	mkdir -p ~/data/mysql ~/data/wordpress ~/data/hugo ~/data/chessgame
+	sudo chown -R 82:82 ~/data/wordpress
 
 delete-volumes:
 	@printf "${YELLOW}Cleaning volumes ...${NC}\n"

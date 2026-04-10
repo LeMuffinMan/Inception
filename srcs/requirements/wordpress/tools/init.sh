@@ -6,9 +6,8 @@ set -e
 cd /var/www/html/
 chown -R www-data:www-data /var/www/html
 chown -R 755 /var/www/html
-mkdir -p /var/log/php83 && \
-touch /var/log/php83/error.log && \
-chown -R www-data:www-data /var/log/php83
+# mkdir -p /var/log/php83
+# touch /var/log/php83/error.log && \
 
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
