@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Makefilser ?
-
+# sourcer config pour recuperer les containers ?
 CONTAINERS=("wordpress" "mariadb" "nginx" "vsftpd" "redis" "adminer")
 
 for container in "${CONTAINERS[@]}"; do

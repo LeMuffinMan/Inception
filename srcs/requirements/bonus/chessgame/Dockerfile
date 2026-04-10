@@ -21,7 +21,8 @@ RUN apk add --no-cache curl unzip jq bash \
 
 CMD ["echo", "ChessGame deployed successfully"]
 
-# Curl  release and copy version (limited curl calls)
+#  -------- Curl  release and copy version (limited curl calls) ------
+
 # FROM alpine:3.22.3
 
 # RUN apk add --no-cache curl jq unzip
@@ -49,7 +50,7 @@ CMD ["echo", "ChessGame deployed successfully"]
 # CMD ["trunk", "build", "--release", "--public-url", "/chessgame/"]
 
 
-# Building from scratch version (10 min)
+# -------- Building from scratch version (10 min) ---------
 
 # FROM alpine:3.22
 

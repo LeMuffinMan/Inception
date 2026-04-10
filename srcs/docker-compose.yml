@@ -3,9 +3,8 @@ services:
   nginx:
     container_name: nginx
     build: ./requirements/nginx
-    # pas tout lui donner !
-    env_file:
-      - .env
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
     ports:
       - 443:443
     healthcheck:

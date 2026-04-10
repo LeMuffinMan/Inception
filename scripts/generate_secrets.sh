@@ -16,8 +16,6 @@ fi
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 
-# write_secret <filename> <content>
-#   Writes content to secrets/<filename>, avoids subshell exposure
 write_secret() {
     local file="${SECRETS_DIR}/$1"
     local content="$2"
@@ -29,8 +27,6 @@ write_secret() {
     fi
 }
 
-# generate_secret [length]
-#   Outputs a random base64 string of given byte length
 generate_secret() {
     local len="${1:-$SECRET_LENGTH}"
     if command -v openssl > /dev/null 2>&1; then
@@ -43,8 +39,6 @@ generate_secret() {
     fi
 }
 
-# skip <filename>
-#   Prints a 'skipped' line for already-existing secrets
 skip() {
     local pad=$(( LABEL_WIDTH - ${#1} ))
     [ $pad -lt 1 ] && pad=1
@@ -88,8 +82,6 @@ if [ "$1" = "-f" ]; then
     fi
 fi
 
-# --- Create directory ---------------------------------------------------------
-
 mkdir -p "$SECRETS_DIR"
 if [ ! -d "$SECRETS_DIR" ]; then
     check "secrets/ directory" "ko" "could not create $SECRETS_DIR"
@@ -97,8 +89,6 @@ if [ ! -d "$SECRETS_DIR" ]; then
 fi
 
 section "Generating Secrets"
-
-# --- Random secrets -----------------------------------------------------------
 
 for FILE in "${CREDENTIALS_FILES[@]}"; do
     if [ ! -s "${SECRETS_DIR}/${FILE}" ]; then

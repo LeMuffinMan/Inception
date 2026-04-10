@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# dplacer les fonctions utilitaires ? wait container ...
+
 # =============================================================================
 # lib/format.sh — Shared formatting library for Inception check scripts
 # Source this file at the top of each script:
@@ -123,7 +126,6 @@ wait_for_containers() {
                 status="${GREEN}ready${NC}"; icon="${GREEN}✓${NC}"
             fi
 
-            # The \033[K allows to refresh line and display antoher one overriding the former one
             output+="  ${icon}  ${WHITE}${container}${NC}  →  ${status}\033[K\n"
         done
 

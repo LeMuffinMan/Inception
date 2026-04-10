@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# mettre le config ici
-
 echo "MYSQL_DATABASE=${USER}_db
 MYSQL_USER=${USER}_mysql_user
 MYSQL_USER_EMAIL=${USER}@mail.fr

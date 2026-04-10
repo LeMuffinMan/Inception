@@ -120,4 +120,3 @@ if [ -z "$FTP_USER" ]; then
     FTP_USER=$(get_var "FTP_USER")
     echo "FTP_USER=$FTP_USER" >> srcs/.env
 fi
-# pour les mail on ajoute un ctrl

@@ -109,7 +109,6 @@ if [ -z $1 ] || [ "$1" == "nginx" ]; then
             check "probe (HTTPS)" "ko"
         fi
 
-        #-k ignores SSL certificate check, needed since we autosign our certs
         TLS_VERSION=$(curl -k -v "https://localhost:443" 2>&1 | grep -o "TLSv1\.[0-9]" | sort -u)
         if [ -n "$TLS_VERSION" ]; then
             check "TLS version detected" "ok" "$TLS_VERSION"
@@ -304,7 +303,6 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
             check "healthy" "ok"
         fi
 
-        # Probe HTTP — Adminer should answer on its internal port
         ADMINER_PROBE=$(docker exec "$CONTAINER_ADMINER" \
             wget --spider http://127.0.0.1:8080/adminer.php 2>&1 | grep -c "remote file exists" || echo 0)
         if [ "$ADMINER_PROBE" -gt 0 ]; then
@@ -313,7 +311,6 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
             check "probe (HTTP 8080)" "ko"
         fi
 
-        # nginx proxy
         HTTP_CODE=$(curl -k -L -o /dev/null -s -w "%{http_code}" "https://${DOMAIN}/adminer/")
         if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
             check "reachable via nginx (/adminer)" "ok" "HTTP $HTTP_CODE"
@@ -321,7 +318,6 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
             check "reachable via nginx (/adminer)" "ko" "HTTP $HTTP_CODE"
         fi
 
-        # Port not exposed on host, only nginx as entrypoint
         PORT=$(docker ps --format "table {{.Names}}\t{{.Ports}}" \
             | grep "$CONTAINER_ADMINER" | awk '{print $2}')
         if echo "$PORT" | grep -q "0.0.0.0"; then
@@ -330,7 +326,6 @@ if [ -z $1 ] || [ "$1" == "adminer" ]; then
             check "port not exposed on host" "ok"
         fi
 
-        # Adminer connection to Mariadb
         if docker exec "$CONTAINER_ADMINER" nc -z -w3 mariadb 3306; then
             check "connects to MariaDB" "ok"
         else

@@ -6,9 +6,6 @@ set -e
 cd /var/www/html/
 chown -R www-data:www-data /var/www/html
 chown -R 755 /var/www/html
-# mkdir -p /var/log/php83
-# touch /var/log/php83/error.log && \
-
 
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 
@@ -54,9 +51,6 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --allow-root
 
     echo "DOMAIN NAME = $DOMAIN_NAME"
-
-    # wp option update home "https://${DOMAIN_NAME}" --allow-root
-    # wp option update siteurl "https://${DOMAIN_NAME}" --allow-root
 
     echo "Activate Redis cache plugin ..."
     wp plugin install redis-cache --activate --allow-root && echo "install and activate redis successfully" || echo "Failed to install and activate redis-cache"

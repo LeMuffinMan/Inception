@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# voir TOUT EN BAS
+
 # =============================================================================
 # lib/config.sh — Centralized configuration for all Inception check scripts
 #
@@ -69,6 +72,6 @@ PORT_WORDPRESS_EXPECTED="9000/tcp"
 TLS_ACCEPT=("1.2" "1.3")
 TLS_REJECT=("1.1")
 
-#a revoir
+#a revoir avec le check_inception
 REQUIRED_ENV_VARS=("DOMAIN_NAME" "MYSQL_USER" "MYSQL_DATABASE")
 ADMIN_FORBIDDEN_PATTERN="^admin$|admin-|^administrator$"

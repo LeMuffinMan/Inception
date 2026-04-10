@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# le commentaire a deplacer dans un README pour Redis
+
 source "$(dirname "$0")/lib/config.sh"
 source "$(dirname "$0")/lib/format.sh"
 RES=""
@@ -23,7 +25,6 @@ fi
 #
 # setting it to 1 will not be persistent after reboot
 # to make it persistent edit /etc/sysctl.conf and append to it : vm.overcommit_memory=1
-
 RES=""
 if sysctl vm.overcommit_memory | grep "vm.overcommit_memory = 0" > /dev/null; then
     read -p "Confirm to enable memory overcommit (required for Redis-cache) y/n " RES
