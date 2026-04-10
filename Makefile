@@ -28,30 +28,12 @@ down:
 	@printf "${YELLOW}Shutting down containers ...${NC}\n"
 	$(COMPOSE) down
 
-logs:
-	$(COMPOSE) logs -f $(SERVICE)
-
-logs-%:
-	alacritty -e sh -c '$(COMPOSE) logs -f $* | less +F' &
-
 status:
 	docker ps
 	docker volume ls
 
 restart-%:
 	$(COMPOSE) restart $*
-
-shell-%:
-	alacritty -e sh -c '$(COMPOSE) exec $* sh'
-
-ftp-list:
-	$(FTP_SCRIPT) -l
-
-ftp-dl-%:
-	$(FTP_SCRIPT) -d $*
-
-ftp-up-%:
-	$(FTP_SCRIPT) -u $*
 
 # === /!\ this command will delete persistant volumes ===
 re: kill delete-volumes create-volumes
@@ -61,6 +43,15 @@ re: kill delete-volumes create-volumes
 # =============================================================================
 # DEV
 # =============================================================================
+
+logs:
+	$(COMPOSE) logs -f $(SERVICE)
+
+logs-%:
+	alacritty -e sh -c '$(COMPOSE) logs -f $* | less +F' &
+
+shell-%:
+	alacritty -e sh -c '$(COMPOSE) exec $* sh'
 
 build-%:
 	@printf "${YELLOW}Rebuilding $* from scratch ...${NC}\n"
@@ -74,6 +65,20 @@ check-%:
 
 crash:
 	$(CRASH_SCRIPT)
+
+
+# ============ File Transfer =============
+#
+ftp-list:
+	$(FTP_SCRIPT) -l
+
+ftp-dl-%:
+	$(FTP_SCRIPT) -d $*
+
+ftp-up-%:
+	$(FTP_SCRIPT) -u $*
+
+# ============= Cleanup =================
 
 fclean: kill shutdown-remove-volumes clean-stopped-containers delete-volumes clean-dangling-images remove-all-existing-images
 
