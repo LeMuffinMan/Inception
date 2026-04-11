@@ -77,7 +77,7 @@ status:
 	@docker ps
 	@docker volume ls
 
-# Will Delete persistant volumes ! /!\
+# /!\ Will Delete persistant volumes /!\
 
 re: check-sudo kill delete-volumes create-volumes
 	$(COMPOSE) up -d --build
