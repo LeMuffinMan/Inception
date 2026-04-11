@@ -41,10 +41,10 @@ VOLUME_NGINX="srcs_nginx_data"
 
 # Theses variables are set to respect the tree example provided in the subject.
 ROOT_DIR="$(dirname "$0")/.."
-COMPOSE_FILE="${ROOT_DIR}/srcs/docker-compose.yml"
+COMPOSE_FILE="${ROOT_DIR}/docker-compose.yml"
 COMPOSE="docker compose -f ${COMPOSE_FILE}"
-ENV_FILE="${ROOT_DIR}/srcs/.env"
-SECRETS_DIR="${ROOT_DIR}/secrets"
+ENV_FILE="${ROOT_DIR}/.env"
+SECRETS_DIR="${ROOT_DIR}/../secrets"
 DB_SECRET_FILE="${SECRETS_DIR}/db_root_password.txt"
 
 # These variables fits subject requirements :

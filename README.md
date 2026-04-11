@@ -54,8 +54,7 @@ Using the scripts provided, you are ready to build and run, by simply using `mak
 cd Inception && make
 ```
 The `make` command will:
-- Prompt to generate `srcs/.env` with default values derived from the current user
-- Fill in any missing `.env` variables interactively
+- Create `srcs/.env` if missing, then fill in any missing variable interactively
 - Create the `secrets/` folder and generate any missing secret files using `openssl rand` (or `/dev/urandom` as fallback). Any file already present will not be overwritten.
 - Prompt to edit `/etc/hosts` to redirect `localhost` to your domain
 - Enable `vm.overcommit_memory` for Redis (required for correct cache behavior)

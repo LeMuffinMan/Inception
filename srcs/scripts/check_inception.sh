@@ -347,10 +347,10 @@ fi
 if [ -z $1 ] || [ "$1" == "vsftpd" ]; then
     section "vsftpd"
 
-    LIST=$(scripts/ftp.sh -l | grep wp-config.php)
+    LIST=$(srcs/scripts/ftp.sh -l | grep wp-config.php)
     if [ ! -z "$LIST" ]; then
         check "ftp listing wordpress files" "ok"
-        DOWNLOAD=$(scripts/ftp.sh -d wp-config.php)
+        DOWNLOAD=$(srcs/scripts/ftp.sh -d wp-config.php)
         if [ -e wp-config.php ]; then
             check "ftp download" "ok"
             rm -rf wp-config.php
@@ -359,8 +359,8 @@ if [ -z $1 ] || [ "$1" == "vsftpd" ]; then
         fi
 
         touch upload_check
-        UPLOAD=$(scripts/ftp.sh -u upload_check)
-        if scripts/ftp.sh -l | grep upload_check > /dev/null; then
+        UPLOAD=$(srcs/scripts/ftp.sh -u upload_check)
+        if srcs/scripts/ftp.sh -l | grep upload_check > /dev/null; then
             check "ftp upload" "ok"
         else
             check "ftp upload" "ko"

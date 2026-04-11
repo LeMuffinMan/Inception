@@ -52,21 +52,8 @@ FORCE_SECRETS=0
 
 section "Environment (.env)"
 
-AUTO_GEN="$(dirname "$0")/auto_generate_env.sh"
-
-if [ ! -s "$ENV_FILE" ]; then
-    if [ -x "$AUTO_GEN" ]; then
-        read -p "  No .env found — generate with defaults? [y/n] " res
-        if [ "$res" = "y" ] && [ -f "$AUTO_GEN" ]; then
-            "$AUTO_GEN"
-            log_info ".env generated with defaults"
-        else
-            touch "$ENV_FILE"
-        fi
-    else
-        touch "$ENV_FILE"
-    fi
-fi
+# No .env yet: create an empty one, the loop below fills every missing variable
+[ ! -s "$ENV_FILE" ] && touch "$ENV_FILE"
 
 set -a
 if ! source "$ENV_FILE" 2>/dev/null; then
