@@ -16,13 +16,13 @@
 COMPOSE_FILE       = srcs/docker-compose.yml
 COMPOSE            = docker compose -f $(COMPOSE_FILE)
 
-CHECK_SCRIPT       = scripts/check_inception.sh
-CRASH_SCRIPT       = scripts/crash_test.sh
-SECRET_GEN_SCRIPT  = scripts/generate_secrets.sh
-KILL_SCRIPT        = scripts/kill_containers.sh
-FTP_SCRIPT         = scripts/ftp.sh
-EDIT_HOST_SCRIPT   = scripts/edit_hosts.sh
-SUDO_CHECK_SCRIPT  = scripts/check_sudo.sh
+CHECK_SCRIPT       = srcs/scripts/check_inception.sh
+CRASH_SCRIPT       = srcs/scripts/crash_test.sh
+SECRET_GEN_SCRIPT  = srcs/scripts/generate_secrets.sh
+KILL_SCRIPT        = srcs/scripts/kill_containers.sh
+FTP_SCRIPT         = srcs/scripts/ftp.sh
+EDIT_HOST_SCRIPT   = srcs/scripts/edit_hosts.sh
+SUDO_CHECK_SCRIPT  = srcs/scripts/check_sudo.sh
 
 BOLD   = \033[1m
 RESET  = \033[0m
@@ -33,11 +33,10 @@ BLUE   = \033[34m
 CYAN   = \033[36m
 WHITE  = \033[37m
 
-# Log-level prefixes (for make output)
 INFO_PFX = $(CYAN)[INFO] $(RESET)
 WARN_PFX = $(YELLOW)$(BOLD)[WARN] $(RESET)
-ERR_PFX  = $(RED)$(BOLD)[ERROR]$(RESET)
-OK_PFX   = $(GREEN)[OK]   $(RESET)
+ERR_PFX  = $(RED)$(BOLD)[ERROR] $(RESET)
+OK_PFX   = $(GREEN)[OK] $(RESET)
 
 # =============================================================================
 # PROD
