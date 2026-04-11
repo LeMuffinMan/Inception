@@ -55,10 +55,14 @@ section "Environment (.env)"
 AUTO_GEN="$(dirname "$0")/auto_generate_env.sh"
 
 if [ ! -s "$ENV_FILE" ]; then
-    read -p "  No .env found — generate with defaults? [y/n] " res
-    if [ "$res" = "y" ] && [ -f "$AUTO_GEN" ]; then
-        "$AUTO_GEN"
-        log_info ".env generated with defaults"
+    if [ -x "$AUTO_GEN" ]; then
+        read -p "  No .env found — generate with defaults? [y/n] " res
+        if [ "$res" = "y" ] && [ -f "$AUTO_GEN" ]; then
+            "$AUTO_GEN"
+            log_info ".env generated with defaults"
+        else
+            touch "$ENV_FILE"
+        fi
     else
         touch "$ENV_FILE"
     fi

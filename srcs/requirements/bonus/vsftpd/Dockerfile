@@ -7,7 +7,10 @@ RUN apt update && apt install -y \
     vsftpd \
     tini \
     && mkdir -p /var/run/vsftpd/empty \
-    && chmod 555 /var/run/vsftpd/empty \
+    && chmod 755 /var/run/vsftpd/empty \
+    && mkdir -p /var/log/vsftpd/ \
+    && touch /var/log/vsftpd/xferlog.log \
+    && chmod 755 /var/log/vsftpd/xferlog.log \
     && rm -rf /var/lib/apt/lists/* \
     && chmod +x /usr/local/bin/init.sh
 

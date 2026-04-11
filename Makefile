@@ -130,6 +130,8 @@ fclean: check-sudo \
 	remove-all-existing-images
 
 uninstall: fclean clean-building-cache restore-host
+	rm -rf secrets
+	rm -rf srcs/.env
 
 reinstall: uninstall
 	$(SECRET_GEN_SCRIPT)
