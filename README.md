@@ -161,8 +161,8 @@ FTP_USER=<login>
 
 AI was used as a productivity tool for specific, well-defined tasks.
 
-- **Documentation:** once the project was built and understood, AI was used to draft the structure and boilerplate content of this README, USER_DOC.md, and DEV_DOC.md, based on my own notes and the subject requirements. All content was reviewed and rewritten where needed.
-- **Deepening concepts:** when encountering notions such as PID 1 behavior in containers, php-fpm socket configuration, or TLS certificate generation, AI was used as an interactive reference — to go further than documentation alone, ask follow-up questions, and clarify edge cases.
-- **Placeholder generation:** AI was occasionally used to generate placeholder values, file templates, or boilerplate snippets to avoid repetitive writing, all of which were adapted and validated before use.
+- **Documentation:** once the project was built and understood, AI was used to draft and improve the structure and content of this README, USER_DOC.md, and DEV_DOC.md, based on my own notes and the subject requirements. All content was reviewed and rewritten where needed.
+- **Scripting:** AI was occasionally used as an assistant for writing and refactoring shell scripts. All logic was reviewed, tested, and understood before integration.
+- **Deepening concepts and debugging:** AI was used as an interactive reference when diving into complex or poorly documented topics — to clarify edge cases, understand error behavior, and go further than documentation alone.
 
 Every technical decision in this project was made, understood, and owned by me.
