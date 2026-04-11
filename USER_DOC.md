@@ -118,8 +118,6 @@ Once the stack is running, open your browser and navigate to:
 | `https://<login>.42.fr/muffin_site` | Hugo static site |
 | `https://<login>.42.fr/chessgame` | ChessGame static app |
 
-Replace `<login>` with the login configured in your `.env` file (e.g. `https://oelleaum.42.fr`).
-
 > Your browser may show a certificate warning because the TLS certificate is self-signed. You can safely proceed by accepting the exception.
 
 To log into the WordPress administration panel, use the credentials stored in `secrets/wp_admin_password.txt` and the admin username from `srcs/.env` (`WP_ADMIN_USER`).

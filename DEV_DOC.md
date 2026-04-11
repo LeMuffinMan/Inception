@@ -73,7 +73,6 @@ All scripts source `scripts/lib/config.sh` and `scripts/lib/format.sh` at the to
 #### `lib/config.sh`
 The single configuration file for the entire project. Contains:
 - `LOGIN` / `DOMAIN` — derived from `$(whoami)` by default
-- `CREDENTIALS_FILES` — list of secret files to generate
 - `REQUIRED_ENV_VARS` — list of `.env` variables to check and fill interactively
 - Container names, expected ports, TLS versions to accept/reject, volume names, timeouts
 - `COMPOSE_FILE`, `ENV_FILE`, `SECRETS_DIR` — path resolution
@@ -95,13 +94,6 @@ Called by `make up` and `make generate-secrets`. Two phases:
 
 1. **`.env` phase** — if `srcs/.env` is missing or empty, prompts to auto-generate it with defaults via `auto_generate_env.sh`. Then sources `.env` and loops over `REQUIRED_ENV_VARS`: any missing variable is filled interactively. Special case: `MYSQL_ADMIN_EMAIL` is checked against `MYSQL_USER_EMAIL` to prevent duplicates (WordPress requires two distinct email addresses).
 2. **Secrets phase** — creates `secrets/` if absent, then loops over `CREDENTIALS_FILES`. Existing files are skipped. New files are written with `openssl rand -base64` (or `/dev/urandom` fallback). All files are `chmod 600`. The `-f` flag forces regeneration (with a confirmation prompt before deleting `secrets/`).
-
-#### `auto_generate_env.sh`
-Writes `srcs/.env` with nine variables, all derived from `$USER`:
-```
-MYSQL_DATABASE, MYSQL_USER, MYSQL_USER_EMAIL, MYSQL_ADMIN_EMAIL,
-DOMAIN_NAME, WP_TITLE, WP_USER, WP_ADMIN_USER, FTP_USER
-```
 
 #### `edit_hosts.sh`
 Called by `make up` and `make edit-host`. Two actions:
@@ -187,15 +179,15 @@ Create the `secrets/` folder at the root of the repository and populate it with 
 Create `srcs/.env`:
 
 ```env
-DOMAIN_NAME=<login>.42.fr
-MYSQL_DATABASE=<login>_db
-MYSQL_USER=<login>_mysql_user
-MYSQL_USER_EMAIL=<login>@mail.fr
-MYSQL_ADMIN_EMAIL=<login>_su@mail.fr
-WP_TITLE=<login>_wordpress
-WP_USER=<login>_wordpress_user
-WP_ADMIN_USER=<login>_wordpress_su
-FTP_USER=<login>
+DOMAIN_NAME=XXXXXX
+MYSQL_DATABASE=XXXXXX
+MYSQL_USER=XXXXXX
+MYSQL_USER_EMAIL=XXXXXXX
+MYSQL_ADMIN_EMAIL=XXXXXXXXX
+WP_TITLE=XXXXXXXXX
+WP_USER=XXXXXXXXX
+WP_ADMIN_USER=XXXXXXXXX
+FTP_USER=XXXXXXXX
 ```
 
 #### 3. Data directories
@@ -236,9 +228,6 @@ Then clone and run:
 git clone https://github.com/LeMuffinMan/Inception
 cd Inception && make
 ```
-
-All credentials and login-dependent variables are derived from the current username automatically.
-To adjust defaults, edit `scripts/lib/config.sh`.
 
 ---
 
@@ -282,7 +271,7 @@ Both named volumes store data on the host machine under `~/data`:
 | `srcs_mariadb_data` | `~/data/mysql` | MariaDB database files |
 | `srcs_wordpress_data` | `~/data/wordpress` | WordPress core files and uploads |
 
-These directories survive container stops, restarts, and rebuilds. They are only removed by `make fclean`.
+These directories survive container stops, restarts, and rebuilds. They are only removed by `make fclean` or a full reinstallation with `make uninstall` or `make reinstall`.
 
 The named volume configuration in `docker-compose.yml` uses `driver_opts` to bind to the host paths while remaining proper named volumes (not raw bind mounts, which are forbidden by the subject):
 
