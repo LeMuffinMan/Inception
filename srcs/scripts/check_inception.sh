@@ -8,7 +8,6 @@ source "$(dirname "$0")/lib/format.sh"
 set -a
 [ -f "$ENV_FILE" ] && source "$ENV_FILE"
 MYSQL_ROOT_PASSWORD=$(cat "$DB_SECRET_FILE" 2>/dev/null)
-echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
 set +a
 
 if ! wait_for_containers; then
